@@ -3,6 +3,7 @@ using ArcGisExportApi.Services;
 using Newtonsoft.Json;
 using Novacode;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ArcGisExportApi.TestUtils
@@ -61,7 +62,7 @@ namespace ArcGisExportApi.TestUtils
             }
         }
         */
-        public static void downloadPdf(StreamService stream)
+        public static void downloadPdf()
         {
             //System.Console.WriteLine("docx");
             String dest = "C:/Sample.docx";
@@ -70,62 +71,94 @@ namespace ArcGisExportApi.TestUtils
             System.Console.WriteLine("done");
 
 
-            Image image = document.AddImage(stream, "image/png");
+            Image image = document.AddImage("C:/map_image.png");
             // Set Picture Height and Width.
             var picture = image.CreatePicture();
 
 
-            var t = document.AddTable(7, 4);
-            t.Design = TableDesign.LightGrid;
-            t.Alignment = Alignment.center;
-            t.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
-            t.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
-            t.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
-            t.Rows[0].Cells[3].Paragraphs[0].Append("NOVA IZMJERA");
-            t.Rows[1].Cells[0].Paragraphs[0].Append("324639");
-            t.Rows[1].Cells[1].Paragraphs[0].Append("Kraljevica");
-            t.Rows[1].Cells[2].Paragraphs[0].Append("345");
-            t.Rows[1].Cells[3].Paragraphs[0].Append("DA");
-            t.Rows[2].Cells[0].Paragraphs[0].Append("324639");
-            t.Rows[2].Cells[1].Paragraphs[0].Append("Kraljevica");
-            t.Rows[2].Cells[2].Paragraphs[0].Append("346");
-            t.Rows[2].Cells[3].Paragraphs[0].Append("DA");
-            t.Rows[3].Cells[0].Paragraphs[0].Append("324639");
-            t.Rows[3].Cells[1].Paragraphs[0].Append("Kraljevica");
-            t.Rows[3].Cells[2].Paragraphs[0].Append("347");
-            t.Rows[3].Cells[3].Paragraphs[0].Append("DA");
-            t.Rows[4].Cells[0].Paragraphs[0].Append("324639");
-            t.Rows[4].Cells[1].Paragraphs[0].Append("Kraljevica");
-            t.Rows[4].Cells[2].Paragraphs[0].Append("348");
-            t.Rows[4].Cells[3].Paragraphs[0].Append("DA");
-            t.Rows[5].Cells[0].Paragraphs[0].Append("324639");
-            t.Rows[5].Cells[1].Paragraphs[0].Append("Kraljevica");
-            t.Rows[5].Cells[2].Paragraphs[0].Append("349/1");
-            t.Rows[5].Cells[3].Paragraphs[0].Append("DA");
-            t.Rows[6].Cells[0].Paragraphs[0].Append("324639");
-            t.Rows[6].Cells[1].Paragraphs[0].Append("Kraljevica");
-            t.Rows[6].Cells[2].Paragraphs[0].Append("349/3");
-            t.Rows[6].Cells[3].Paragraphs[0].Append("DA");
-
+            var katCesticeTable = document.AddTable(1, 4);
+            katCesticeTable.Design = TableDesign.LightGrid;
+            katCesticeTable.Alignment = Alignment.center;
+            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
+            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
+            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
+            katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("NOVA IZMJERA");
             // Add a row at the end of the table and sets its values.
             //var r = t.InsertRow();
             //r.Cells[0].Paragraphs[0].Append("Mario");
             //r.Cells[1].Paragraphs[0].Append("54");
             // Insert a new Paragraph into the document.
-            var par = document.InsertParagraph("Urbanistička identifikacija za područje:");
-            par.Alignment = Alignment.center;
-            par.SpacingAfter(40d);
-            // Insert the Table after the Paragraph.
-            par.InsertTableAfterSelf(t);
+            var title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
+            title.Alignment = Alignment.center;
+            title.SpacingAfter(40d);
 
-            var p = document.InsertParagraph("Test ČĆŠĐŽ čćšđž");
-            p.AppendPicture(picture);
-            document.AddImage("C:/map_image.png");
+            Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
+            katCesticeTitle.Alignment = Alignment.left;
+            katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
+
+            Paragraph par = document.
 
             document.SaveAs("D:/Test.docx");
 
         }
 
+        public static void createPdf(DataRequest dataRequest, DataResponse dataResponse)
+        {
+            DocX document = DocX.Create("C:/Primjer.docx");
+            int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
+            int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
+            double koMbr = 324639;
+            int i = 1;
+            String novaIzmjera = "DA";
+            List<Table> urbPlanResTables = new List<Table> { };
+
+
+            Table katCesticeTable = document.AddTable(numSpatialCond, 4);
+            katCesticeTable.Design = TableDesign.LightGrid;
+            katCesticeTable.Alignment = Alignment.center;
+            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
+            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
+            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
+            katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("NOVA IZMJERA");
+            
+            foreach(SpatialCondition spatial in dataRequest.SpatialConditionList)
+            {
+                katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(koMbr.ToString());
+                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Description.Substring(2, spatial.Description.IndexOf(",")));
+                katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description.Substring(spatial.Description.IndexOf(",")));
+                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(novaIzmjera);
+            }
+
+            Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
+            title.Alignment = Alignment.center;
+            title.SpacingAfter(40d);
+
+            Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
+            katCesticeTitle.Alignment = Alignment.left;
+            katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
+
+            Table rezUrbIdentTable = document.AddTable(numUrbanisticPlanResult, 4);
+            rezUrbIdentTable.Design = TableDesign.LightGrid;
+            rezUrbIdentTable.Alignment = Alignment.center;
+            foreach (UrbanisticPlansResults rezUrbIdent in dataRequest.UrbanisticPlansResults)
+            {
+                Table table = document.AddTable(0, 4);
+                table.Design = TableDesign.LightGrid;
+                table.Alignment = Alignment.center;
+                table.Rows[0].Cells[0].Paragraphs[0].Append(rezUrbIdent.Status);
+                table.Rows[0].Cells[1].Paragraphs[0].Append(rezUrbIdent.Type);
+                table.Rows[0].Cells[2].Paragraphs[0].Append(rezUrbIdent.Name);
+                table.Rows[0].Cells[3].Paragraphs[0].Append(rezUrbIdent.GisCode);
+                urbPlanResTables.Add(table);
+            }
+            Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
+            rezUrbIdentTitle.Alignment = Alignment.left;
+
+
+
+
+            document.Save();
+        }
 
     }
 }
