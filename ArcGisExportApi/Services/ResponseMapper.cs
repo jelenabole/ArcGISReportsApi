@@ -4,22 +4,21 @@ using ArcGisExportApi.TestUtils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using static ArcGisExportApi.Models.UrbanisticPlansResults;
 
 namespace ArcGisExportApi.Services
 {
     public class ResponseMapper
     {
-        public static DataResponse mapToReponse(DataRequest request)
+        async public static Task<DataResponse> mapToReponse(DataRequest request)
         {
-            // Skopirat plan map
-            // request.UrbanisticPlansResults[0].PlanMaps;
-
             List<int> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
 
             DataResponse response = CreateMapPlans(mapPlanIdList);
-            AddLegends(response, request.UrbanisticPlansResults[0].LegenRestURL, mapPlanIdList);
-
+            bool done = await AddLegends(response, request.UrbanisticPlansResults[0].LegenRestURL, mapPlanIdList);
+            done = await AddComponents(response, request.UrbanisticPlansResults[0].ComponentRestURL, mapPlanIdList);
+            
             // polygon, raster, legend, component
 
             return response;
@@ -47,33 +46,66 @@ namespace ArcGisExportApi.Services
             return response;
         }
 
-        async public static void AddLegends(DataResponse response, string restUrl, List<int> mapPlanIds)
+        /* ADD PARTS (images) */
+
+        async public static Task<bool> AddLegends(DataResponse response, string restUrl, List<int> mapPlanIds)
         {
             // legends:
-            QueryResult legendInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            ExportResultList legendImages = await ExportUtils.getAll(legendInfo, restUrl);
+            QueryResult legendsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
+            ExportResultList legendImages = await ExportUtils.getAll(legendsInfo, restUrl);
 
-            Trace.WriteLine("\t Query - number of returned objects: " + legendInfo.Features.Count);
             // response, add maps to that
-
             // TODO - put data in output object (by id) (...)
-            // CHECK - saved docs:
-            for (int i = 0; i < legendImages.MapPlans.Count; i++)
+            for (int i = 0; i < response.Maps.Count; i++)
             {
-                // map export, filename .png
-                string format = ".png";
-                await StreamService.DownloadImage(new Uri(legendImages.MapPlans[i].Href),
-                    legendImages.MapPlans[i].Scale + "." + format);
+                for (int j = 0; j < legendImages.MapPlans.Count; j++)
+                {
+                    if (response.Maps[i].Id == legendImages.MapPlans[j].Id)
+                    {
+                        response.Maps[i].Legend = await mapExportedDataToResponse(legendImages.MapPlans[j]);
+                        break;
+                    }
+                }
             }
+
+            return true;
+        }
+
+        async public static Task<bool> AddComponents(DataResponse response, string restUrl, List<int> mapPlanIds)
+        {
+            // components:
+            QueryResult componentsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
+            ExportResultList componentImages = await ExportUtils.getAll(componentsInfo, restUrl);
+
+            for (int i = 0; i < response.Maps.Count; i++)
+            {
+                for (int j = 0; j < componentImages.MapPlans.Count; j++)
+                {
+                    if (response.Maps[i].Id == componentImages.MapPlans[j].Id)
+                    {
+                        response.Maps[i].Component = await mapExportedDataToResponse(componentImages.MapPlans[j]);
+                        break;
+                    }
+                }
+            }
+
+            return true;
         }
 
 
-        /*
-           public MapImage Nesto { get; set; }
-           public MapImage Raster { get; set; }
-           public MapImage Legend { get; set; }
-           public MapImage Component { get; set; }
-           */
 
+
+
+
+        async public static Task<MapImage> mapExportedDataToResponse(ExportResult mapPlan)
+        {
+            MapImage mapImage = new MapImage
+            {
+                Href = mapPlan.Href,
+                Image = await StreamService.getImageFromUrl(mapPlan.Href), // get image from href
+                Scale = mapPlan.Scale
+            };
+            return mapImage;
+        }
     }
 }

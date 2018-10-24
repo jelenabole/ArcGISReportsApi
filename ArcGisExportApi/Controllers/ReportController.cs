@@ -23,7 +23,7 @@ namespace ArcGisExportApi.Controllers
             DataRequest request = DownloadUtils.getData();
 
             // get all data and export images:
-            DataResponse mapResponse = ResponseMapper.mapToReponse(request);
+            DataResponse mapResponse = await ResponseMapper.mapToReponse(request);
 
             // TODO - put data in output object (by id) (... Antun)
 

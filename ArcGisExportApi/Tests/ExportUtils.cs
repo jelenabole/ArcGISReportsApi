@@ -38,6 +38,7 @@ namespace ArcGisExportApi.TestUtils
                 Trace.WriteLine("link for component: " + linkMap);
 
                 ExportResult result = await exportService.getImage(linkMap);
+                result.Id = queryResult.Features[i].Attributes.ObjectId;
                 results.MapPlans.Add(result);
 
                 // TODO - add info and result (img) to output object
@@ -47,7 +48,6 @@ namespace ArcGisExportApi.TestUtils
         }
 
         
-
         /* FUNCTIONS FOR URL */
 
         private static string AddBoundingBox(Extent extent)
