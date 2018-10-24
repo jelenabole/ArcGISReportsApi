@@ -29,11 +29,12 @@ namespace ArcGisExportApi.Controllers
             ExportResultList legendImages = await ExportUtils.getAll(legendInfo,
                 request.UrbanisticPlansResults[0].LegenRestURL);
             
-            /* streams:
+            // streams:
             string format = ".png";
             await StreamService.DownloadImage(new Uri(legendImages.MapPlans[i].Href),
                 legendImages.MapPlans[i].Scale + "." + format);
-            */ 
+            
+            
             // TODO - put data in output object (by id) (...)
             return new string[] { "...", "pdf" };
         }
