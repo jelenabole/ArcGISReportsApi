@@ -12,25 +12,27 @@ namespace ArcGisExportApi.TestUtils
         // TODO - delete:
         private static QueryService queryService = new QueryService();
 
-        async public static Task<QueryResult> queryAll(string uri, List<PlanMap> plans)
+        async public static Task<QueryResult> queryAll(string uri, List<int> mapPlanIds)
         {
-            uri = createQuery(uri, plans);
+            uri = createQuery(uri, mapPlanIds);
             Trace.WriteLine("query all: " + uri);
 
             QueryResult result = await queryService.getQuery(uri);
             return result;
         }
 
-        public static string createQuery(string uri, List<PlanMap> plans)
+        public static string createQuery(string uri, List<int> mapPlanIds)
         {
             uri += "/query?f=json";
+
+            uri += "&output=" + encodeUrl("objectid, name");
             uri += "&where=";
 
             string query = "";
-            for (int i = 0; i < plans.Count; i++)
+            for (int i = 0; i < mapPlanIds.Count; i++)
             {
-                query += "objectid=" + plans[i].Id;
-                if (i < plans.Count - 1)
+                query += "objectid=" + mapPlanIds[i];
+                if (i < mapPlanIds.Count - 1)
                     query += " OR ";
             }
 
