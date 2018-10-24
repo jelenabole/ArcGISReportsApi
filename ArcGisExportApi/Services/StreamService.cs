@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -17,6 +19,22 @@ namespace ArcGisExportApi.Services
                     + "\\" + filename, FileMode.Create, FileAccess.Write, FileShare.None, 3145728, true))
             {
                 await contentStream.CopyToAsync(stream);
+            }
+        }
+
+        public static async Task<Image> getImageFromUrl(string uri)
+        {
+            Uri requestUri = new Uri(uri);
+            using (WebClient webClient = new WebClient())
+            {
+                byte[] data = webClient.DownloadData(requestUri);
+                using (MemoryStream mem = new MemoryStream(data))
+                {
+                    using (Image yourImage = Image.FromStream(mem))
+                    {
+                        return yourImage;
+                    }
+                }
             }
         }
     }

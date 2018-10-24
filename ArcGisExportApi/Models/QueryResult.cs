@@ -18,7 +18,7 @@ namespace ArcGisExportApi.Tests
 
     public class Attributes
     {
-        public int Id { get; set; }
+        public int ObjectId { get; set; }
         public string Name { get; set; }
     }
 

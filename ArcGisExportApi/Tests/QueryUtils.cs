@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using static ArcGisExportApi.Models.UrbanisticPlansResults;
 using ArcGisExportApi.Tests;
 using ArcGisExportApi.Services;
 
@@ -25,7 +24,8 @@ namespace ArcGisExportApi.TestUtils
         {
             uri += "/query?f=json";
 
-            uri += "&output=" + encodeUrl("objectid, name");
+            // add this fields: *
+            uri += "&outFields=" + encodeUrl("objectid, name");
             uri += "&where=";
 
             string query = "";
@@ -47,12 +47,13 @@ namespace ArcGisExportApi.TestUtils
         {
             str = str.Replace(" ", "+");
             str = str.Replace("=", "%3D");
+            // ouput fields:
+            str = str.Replace(",", "%2C");
 
             str = str.Replace("\"", "%22");
             str = str.Replace("'", "%27");
             str = str.Replace(":", "%3A");
             return str;
         }
-
     }
 }
