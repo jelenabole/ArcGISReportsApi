@@ -59,7 +59,50 @@ namespace ArcGisExportApi.Services
             Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
             rezUrbIdentTitle.Alignment = Alignment.left;
 
+
+
+
             document.Save();
+        }
+
+        public static void downloadPdf()
+        {
+            //System.Console.WriteLine("docx");
+            String dest = "C:/Sample.docx";
+
+            DocX document = DocX.Create("C:/Input.docx");
+            System.Console.WriteLine("done");
+
+
+            Image image = document.AddImage("C:/map_image.png");
+            // Set Picture Height and Width.
+            var picture = image.CreatePicture();
+
+
+            var katCesticeTable = document.AddTable(1, 4);
+            katCesticeTable.Design = TableDesign.LightGrid;
+            katCesticeTable.Alignment = Alignment.center;
+            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
+            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
+            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
+            katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("NOVA IZMJERA");
+            // Add a row at the end of the table and sets its values.
+            //var r = t.InsertRow();
+            //r.Cells[0].Paragraphs[0].Append("Mario");
+            //r.Cells[1].Paragraphs[0].Append("54");
+            // Insert a new Paragraph into the document.
+            var title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
+            title.Alignment = Alignment.center;
+            title.SpacingAfter(40d);
+
+            Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
+            katCesticeTitle.Alignment = Alignment.left;
+            katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
+
+            //Paragraph par = document.
+
+            document.SaveAs("D:/Test.docx");
+
         }
 
     }

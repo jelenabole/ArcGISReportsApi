@@ -96,7 +96,7 @@ namespace ArcGisExportApi.TestUtils
             katCesticeTitle.Alignment = Alignment.left;
             katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
 
-            Paragraph par = document.
+            
 
             document.SaveAs("D:/Test.docx");
 

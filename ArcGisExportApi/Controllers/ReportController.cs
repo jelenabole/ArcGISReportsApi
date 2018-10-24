@@ -26,6 +26,7 @@ namespace ArcGisExportApi.Controllers
             DataResponse mapResponse = await ResponseMapper.mapToReponse(request);
 
             // TODO - put data in output object (by id) (... Antun)
+            DownloadUtils.downloadPdf();
 
             return new string[] { "...", "pdf" };
         }
