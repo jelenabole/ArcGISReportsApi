@@ -16,6 +16,7 @@ namespace ArcGisExportApi.Services
             int i = 1;
             String novaIzmjera = "DA";
             List<Table> urbPlanResTables = new List<Table> { };
+            List<Paragraph> urbPlanResParagraphs = new List<Paragraph> { };
 
 
             Table katCesticeTable = document.AddTable(numSpatialCond, 4);
@@ -42,19 +43,28 @@ namespace ArcGisExportApi.Services
             katCesticeTitle.Alignment = Alignment.left;
             katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
 
-            Table rezUrbIdentTable = document.AddTable(numUrbanisticPlanResult, 4);
+            Table rezUrbIdentTable = document.AddTable(1, 4);
             rezUrbIdentTable.Design = TableDesign.LightGrid;
             rezUrbIdentTable.Alignment = Alignment.center;
-            foreach (UrbanisticPlansResults rezUrbIdent in dataRequest.UrbanisticPlansResults)
+            Paragraph resPlanUrbPar;
+            foreach (UrbanisticPlansResults resUrbIdent in dataRequest.UrbanisticPlansResults)
             {
                 Table table = document.AddTable(0, 4);
                 table.Design = TableDesign.LightGrid;
                 table.Alignment = Alignment.center;
-                table.Rows[0].Cells[0].Paragraphs[0].Append(rezUrbIdent.Status);
-                table.Rows[0].Cells[1].Paragraphs[0].Append(rezUrbIdent.Type);
-                table.Rows[0].Cells[2].Paragraphs[0].Append(rezUrbIdent.Name);
-                table.Rows[0].Cells[3].Paragraphs[0].Append(rezUrbIdent.GisCode);
+                table.Rows[0].Cells[0].Paragraphs[0].Append(resUrbIdent.Status);
+                table.Rows[0].Cells[1].Paragraphs[0].Append(resUrbIdent.Type);
+                table.Rows[0].Cells[2].Paragraphs[0].Append(resUrbIdent.Name);
+                table.Rows[0].Cells[3].Paragraphs[0].Append(resUrbIdent.GisCode);
                 urbPlanResTables.Add(table);
+
+                resPlanUrbPar = document.InsertParagraph(resUrbIdent.PlanMaps[0].Name + " " + "MJERILO KARTE 1:"
+                    + resUrbIdent.PlanMaps[0].MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:" + resUrbIdent.PlanMaps[0].OriginalScale.ToString());
+
+                
+
+                //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
+
             }
             Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
             rezUrbIdentTitle.Alignment = Alignment.left;
