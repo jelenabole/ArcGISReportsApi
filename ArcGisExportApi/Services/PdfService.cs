@@ -72,8 +72,11 @@ namespace ArcGisExportApi.Services
 
             foreach (MapObject map in dataResponse.Maps)
             {
+                Paragraph imagesParagraph = document.InsertParagraph(("Id plana: " + map.Id + "\n").ToUpper());
                 Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
+                imagesParagraph.AppendPicture(legImage.CreatePicture());
                 Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
+                imagesParagraph.AppendPicture(compImage.CreatePicture());
             }
 
 
