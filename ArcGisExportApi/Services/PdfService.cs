@@ -2,12 +2,13 @@
 using ArcGisExportApi.Models;
 using Novacode;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ArcGisExportApi.Services
 {
     class PdfService
     {
-        public static void createPdf(DataRequest dataRequest, DataResponse dataResponse)
+        async public static Task<DocX> createPdf(DataRequest dataRequest, DataResponse dataResponse)
         {
             DocX document = DocX.Create("C:/Primjer.docx");
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
@@ -69,10 +70,15 @@ namespace ArcGisExportApi.Services
             Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
             rezUrbIdentTitle.Alignment = Alignment.left;
 
-
+            foreach (MapObject map in dataResponse.Maps)
+            {
+                Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
+                Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
+            }
 
 
             document.Save();
+            return document;
         }
 
         public static void downloadPdf()

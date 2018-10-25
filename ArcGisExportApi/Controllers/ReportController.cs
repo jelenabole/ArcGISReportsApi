@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArcGisExportApi.Models;
 using ArcGisExportApi.Services;
-using ArcGisExportApi.Tests;
 using ArcGisExportApi.TestUtils;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +22,7 @@ namespace ArcGisExportApi.Controllers
             DataResponse mapResponse = await ResponseMapper.mapToReponse(request);
 
             // TODO - put data in output object (by id) (... Antun)
-            DownloadUtils.downloadPdf();
+            await PdfService.createPdf(request, mapResponse);
 
             return new string[] { "...", "pdf" };
         }

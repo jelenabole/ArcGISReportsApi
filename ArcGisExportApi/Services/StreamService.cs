@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using Novacode;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -22,7 +22,23 @@ namespace ArcGisExportApi.Services
             }
         }
 
-        public static async Task<Image> getImageFromUrl(string uri)
+        // used for get image from url (in doc):
+        public static async Task<Image> getImageFromUrl(DocX doc, string uri)
+        {
+            Uri requestUri = new Uri(uri);
+            using (WebClient webClient = new WebClient())
+            {
+                byte[] data = webClient.DownloadData(requestUri);
+                using (MemoryStream mem = new MemoryStream(data))
+                {
+                    Image image = doc.AddImage(mem);
+                    return image;
+                }
+            }
+        }
+
+        /*
+        public static async Task<Image> getJustImage(string uri)
         {
             Uri requestUri = new Uri(uri);
             using (WebClient webClient = new WebClient())
@@ -37,5 +53,7 @@ namespace ArcGisExportApi.Services
                 }
             }
         }
-    }
+        */
+
+     }
 }

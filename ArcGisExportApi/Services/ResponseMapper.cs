@@ -102,7 +102,7 @@ namespace ArcGisExportApi.Services
             MapImage mapImage = new MapImage
             {
                 Href = mapPlan.Href,
-                Image = await StreamService.getImageFromUrl(mapPlan.Href), // get image from href
+                // Image = await StreamService.getImageFromUrl(mapPlan.Href), // get image from href
                 Scale = mapPlan.Scale
             };
             return mapImage;
