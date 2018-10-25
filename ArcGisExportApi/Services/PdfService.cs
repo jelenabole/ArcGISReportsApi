@@ -15,7 +15,7 @@ namespace ArcGisExportApi.Services
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
             double koMbr = 324639;
             int i = 1;
-            String novaIzmjera = "DA";
+            string novaIzmjera = "DA";
             List<Table> urbPlanResTables = new List<Table> { };
             List<Paragraph> urbPlanResParagraphs = new List<Paragraph> { };
 
@@ -31,9 +31,13 @@ namespace ArcGisExportApi.Services
             foreach (SpatialCondition spatial in dataRequest.SpatialConditionList)
             {
                 katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(koMbr.ToString());
-                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Description.Substring(2, spatial.Description.IndexOf(",")));
-                katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description.Substring(spatial.Description.IndexOf(",")));
-                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(novaIzmjera);
+                Console.WriteLine(spatial.Description);
+                string desc = spatial.Description.Substring(3, spatial.Description.IndexOf(",") - 3);
+                Console.WriteLine(desc);
+                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(desc);
+                katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description.Substring(spatial.Description.IndexOf(",") + 1));
+                katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Append(novaIzmjera);
+                i++;
             }
 
             Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
@@ -50,7 +54,7 @@ namespace ArcGisExportApi.Services
             Paragraph resPlanUrbPar;
             foreach (UrbanisticPlansResults resUrbIdent in dataRequest.UrbanisticPlansResults)
             {
-                Table table = document.AddTable(0, 4);
+                Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.LightGrid;
                 table.Alignment = Alignment.center;
                 table.Rows[0].Cells[0].Paragraphs[0].Append(resUrbIdent.Status);
@@ -74,6 +78,10 @@ namespace ArcGisExportApi.Services
             {
                 Paragraph imagesParagraph = document.InsertParagraph(("Id plana: " + map.Id + "\n").ToUpper());
                 Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
+
+                Picture pic = legImage.CreatePicture();
+                if (pic.Height > 750)
+                    pic.Height = 680;
                 imagesParagraph.AppendPicture(legImage.CreatePicture());
                 Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
                 imagesParagraph.AppendPicture(compImage.CreatePicture());
