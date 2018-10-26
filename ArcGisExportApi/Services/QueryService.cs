@@ -22,7 +22,7 @@ namespace ArcGisExportApi.Services
         public async Task<QueryResult> getQuery(String link)
         {
             string uri = link;
-            Trace.WriteLine("get query:\n" + uri);
+            // Trace.WriteLine("get query:\n" + uri);
 
             // json settings = ignore null fields:
             var jsonSettings = new JsonSerializerSettings
@@ -36,7 +36,6 @@ namespace ArcGisExportApi.Services
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                Trace.Write(content);
                 Item = JsonConvert.DeserializeObject<QueryResult>(content, jsonSettings);
             }
             return Item;

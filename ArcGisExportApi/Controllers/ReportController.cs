@@ -23,28 +23,37 @@ namespace ArcGisExportApi.Controllers
             DataRequest request = DownloadUtils.getData();
 
             // create pdf:
-            using (MemoryStream ms = new MemoryStream())
+            MemoryStream ms = new MemoryStream();
+            DocX doc = await PdfService.createPdf(request, ms);
+            doc.SaveAs(ms);
+            ms.Position = 0;
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
             {
-                DocX doc = await PdfService.createPdf(request, ms);
-                doc.SaveAs(ms);
-                ms.Position = 0;
+                FileDownloadName = string.Format("PGZ_test.docx")
+            };
 
-                var response = new HttpResponseMessage(HttpStatusCode.OK);
-                var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                {
-                    FileDownloadName = string.Format("PGZ_test.docx")
-                };
-
-                return file;
-            }
+            return file;
         }
 
         // POST [Fromform]
         [HttpPost]
-        public ActionResult<IEnumerable<string>> Post([FromBody] DataRequest request)
+        async public Task<FileStreamResult> Post([FromBody] DataRequest request)
         {
-            // do something
-            return new string[] { "value", "value" };
+            // create pdf:
+            MemoryStream ms = new MemoryStream();
+            DocX doc = await PdfService.createPdf(request, ms);
+            doc.SaveAs(ms);
+            ms.Position = 0;
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            {
+                FileDownloadName = string.Format("PGZ_test.docx")
+            };
+
+            return file;
         }
     }
 }

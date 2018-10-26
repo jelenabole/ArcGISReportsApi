@@ -32,8 +32,7 @@ namespace ArcGisExportApi.TestUtils
 
                 string linkMap = "?f=json" + AddBoundingBox(extent)
                     + ScaleSizeToCrop(extent)
-                    // Layers group - green screen:
-                    + AddLayerGroup(uriLayer);
+                    + AddLayer(uriLayer);
 
                 ExportResult result = await exportService.getImageInfo(linkMap);
                 result.Id = queryResult.Features[i].Attributes.ObjectId;
@@ -45,7 +44,6 @@ namespace ArcGisExportApi.TestUtils
             return results;
         }
 
-        
         public static string getImageUrl(Geometry geometry, string uriLayer)
         {
             Extent extent = FindPoints(geometry);
@@ -55,7 +53,7 @@ namespace ArcGisExportApi.TestUtils
                     + "&format=png"
                     + AddBoundingBox(extent)
                     + ScaleSizeToCrop(extent)
-                    + AddLayerGroup(uriLayer);
+                    + AddLayer(uriLayer);
 
             return linkMap;
         }
@@ -77,27 +75,6 @@ namespace ArcGisExportApi.TestUtils
             return "&layers=show:" + getLayerFromUri(link);
         }
 
-        private static string AddLayerGroup(string link)
-        {
-            string layer = getLayerFromUri(link);
-            return "&layers=show:" + getLayerGroup(layer);
-        }
-
-        // replace special characters from url:
-        private static int getLayerGroup(string layerStr)
-        {
-            int layer = int.Parse(layerStr);
-            if (layer <= 13)
-                return layer;
-            else if (layer <= 20)
-                return 14;
-            else if (layer <= 27)
-                return 21;
-            else if (layer <= 34)
-                return 28;
-
-            return 0;
-        }
 
         private static string getLayerFromUri(string link)
         {
