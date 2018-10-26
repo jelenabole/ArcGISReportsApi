@@ -66,8 +66,7 @@ namespace ArcGisExportApi.Services
                 table.Rows[0].Cells[2].Paragraphs[0].Append(resUrbIdent.Name);
                 table.Rows[0].Cells[3].Paragraphs[0].Append(resUrbIdent.GisCode);
 
-                resPlanUrbPar = document.InsertParagraph(resUrbIdent.PlanMaps[0].Name + " " + "MJERILO KARTE 1:"
-                    + resUrbIdent.PlanMaps[0].MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:" + resUrbIdent.PlanMaps[0].OriginalScale.ToString());
+                resPlanUrbPar = document.InsertParagraph();
                 resPlanUrbPar.InsertTableBeforeSelf(table);
 
                 Console.WriteLine("Broj karata data response: " + dataResponse.Maps.Count);
@@ -78,15 +77,22 @@ namespace ArcGisExportApi.Services
                     {
                         if (planMap.Id == map.Id.ToString())
                         {
-                            Paragraph imagesParagraph = document.InsertParagraph(("Id plana: " + map.Id + "\n").ToUpper());
+                            Paragraph imagesParagraph = document.InsertParagraph((planMap.Name + " " + "MJERILO KARTE 1:"
+                    + planMap.MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale.ToString()));
                             Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
 
-                            Picture pic = legImage.CreatePicture();
-                            Console.WriteLine("Visina: " + pic.Height + "SIrina: " + pic.Width);
-                            
-                            imagesParagraph.AppendPicture(legImage.CreatePicture());
+                            Picture legPic = legImage.CreatePicture();
+                            if (legPic.Height > 900)
+                                legPic.Height = 900;
+
+                            imagesParagraph.AppendPicture(legPic);
+
                             Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
-                            imagesParagraph.AppendPicture(compImage.CreatePicture());
+                            Picture compPic = compImage.CreatePicture();
+                            if (compPic.Height > 900)
+                                compPic.Height = 900;
+                            imagesParagraph.AppendPicture(compPic);
+                            imagesParagraph.InsertPageBreakAfterSelf();
                         }
                     }
                 }
@@ -94,10 +100,10 @@ namespace ArcGisExportApi.Services
                 //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
 
             }
-            
+
             //rezUrbIdentTitle.InsertTableAfterSelf(table);
 
-            
+
 
 
             document.Save();
