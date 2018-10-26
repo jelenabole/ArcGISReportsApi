@@ -18,11 +18,8 @@ namespace ArcGisExportApi.Controllers
             // test data:
             DataRequest request = DownloadUtils.getData();
 
-            // get all data and export images:
-            DataResponse mapResponse = await ResponseMapper.mapToReponse(request);
-
-            // TODO - put data in output object (by id) (... Antun)
-            await PdfService.createPdf(request, mapResponse);
+            // create pdf:
+            await PdfService.createPdf(request);
 
             return new string[] { "...", "pdf" };
         }

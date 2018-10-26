@@ -9,8 +9,11 @@ namespace ArcGisExportApi.Services
 {
     class PdfService
     {
-        async public static Task<DocX> createPdf(DataRequest dataRequest, DataResponse dataResponse)
+        async public static Task<DocX> createPdf(DataRequest dataRequest)
         {
+            // get all data and export images:
+            DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
+
             DocX document = DocX.Create("C:/Primjer.docx");
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
