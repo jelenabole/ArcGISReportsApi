@@ -3,6 +3,7 @@ using ArcGisExportApi.Models;
 using Novacode;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static ArcGisExportApi.Models.UrbanisticPlansResults;
 
 namespace ArcGisExportApi.Services
 {
@@ -13,30 +14,23 @@ namespace ArcGisExportApi.Services
             DocX document = DocX.Create("C:/Primjer.docx");
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
-            double koMbr = 324639;
             int i = 1;
-            string novaIzmjera = "DA";
             List<Table> urbPlanResTables = new List<Table> { };
             List<Paragraph> urbPlanResParagraphs = new List<Paragraph> { };
 
 
-            Table katCesticeTable = document.AddTable(numSpatialCond, 4);
+            Table katCesticeTable = document.AddTable(numSpatialCond, 3);
             katCesticeTable.Design = TableDesign.LightGrid;
             katCesticeTable.Alignment = Alignment.center;
-            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
-            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
-            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
-            katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("NOVA IZMJERA");
+            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
+            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
+            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
 
             foreach (SpatialCondition spatial in dataRequest.SpatialConditionList)
             {
-                katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(koMbr.ToString());
-                Console.WriteLine(spatial.Description);
-                string desc = spatial.Description.Substring(3, spatial.Description.IndexOf(",") - 3);
-                Console.WriteLine(desc);
-                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(desc);
-                katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description.Substring(spatial.Description.IndexOf(",") + 1));
-                katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Append(novaIzmjera);
+                katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
+                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
+                katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description);
                 i++;
             }
 
@@ -51,9 +45,16 @@ namespace ArcGisExportApi.Services
             Table rezUrbIdentTable = document.AddTable(1, 4);
             rezUrbIdentTable.Design = TableDesign.LightGrid;
             rezUrbIdentTable.Alignment = Alignment.center;
-            Paragraph resPlanUrbPar;
+            List<Paragraph> resPlanUrb = new List<Paragraph> { };
+
+
+            Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
+            rezUrbIdentTitle.Alignment = Alignment.left;
+
+            Console.WriteLine("Broj urb planova:" + dataRequest.UrbanisticPlansResults.Count);
             foreach (UrbanisticPlansResults resUrbIdent in dataRequest.UrbanisticPlansResults)
             {
+                Paragraph resPlanUrbPar;
                 Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.LightGrid;
                 table.Alignment = Alignment.center;
@@ -61,31 +62,39 @@ namespace ArcGisExportApi.Services
                 table.Rows[0].Cells[1].Paragraphs[0].Append(resUrbIdent.Type);
                 table.Rows[0].Cells[2].Paragraphs[0].Append(resUrbIdent.Name);
                 table.Rows[0].Cells[3].Paragraphs[0].Append(resUrbIdent.GisCode);
-                urbPlanResTables.Add(table);
 
                 resPlanUrbPar = document.InsertParagraph(resUrbIdent.PlanMaps[0].Name + " " + "MJERILO KARTE 1:"
                     + resUrbIdent.PlanMaps[0].MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:" + resUrbIdent.PlanMaps[0].OriginalScale.ToString());
+                resPlanUrbPar.InsertTableBeforeSelf(table);
 
-                
+                Console.WriteLine("Broj karata data response: " + dataResponse.Maps.Count);
+                Console.WriteLine("Broj karata: " + resUrbIdent.PlanMaps.Count);
+                foreach (PlanMap planMap in resUrbIdent.PlanMaps)
+                {
+                    foreach (MapObject map in dataResponse.Maps)
+                    {
+                        if (planMap.Id == map.Id.ToString())
+                        {
+                            Paragraph imagesParagraph = document.InsertParagraph(("Id plana: " + map.Id + "\n").ToUpper());
+                            Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
+
+                            Picture pic = legImage.CreatePicture();
+                            Console.WriteLine("Visina: " + pic.Height + "SIrina: " + pic.Width);
+                            
+                            imagesParagraph.AppendPicture(legImage.CreatePicture());
+                            Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
+                            imagesParagraph.AppendPicture(compImage.CreatePicture());
+                        }
+                    }
+                }
 
                 //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
 
             }
-            Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
-            rezUrbIdentTitle.Alignment = Alignment.left;
+            
+            //rezUrbIdentTitle.InsertTableAfterSelf(table);
 
-            foreach (MapObject map in dataResponse.Maps)
-            {
-                Paragraph imagesParagraph = document.InsertParagraph(("Id plana: " + map.Id + "\n").ToUpper());
-                Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
-
-                Picture pic = legImage.CreatePicture();
-                if (pic.Height > 750)
-                    pic.Height = 680;
-                imagesParagraph.AppendPicture(legImage.CreatePicture());
-                Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
-                imagesParagraph.AppendPicture(compImage.CreatePicture());
-            }
+            
 
 
             document.Save();
