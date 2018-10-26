@@ -1,9 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ArcGisExportApi.Models;
 using ArcGisExportApi.Services;
 using ArcGisExportApi.TestUtils;
 using Microsoft.AspNetCore.Mvc;
+using Novacode;
 
 namespace ArcGisExportApi.Controllers
 {
@@ -13,15 +17,26 @@ namespace ArcGisExportApi.Controllers
     {
         // async
         [HttpGet]
-        async public Task<ActionResult<IEnumerable<string>>> Get()
+        async public Task<FileStreamResult> Get()
         {
             // test data:
             DataRequest request = DownloadUtils.getData();
 
             // create pdf:
-            await PdfService.createPdf(request);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                DocX doc = await PdfService.createPdf(request, ms);
+                doc.SaveAs(ms);
+                ms.Position = 0;
 
-            return new string[] { "...", "pdf" };
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                {
+                    FileDownloadName = string.Format("PGZ_test.docx")
+                };
+
+                return file;
+            }
         }
 
         // POST [Fromform]

@@ -37,23 +37,5 @@ namespace ArcGisExportApi.Services
             }
         }
 
-        /*
-        public static async Task<Image> getJustImage(string uri)
-        {
-            Uri requestUri = new Uri(uri);
-            using (WebClient webClient = new WebClient())
-            {
-                byte[] data = webClient.DownloadData(requestUri);
-                using (MemoryStream mem = new MemoryStream(data))
-                {
-                    using (Image yourImage = Image.FromStream(mem))
-                    {
-                        return yourImage;
-                    }
-                }
-            }
-        }
-        */
-
      }
 }

@@ -16,7 +16,9 @@ namespace ArcGisExportApi.Services
             List<int> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
 
             DataResponse response = CreateMapPlans(mapPlanIdList);
-            bool done = await AddLegends(response, request.UrbanisticPlansResults[0].LegenRestURL, mapPlanIdList);
+
+            bool done = await AddRaster(response, request.UrbanisticPlansResults[0].RasterRestURL, mapPlanIdList);
+            done = await AddLegends(response, request.UrbanisticPlansResults[0].LegenRestURL, mapPlanIdList);
             done = await AddComponents(response, request.UrbanisticPlansResults[0].ComponentRestURL, mapPlanIdList);
             
             // polygon, raster, legend, component
@@ -46,7 +48,31 @@ namespace ArcGisExportApi.Services
             return response;
         }
 
-        /* ADD PARTS (images) */
+
+
+        async public static Task<bool> AddRaster(DataResponse response, string restUrl, List<int> mapPlanIds)
+        {
+            // legends:
+            QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
+            ExportResultList rasterImages = await ExportUtils.getAll(rasterInfo, restUrl);
+
+            // response, add maps to that
+            // TODO - put data in output object (by id) (...)
+            for (int i = 0; i < response.Maps.Count; i++)
+            {
+                for (int j = 0; j < rasterImages.MapPlans.Count; j++)
+                {
+                    if (response.Maps[i].Id == rasterImages.MapPlans[j].Id)
+                    {
+                        response.Maps[i].Raster = mapExportedDataToResponse(rasterImages.MapPlans[j]);
+                        break;
+                    }
+                }
+            }
+
+            return true;
+        }
+
 
         async public static Task<bool> AddLegends(DataResponse response, string restUrl, List<int> mapPlanIds)
         {
@@ -54,15 +80,13 @@ namespace ArcGisExportApi.Services
             QueryResult legendsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
             ExportResultList legendImages = await ExportUtils.getAll(legendsInfo, restUrl);
 
-            // response, add maps to that
-            // TODO - put data in output object (by id) (...)
             for (int i = 0; i < response.Maps.Count; i++)
             {
                 for (int j = 0; j < legendImages.MapPlans.Count; j++)
                 {
                     if (response.Maps[i].Id == legendImages.MapPlans[j].Id)
                     {
-                        response.Maps[i].Legend = await mapExportedDataToResponse(legendImages.MapPlans[j]);
+                        response.Maps[i].Legend = mapExportedDataToResponse(legendImages.MapPlans[j]);
                         break;
                     }
                 }
@@ -70,39 +94,39 @@ namespace ArcGisExportApi.Services
 
             return true;
         }
+
+
+
+
+
+
 
         async public static Task<bool> AddComponents(DataResponse response, string restUrl, List<int> mapPlanIds)
         {
             // components:
             QueryResult componentsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            ExportResultList componentImages = await ExportUtils.getAll(componentsInfo, restUrl);
+            // ExportResultList componentImages = await ExportUtils.getAll(componentsInfo, restUrl);
+            string exportServer = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
 
             for (int i = 0; i < response.Maps.Count; i++)
             {
-                for (int j = 0; j < componentImages.MapPlans.Count; j++)
+                string url = exportServer + ExportUtils.getImageUrl(componentsInfo.Features[i].Geometry, restUrl);
+                response.Maps[i].Component = new MapImage
                 {
-                    if (response.Maps[i].Id == componentImages.MapPlans[j].Id)
-                    {
-                        response.Maps[i].Component = await mapExportedDataToResponse(componentImages.MapPlans[j]);
-                        break;
-                    }
-                }
+                    Href = url
+                };
+
             }
 
             return true;
         }
 
 
-
-
-
-
-        async public static Task<MapImage> mapExportedDataToResponse(ExportResult mapPlan)
+        public static MapImage mapExportedDataToResponse(ExportResult mapPlan)
         {
             MapImage mapImage = new MapImage
             {
                 Href = mapPlan.Href,
-                // Image = await StreamService.getImageFromUrl(mapPlan.Href), // get image from href
                 Scale = mapPlan.Scale
             };
             return mapImage;

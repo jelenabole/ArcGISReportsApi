@@ -3,18 +3,19 @@ using ArcGisExportApi.Models;
 using Novacode;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.IO;
 using static ArcGisExportApi.Models.UrbanisticPlansResults;
 
 namespace ArcGisExportApi.Services
 {
     class PdfService
     {
-        async public static Task<DocX> createPdf(DataRequest dataRequest)
+        async public static Task<DocX> createPdf(DataRequest dataRequest, MemoryStream ms)
         {
             // get all data and export images:
             DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
 
-            DocX document = DocX.Create("C:/Primjer.docx");
+            DocX document = DocX.Create(ms);
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
             int i = 1;
@@ -69,8 +70,6 @@ namespace ArcGisExportApi.Services
                 resPlanUrbPar = document.InsertParagraph();
                 resPlanUrbPar.InsertTableBeforeSelf(table);
 
-                Console.WriteLine("Broj karata data response: " + dataResponse.Maps.Count);
-                Console.WriteLine("Broj karata: " + resUrbIdent.PlanMaps.Count);
                 foreach (PlanMap planMap in resUrbIdent.PlanMaps)
                 {
                     foreach (MapObject map in dataResponse.Maps)
@@ -96,58 +95,11 @@ namespace ArcGisExportApi.Services
                         }
                     }
                 }
-
                 //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
-
             }
-
-            //rezUrbIdentTitle.InsertTableAfterSelf(table);
-
-
-
-
-            document.Save();
+            
+            // document.Save();
             return document;
-        }
-
-        public static void downloadPdf()
-        {
-            //System.Console.WriteLine("docx");
-            String dest = "C:/Sample.docx";
-
-            DocX document = DocX.Create("C:/Input.docx");
-            System.Console.WriteLine("done");
-
-
-            Image image = document.AddImage("C:/map_image.png");
-            // Set Picture Height and Width.
-            var picture = image.CreatePicture();
-
-
-            var katCesticeTable = document.AddTable(1, 4);
-            katCesticeTable.Design = TableDesign.LightGrid;
-            katCesticeTable.Alignment = Alignment.center;
-            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
-            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
-            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
-            katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("NOVA IZMJERA");
-            // Add a row at the end of the table and sets its values.
-            //var r = t.InsertRow();
-            //r.Cells[0].Paragraphs[0].Append("Mario");
-            //r.Cells[1].Paragraphs[0].Append("54");
-            // Insert a new Paragraph into the document.
-            var title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
-            title.Alignment = Alignment.center;
-            title.SpacingAfter(40d);
-
-            Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
-            katCesticeTitle.Alignment = Alignment.left;
-            katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
-
-            //Paragraph par = document.
-
-            document.SaveAs("D:/Test.docx");
-
         }
 
     }

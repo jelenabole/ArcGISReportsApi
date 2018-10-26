@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
 
 namespace ArcGisExportApi.Models
 {
@@ -22,6 +20,8 @@ namespace ArcGisExportApi.Models
         public MapImage Legend { get; set; }
         public MapImage Component { get; set; }
 
+        public string ComponentUrl { get; set; }
+
         public MapObject(int id)
         {
             Id = id;
@@ -32,6 +32,5 @@ namespace ArcGisExportApi.Models
     {
         public string Href { get; set; }
         public double Scale { get; set; }
-        public Image Image { get; set; }
     }
 }

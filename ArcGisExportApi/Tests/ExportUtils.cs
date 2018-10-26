@@ -35,9 +35,7 @@ namespace ArcGisExportApi.TestUtils
                     // Layers group - green screen:
                     + AddLayerGroup(uriLayer);
 
-                Trace.WriteLine("link for component: " + linkMap);
-
-                ExportResult result = await exportService.getImage(linkMap);
+                ExportResult result = await exportService.getImageInfo(linkMap);
                 result.Id = queryResult.Features[i].Attributes.ObjectId;
                 results.MapPlans.Add(result);
 
@@ -48,6 +46,21 @@ namespace ArcGisExportApi.TestUtils
         }
 
         
+        public static string getImageUrl(Geometry geometry, string uriLayer)
+        {
+            Extent extent = FindPoints(geometry);
+
+            // format PNG by default:
+            string linkMap = "?f=image"
+                    + "&format=png"
+                    + AddBoundingBox(extent)
+                    + ScaleSizeToCrop(extent)
+                    + AddLayerGroup(uriLayer);
+
+            return linkMap;
+        }
+
+
         /* FUNCTIONS FOR URL */
 
         private static string AddBoundingBox(Extent extent)
