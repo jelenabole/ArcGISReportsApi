@@ -8,7 +8,7 @@ using static ArcGisExportApi.Models.UrbanisticPlansResults;
 
 namespace ArcGisExportApi.Services
 {
-    class PdfService
+    class DocumentService
     {
         async public static Task<DocX> createPdf(DataRequest dataRequest, MemoryStream ms)
         {

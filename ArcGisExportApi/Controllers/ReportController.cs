@@ -23,7 +23,7 @@ namespace ArcGisExportApi.Controllers
 
             // create pdf:
             MemoryStream ms = new MemoryStream();
-            DocX doc = await PdfService.createPdf(request, ms);
+            DocX doc = await DocumentService.createPdf(request, ms);
             doc.SaveAs(ms);
             ms.Position = 0;
 
@@ -42,7 +42,7 @@ namespace ArcGisExportApi.Controllers
         {
             // create pdf:
             MemoryStream ms = new MemoryStream();
-            DocX doc = await PdfService.createPdf(request, ms);
+            DocX doc = await DocumentService.createPdf(request, ms);
             doc.SaveAs(ms);
             ms.Position = 0;
 
