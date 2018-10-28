@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using ArcGisExportApi.Tests;
 using ArcGisExportApi.Services;
 
-namespace ArcGisExportApi.TestUtils
+namespace ArcGisExportApi.Utilities
 {
     public class QueryUtils
     {
         // TODO - delete:
-        private static QueryService queryService = new QueryService();
+        private static QueryRepo queryService = new QueryRepo();
 
         async public static Task<QueryResult> queryAll(string uri, List<int> mapPlanIds)
         {

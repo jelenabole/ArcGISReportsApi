@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace ArcGisExportApi.Services
 {
-    class QueryService
+    class QueryRepo
     {
         HttpClient client;
 
-        public QueryService()
+        public QueryRepo()
         {
             client = new HttpClient
             {

@@ -6,12 +6,12 @@ using System;
 using System.Globalization;
 using System.Collections.Generic;
 
-namespace ArcGisExportApi.TestUtils
+namespace ArcGisExportApi.Utilities
 {
     public class ExportUtils
     {
         // TODO - remove:
-        private static ExportService exportService = new ExportService();
+        private static ExportRepo exportService = new ExportRepo();
         
         // dpi (image = 96, vector = 300):
         // paper size in inches (without margins):

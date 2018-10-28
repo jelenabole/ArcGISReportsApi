@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ArcGisExportApi.Services
 {
-    class ExportService
+    class ExportRepo
     {
         string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
 
