@@ -49,11 +49,12 @@ namespace ArcGisExportApi.Services
             Table rezUrbIdentTable = document.AddTable(1, 4);
             rezUrbIdentTable.Design = TableDesign.LightGrid;
             rezUrbIdentTable.Alignment = Alignment.center;
-            List<Paragraph> resPlanUrb = new List<Paragraph> { };
+            Double spacing = 15;
 
 
             Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
             rezUrbIdentTitle.Alignment = Alignment.left;
+            rezUrbIdentTitle.SpacingBefore(spacing);
 
             Console.WriteLine("Broj urb planova:" + dataRequest.UrbanisticPlansResults.Count);
             foreach (UrbanisticPlansResults resUrbIdent in dataRequest.UrbanisticPlansResults)
