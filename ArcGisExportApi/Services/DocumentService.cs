@@ -16,16 +16,40 @@ namespace ArcGisExportApi.Services
             DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
 
             DocX document = DocX.Create(ms);
+
+            DocX docTemplate = DocX.Load("C:/template.docx");
+
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
             int i = 1;
-            List<Table> urbPlanResTables = new List<Table> { };
-            List<Paragraph> urbPlanResParagraphs = new List<Paragraph> { };
+            
+            String klasa = "proba";
+            String urBroj = "urudžbeni broj";
+            String datum = DateTime.Now.ToLongDateString();
+            /*
+            docTemplate.ReplaceText("[KLASA]", klasa);
+            docTemplate.ReplaceText("[UBROJ]", urBroj);
+            docTemplate.ReplaceText("[DATUM]", datum);
 
+            foreach (Paragraph par in docTemplate.Paragraphs)
+            {
+                document.InsertParagraph(par);
+                Console.WriteLine("par");
+                
 
+            }*/
+
+            document.InsertDocument(docTemplate, false);
+
+            //docTemplate.SaveAs("C:/filledTemplate.docx");
+            /*
+            document.ReplaceText("[KLASA]", klasa);
+            document.ReplaceText("[UBROJ]", urBroj);
+            document.ReplaceText("[DATUM]", datum);
+            */
             Table katCesticeTable = document.AddTable(numSpatialCond, 3);
             katCesticeTable.Design = TableDesign.LightGrid;
-            katCesticeTable.Alignment = Alignment.center;
+            katCesticeTable.Alignment = Alignment.left;
             katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
             katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
             katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
@@ -104,7 +128,8 @@ namespace ArcGisExportApi.Services
                 //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
             }
             
-            // document.Save();
+
+            //document.Save();
             return document;
         }
 
