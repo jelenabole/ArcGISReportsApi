@@ -90,7 +90,7 @@ namespace ArcGisExportApi.Services
                         {
                             Paragraph imagesParagraph = 
                                 document.InsertParagraph((planMap.Name + " " + "MJERILO KARTE 1:"
-                                + planMap.MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:"
+                                + planMap.MapScale.ToString() + " " + "IZVORNO MJERILO KARTE 1:"
                                 + planMap.OriginalScale.ToString()));
 
                             Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);

@@ -27,7 +27,9 @@ namespace ArcGisExportApi.Utilities
                 Extent extent = FindPoints(queryResult.Features[i].Geometry);
                 string kartaSifra = queryResult.Features[i].Attributes.Karta_sifra;
 
-                string linkMap = "?f=json" + AddBoundingBox(extent)
+                string linkMap = "?f=json"
+                    + "&format=png"
+                    + AddBoundingBox(extent)
                     + ScaleSizeToCrop(extent)
                     + AddLayer(uriLayer)
                     + AddLayerDefs(uriLayer, kartaSifra);
@@ -63,6 +65,7 @@ namespace ArcGisExportApi.Utilities
         }
 
 
+
         /* FUNCTIONS FOR URL */
 
         private static string AddBoundingBox(Extent extent)
@@ -78,7 +81,6 @@ namespace ArcGisExportApi.Utilities
         {
             return "&layers=show:" + getLayerFromUri(link);
         }
-
 
         private static string getLayerFromUri(string link)
         {
@@ -146,6 +148,5 @@ namespace ArcGisExportApi.Utilities
             string str = "&size=" + (int)xSize + "," + (int)ySize;
             return str;
         }
-
     }
 }
