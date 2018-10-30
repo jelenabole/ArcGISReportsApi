@@ -9,14 +9,17 @@ namespace ArcGisExportApi.Services
 {
     public class ResponseMapper
     {
+        public static string exportServer = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
+
+
         async public static Task<DataResponse> mapToReponse(DataRequest request)
         {
-            List<int> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
+            List<string> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
 
             DataResponse response = CreateMapPlans(mapPlanIdList);
 
             bool done = await AddRaster(response, request.UrbanisticPlansResults[0].RasterRestURL, mapPlanIdList);
-            done = await AddLegends(response, request.UrbanisticPlansResults[0].LegenRestURL, mapPlanIdList);
+            done = await AddLegends(response, request.UrbanisticPlansResults[0].LegendRestURL, mapPlanIdList);
             done = await AddComponents(response, request.UrbanisticPlansResults[0].ComponentRestURL, mapPlanIdList);
             
             // polygon, raster, legend, component
@@ -24,19 +27,19 @@ namespace ArcGisExportApi.Services
             return response;
         }
 
-        public static List<int> getListOfIds(List<PlanMap> mapPlans)
+        public static List<string> getListOfIds(List<PlanMap> mapPlans)
         {
-            List<int> ids = new List<int>();
+            List<string> ids = new List<string>();
 
             for (int i = 0; i < mapPlans.Count; i++)
             {
                 // CHECK - parsing & Id of string value
-                ids.Add(int.Parse(mapPlans[i].Id));
+                ids.Add(mapPlans[i].Id);
             }
             return ids;
         }
 
-        public static DataResponse CreateMapPlans(List<int> ids)
+        public static DataResponse CreateMapPlans(List<string> ids)
         {
             DataResponse response = new DataResponse();
             for (int i = 0; i < ids.Count; i++)
@@ -48,7 +51,7 @@ namespace ArcGisExportApi.Services
 
 
 
-        async public static Task<bool> AddRaster(DataResponse response, string restUrl, List<int> mapPlanIds)
+        async public static Task<bool> AddRaster(DataResponse response, string restUrl, List<string> mapPlanIds)
         {
             // legends:
             QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
@@ -72,39 +75,30 @@ namespace ArcGisExportApi.Services
         }
 
 
-        async public static Task<bool> AddLegends(DataResponse response, string restUrl, List<int> mapPlanIds)
+
+
+
+
+
+        async public static Task<bool> AddLegends(DataResponse response, string restUrl, List<string> mapPlanIds)
         {
-            // legends:
             QueryResult legendsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            ExportResultList legendImages = await ExportUtils.getAll(legendsInfo, restUrl);
 
             for (int i = 0; i < response.Maps.Count; i++)
             {
-                for (int j = 0; j < legendImages.MapPlans.Count; j++)
+                string url = exportServer + ExportUtils.getImageUrl(legendsInfo.Features[i].Geometry, restUrl);
+                response.Maps[i].Legend = new MapImage
                 {
-                    if (response.Maps[i].Id == legendImages.MapPlans[j].Id)
-                    {
-                        response.Maps[i].Legend = mapExportedDataToResponse(legendImages.MapPlans[j]);
-                        break;
-                    }
-                }
+                    Href = url
+                };
             }
 
             return true;
         }
 
-
-
-
-
-
-
-        async public static Task<bool> AddComponents(DataResponse response, string restUrl, List<int> mapPlanIds)
+        async public static Task<bool> AddComponents(DataResponse response, string restUrl, List<string> mapPlanIds)
         {
-            // components:
             QueryResult componentsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            // ExportResultList componentImages = await ExportUtils.getAll(componentsInfo, restUrl);
-            string exportServer = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
 
             for (int i = 0; i < response.Maps.Count; i++)
             {
@@ -113,7 +107,6 @@ namespace ArcGisExportApi.Services
                 {
                     Href = url
                 };
-
             }
 
             return true;

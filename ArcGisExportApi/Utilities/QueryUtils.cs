@@ -11,7 +11,7 @@ namespace ArcGisExportApi.Utilities
         // TODO - delete:
         private static QueryRepo queryService = new QueryRepo();
 
-        async public static Task<QueryResult> queryAll(string uri, List<int> mapPlanIds)
+        async public static Task<QueryResult> queryAll(string uri, List<string> mapPlanIds)
         {
             uri = createQuery(uri, mapPlanIds);
             Trace.WriteLine("query all: " + uri);
@@ -20,7 +20,7 @@ namespace ArcGisExportApi.Utilities
             return result;
         }
 
-        public static string createQuery(string uri, List<int> mapPlanIds)
+        public static string createQuery(string uri, List<string> mapPlanIds)
         {
             uri += "/query?f=json";
 
@@ -31,11 +31,10 @@ namespace ArcGisExportApi.Utilities
             string query = "";
             for (int i = 0; i < mapPlanIds.Count; i++)
             {
-                query += "objectid=" + mapPlanIds[i];
+                query += "KARTA_SIFRA=" + "'" + mapPlanIds[i] + "'";
                 if (i < mapPlanIds.Count - 1)
                     query += " OR ";
             }
-
             // change url signs:
             uri += encodeUrl(query);
 

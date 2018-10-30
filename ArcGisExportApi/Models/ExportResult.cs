@@ -12,7 +12,7 @@ namespace ArcGisExportApi.Tests
     public class ExportResult
     {
         // TODO - add id, name, links to each: raster, legend, component..
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         public String Href { get; set; }
         public int Width { get; set; }

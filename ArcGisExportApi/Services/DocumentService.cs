@@ -90,11 +90,13 @@ namespace ArcGisExportApi.Services
                             Paragraph imagesParagraph = document.InsertParagraph((planMap.Name + " " + "MJERILO KARTE 1:"
                     + planMap.MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale.ToString()));
 
-                            Image rasertImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
-                            Picture rasterPic = rasertImage.CreatePicture();
+                            /*
+                            Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
+                            Picture rasterPic = rasterImage.CreatePicture();
                             if (rasterPic.Height > 900)
                                 rasterPic.Height = 900;
                             imagesParagraph.AppendPicture(rasterPic);
+                            */
 
                             Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
                             Picture legPic = legImage.CreatePicture();

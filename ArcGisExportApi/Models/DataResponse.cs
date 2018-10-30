@@ -14,7 +14,7 @@ namespace ArcGisExportApi.Models
 
     public class MapObject
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public MapImage Polygon { get; set; }
         public MapImage Raster { get; set; }
         public MapImage Legend { get; set; }
@@ -22,7 +22,7 @@ namespace ArcGisExportApi.Models
 
         public string ComponentUrl { get; set; }
 
-        public MapObject(int id)
+        public MapObject(string id)
         {
             Id = id;
         }

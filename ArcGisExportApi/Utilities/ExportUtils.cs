@@ -26,6 +26,7 @@ namespace ArcGisExportApi.Utilities
             results.MapPlans = new List<ExportResult>();
 
             // get each component by exporting geometry:
+            // CHECK = queryResult.Features == null
             for (int i = 0; i < queryResult.Features.Count; i++)
             {
                 Extent extent = FindPoints(queryResult.Features[i].Geometry);

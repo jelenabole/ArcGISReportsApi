@@ -44,7 +44,7 @@ namespace ArcGisExportApi.Models
         public string Sn;
         public string PolygonRestURL;
         public string RasterRestURL;
-        public string LegenRestURL;
+        public string LegendRestURL;
         public string ComponentRestURL;
 
         public List<PlanMap> PlanMaps;
