@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using ArcGisExportApi.Services;
 using ArcGisExportApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Novacode;
+using Spire.Doc;
 
 namespace ArcGisExportApi.Controllers
 {
@@ -21,17 +23,27 @@ namespace ArcGisExportApi.Controllers
             // test data:
             DataRequest request = DownloadUtils.getData();
 
-            // create pdf:
+            // create docx:
             MemoryStream ms = new MemoryStream();
             DocX doc = await DocumentService.createPdf(request, ms);
             doc.SaveAs(ms);
             ms.Position = 0;
 
+            //convert docx to pdf
+            /*
+            Document document = new Document();
+            document.LoadFromStream(ms, FileFormat.Docx);
+            MemoryStream msPdf = new MemoryStream();
+            document.SaveToStream(msPdf, FileFormat.PDF);
+            */
+            
             var response = new HttpResponseMessage(HttpStatusCode.OK);
             var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
             {
                 FileDownloadName = string.Format("PGZ_test.docx")
             };
+            
+            
 
             return file;
         }
