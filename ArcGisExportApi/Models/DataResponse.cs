@@ -15,15 +15,13 @@ namespace ArcGisExportApi.Models
     public class MapObject
     {
         public string Id { get; set; }
+        public string MapScale { get; set; }
+        public string OriginalScale { get; set; }
+
         public MapImage Polygon { get; set; }
         public MapImage Raster { get; set; }
-        public MapImage Legend { get; set; }
-        public MapImage Component { get; set; }
-
-        public MapObject(string id)
-        {
-            Id = id;
-        }
+        public string LegendUrl { get; set; }
+        public string ComponentUrl { get; set; }
     }
 
     public class MapImage

@@ -20,10 +20,24 @@ namespace ArcGisExportApi.Services
                 return null;
             }
 
-            List<string> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
-            DataResponse response = CreateMapPlans(mapPlanIdList);
+            // create a list of maps:
+            DataResponse response = new DataResponse();
+            List<string> mapPlanIdList = new List<string>();
+            foreach (PlanMap planMap in request.UrbanisticPlansResults[0].PlanMaps)
+            {
+                // create map plan, with id and scales:
+                MapObject map = new MapObject
+                {
+                    Id = planMap.Id,
+                    MapScale = planMap.MapScale,
+                    OriginalScale = planMap.OriginalScale
+                };
+                response.Maps.Add(map);
 
-            // + polygon
+                mapPlanIdList.Add(planMap.Id);
+            }
+
+            // TODO - +polygon
             bool done = await AddRaster(response, request.UrbanisticPlansResults[0].RasterRestURL, mapPlanIdList);
             done = await AddLegends(response, request.UrbanisticPlansResults[0].LegendRestURL, mapPlanIdList);
             done = await AddComponents(response, request.UrbanisticPlansResults[0].ComponentRestURL, mapPlanIdList);
@@ -31,33 +45,8 @@ namespace ArcGisExportApi.Services
             return response;
         }
 
-        public static List<string> getListOfIds(List<PlanMap> mapPlans)
-        {
-            List<string> ids = new List<string>();
-
-            for (int i = 0; i < mapPlans.Count; i++)
-            {
-                // CHECK - parsing & Id of string value
-                ids.Add(mapPlans[i].Id);
-            }
-            return ids;
-        }
-
-        public static DataResponse CreateMapPlans(List<string> ids)
-        {
-            DataResponse response = new DataResponse();
-            for (int i = 0; i < ids.Count; i++)
-            {
-                response.Maps.Add(new MapObject(ids[i]));
-            }
-            return response;
-        }
-
-
-
         async public static Task<bool> AddRaster(DataResponse response, string restUrl, List<string> mapPlanIds)
         {
-            // legends:
             QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
             ExportResultList rasterImages = await ExportUtils.getInfo(rasterInfo, restUrl);
 
@@ -101,11 +90,8 @@ namespace ArcGisExportApi.Services
 
             for (int i = 0; i < response.Maps.Count; i++)
             {
-                string url = exportServer + ExportUtils.getImageUrl(legendsInfo.Features[i].Geometry, restUrl);
-                response.Maps[i].Legend = new MapImage
-                {
-                    Href = url
-                };
+                response.Maps[i].LegendUrl = exportServer 
+                    + ExportUtils.getImageUrl(legendsInfo.Features[i].Geometry, restUrl);
             }
 
             return true;
@@ -117,11 +103,8 @@ namespace ArcGisExportApi.Services
 
             for (int i = 0; i < response.Maps.Count; i++)
             {
-                string url = exportServer + ExportUtils.getImageUrl(componentsInfo.Features[i].Geometry, restUrl);
-                response.Maps[i].Component = new MapImage
-                {
-                    Href = url
-                };
+                response.Maps[i].ComponentUrl = exportServer 
+                    + ExportUtils.getImageUrl(componentsInfo.Features[i].Geometry, restUrl);
             }
 
             return true;

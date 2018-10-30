@@ -53,8 +53,8 @@ namespace ArcGisExportApi.Inputs
         {
             public string Id { get; set; }
             public string Name { get; set; }
-            public int MapScale { get; set; }
-            public int? OriginalScale { get; set; }
+            public string MapScale { get; set; }
+            public string OriginalScale { get; set; }
         }
     }
 }

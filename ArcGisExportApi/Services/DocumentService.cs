@@ -87,22 +87,21 @@ namespace ArcGisExportApi.Services
                 {
                     foreach (MapObject map in dataResponse.Maps)
                     {
-                        if (planMap.Id == map.Id.ToString())
+                        if (planMap.Id == map.Id)
                         {
-                            Paragraph imagesParagraph = 
-                                document.InsertParagraph((planMap.Name + " " + "MJERILO KARTE 1:"
-                                + planMap.MapScale.ToString() + " " + "IZVORNO MJERILO KARTE 1:"
-                                + planMap.OriginalScale.ToString()));
+                            Paragraph imagesParagraph = document.InsertParagraph((planMap.Name 
+                                + " " + "MJERILO KARTE 1:" + planMap.MapScale
+                                + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
 
                             Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
                             Picture rasterPic = rasterImage.CreatePicture();
                             imagesParagraph.AppendPicture(rasterPic);
 
-                            Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
+                            Image legImage = await StreamService.getImageFromUrl(document, map.LegendUrl);
                             Picture legPic = legImage.CreatePicture();
                             imagesParagraph.AppendPicture(legPic);
 
-                            Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
+                            Image compImage = await StreamService.getImageFromUrl(document, map.ComponentUrl);
                             Picture compPic = compImage.CreatePicture();
                             imagesParagraph.AppendPicture(compPic);
 

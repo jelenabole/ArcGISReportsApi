@@ -15,7 +15,6 @@ namespace ArcGisExportApi.Controllers
     [ApiController]
     public class ReportController : ControllerBase
     {
-        // async
         [HttpGet]
         async public Task<FileStreamResult> Get()
         {
@@ -41,13 +40,10 @@ namespace ArcGisExportApi.Controllers
             {
                 FileDownloadName = string.Format("PGZ_test.docx")
             };
-            
-            
 
             return file;
         }
 
-        // POST [Fromform]
         [HttpPost]
         async public Task<FileStreamResult> Post([FromBody] DataRequest request)
         {
