@@ -95,21 +95,16 @@ namespace ArcGisExportApi.Services
 
                             Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
                             Picture rasterPic = rasterImage.CreatePicture();
-                            if (rasterPic.Height > 900)
-                                rasterPic.Height = 900;
                             imagesParagraph.AppendPicture(rasterPic);
 
                             Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
                             Picture legPic = legImage.CreatePicture();
-                            if (legPic.Height > 900)
-                                legPic.Height = 900;
                             imagesParagraph.AppendPicture(legPic);
 
                             Image compImage = await StreamService.getImageFromUrl(document, map.Component.Href);
                             Picture compPic = compImage.CreatePicture();
-                            if (compPic.Height > 900)
-                                compPic.Height = 900;
                             imagesParagraph.AppendPicture(compPic);
+
                             imagesParagraph.InsertPageBreakAfterSelf();
                         }
                     }
