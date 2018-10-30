@@ -8,9 +8,9 @@ namespace ArcGisExportApi.Services
 {
     class ExportRepo
     {
-        string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
+        static string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
 
-        public async Task<ExportResult> getImageInfo(string link)
+        public static async Task<ExportResult> getImageInfo(string link)
         {
             using (var client = new HttpClient())
             {

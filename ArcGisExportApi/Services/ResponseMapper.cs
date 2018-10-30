@@ -14,15 +14,19 @@ namespace ArcGisExportApi.Services
 
         async public static Task<DataResponse> mapToReponse(DataRequest request)
         {
-            List<string> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
+            // CHECK - if there are no urban.plan. results checked - return null:
+            if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
+            {
+                return null;
+            }
 
+            List<string> mapPlanIdList = getListOfIds(request.UrbanisticPlansResults[0].PlanMaps);
             DataResponse response = CreateMapPlans(mapPlanIdList);
 
+            // + polygon
             bool done = await AddRaster(response, request.UrbanisticPlansResults[0].RasterRestURL, mapPlanIdList);
             done = await AddLegends(response, request.UrbanisticPlansResults[0].LegendRestURL, mapPlanIdList);
             done = await AddComponents(response, request.UrbanisticPlansResults[0].ComponentRestURL, mapPlanIdList);
-            
-            // polygon, raster, legend, component
 
             return response;
         }
@@ -55,7 +59,7 @@ namespace ArcGisExportApi.Services
         {
             // legends:
             QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            ExportResultList rasterImages = await ExportUtils.getAll(rasterInfo, restUrl);
+            ExportResultList rasterImages = await ExportUtils.getInfo(rasterInfo, restUrl);
 
             // response, add maps to that
             // TODO - put data in output object (by id) (...)
@@ -63,7 +67,7 @@ namespace ArcGisExportApi.Services
             {
                 for (int j = 0; j < rasterImages.MapPlans.Count; j++)
                 {
-                    if (response.Maps[i].Id == rasterImages.MapPlans[j].Id)
+                    if (response.Maps[i].Id == rasterImages.MapPlans[j].Karta_Sifra)
                     {
                         response.Maps[i].Raster = mapExportedDataToResponse(rasterImages.MapPlans[j]);
                         break;
@@ -73,6 +77,17 @@ namespace ArcGisExportApi.Services
 
             return true;
         }
+
+        public static MapImage mapExportedDataToResponse(ExportResult mapPlan)
+        {
+            MapImage mapImage = new MapImage
+            {
+                Href = mapPlan.Href,
+                Scale = mapPlan.Scale
+            };
+            return mapImage;
+        }
+
 
 
 
@@ -110,17 +125,6 @@ namespace ArcGisExportApi.Services
             }
 
             return true;
-        }
-
-
-        public static MapImage mapExportedDataToResponse(ExportResult mapPlan)
-        {
-            MapImage mapImage = new MapImage
-            {
-                Href = mapPlan.Href,
-                Scale = mapPlan.Scale
-            };
-            return mapImage;
         }
     }
 }

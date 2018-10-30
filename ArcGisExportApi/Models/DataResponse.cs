@@ -20,8 +20,6 @@ namespace ArcGisExportApi.Models
         public MapImage Legend { get; set; }
         public MapImage Component { get; set; }
 
-        public string ComponentUrl { get; set; }
-
         public MapObject(string id)
         {
             Id = id;

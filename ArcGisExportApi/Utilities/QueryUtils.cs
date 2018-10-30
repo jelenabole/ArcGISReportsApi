@@ -25,7 +25,7 @@ namespace ArcGisExportApi.Utilities
             uri += "/query?f=json";
 
             // add this fields: *
-            uri += "&outFields=" + encodeUrl("objectid, name");
+            uri += "&outFields=" + encodeUrl("objectid, name, KARTA_SIFRA");
             uri += "&where=";
 
             string query = "";
@@ -42,7 +42,7 @@ namespace ArcGisExportApi.Utilities
         }
 
         // replace special characters from url:
-        private static string encodeUrl(string str)
+        public static string encodeUrl(string str)
         {
             str = str.Replace(" ", "+");
             str = str.Replace("=", "%3D");

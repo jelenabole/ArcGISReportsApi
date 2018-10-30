@@ -20,6 +20,7 @@ namespace ArcGisExportApi.Tests
     {
         public string ObjectId { get; set; }
         public string Name { get; set; }
+        public string Karta_sifra { get; set; }
     }
 
     public class Geometry

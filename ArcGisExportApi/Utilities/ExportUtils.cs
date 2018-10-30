@@ -10,17 +10,12 @@ namespace ArcGisExportApi.Utilities
 {
     public class ExportUtils
     {
-        // TODO - remove:
-        private static ExportRepo exportService = new ExportRepo();
-        
-        // dpi (image = 96, vector = 300):
-        // paper size in inches (without margins):
-        static Decimal DPI = 96;
-        static Decimal PAPER_WIDTH = 8.27M - (1.25M * 2.0M);
-        static Decimal PAPER_HEIGHT = 11.69M - 2;
+        // size in pixels (by calculation 553 x 930):
+        static int paperWidthPixels = 550;
+        static int paperHeightPixels = 900;
 
-
-        async public static Task<ExportResultList> getAll(QueryResult queryResult, string uriLayer)
+        // get info (with the url and other info) by export:
+        async public static Task<ExportResultList> getInfo(QueryResult queryResult, string uriLayer)
         {
             ExportResultList results = new ExportResultList();
             results.MapPlans = new List<ExportResult>();
@@ -30,13 +25,15 @@ namespace ArcGisExportApi.Utilities
             for (int i = 0; i < queryResult.Features.Count; i++)
             {
                 Extent extent = FindPoints(queryResult.Features[i].Geometry);
+                string kartaSifra = queryResult.Features[i].Attributes.Karta_sifra;
 
                 string linkMap = "?f=json" + AddBoundingBox(extent)
                     + ScaleSizeToCrop(extent)
-                    + AddLayer(uriLayer);
+                    + AddLayer(uriLayer)
+                    + AddLayerDefs(uriLayer, kartaSifra);
 
-                ExportResult result = await exportService.getImageInfo(linkMap);
-                result.Id = queryResult.Features[i].Attributes.ObjectId;
+                ExportResult result = await ExportRepo.getImageInfo(linkMap);
+                result.Karta_Sifra = kartaSifra;
                 results.MapPlans.Add(result);
 
                 // TODO - add info and result (img) to output object
@@ -45,6 +42,12 @@ namespace ArcGisExportApi.Utilities
             return results;
         }
 
+        private static string AddLayerDefs(string uriLayer, string kartaSifra)
+        {
+            string query = getLayerFromUri(uriLayer) + ":" + "karta_sifra='" + kartaSifra + "'";
+            return "&layerDefs=" + QueryUtils.encodeUrl(query);
+        }
+        
         public static string getImageUrl(Geometry geometry, string uriLayer)
         {
             Extent extent = FindPoints(geometry);
@@ -128,11 +131,6 @@ namespace ArcGisExportApi.Utilities
         // crop legend/component layer (size scaled to fit the paper size):
         private static string ScaleSizeToCrop(Extent extent)
         {
-            // size in pixels:
-            int paperWidthPixels = (int)Math.Floor(DPI * PAPER_WIDTH);
-            int paperHeightPixels = (int)Math.Floor(DPI * PAPER_HEIGHT);
-            // Trace.WriteLine("paper WxH in pixels (max): " + paperWidthPixels + " x " + paperHeightPixels);
-
             // size of the image (in coo):
             double xSize = extent.Xmax - extent.Xmin;
             double ySize = extent.Ymax - extent.Ymin;

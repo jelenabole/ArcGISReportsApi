@@ -16,11 +16,13 @@ namespace ArcGisExportApi.Services
             DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
 
             DocX document = DocX.Create(ms);
+            /*
             DocX docTemplate = DocX.Load(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
                     + "/" + "template" + "/" + "pgzTemplate.docx");
             //DocX docTemplate = DocX.Load("C:/template.docx");
-            
             document = docTemplate.Copy();
+            */
+                
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
             int i = 1;
@@ -87,16 +89,16 @@ namespace ArcGisExportApi.Services
                     {
                         if (planMap.Id == map.Id.ToString())
                         {
-                            Paragraph imagesParagraph = document.InsertParagraph((planMap.Name + " " + "MJERILO KARTE 1:"
-                    + planMap.MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale.ToString()));
+                            Paragraph imagesParagraph = 
+                                document.InsertParagraph((planMap.Name + " " + "MJERILO KARTE 1:"
+                                + planMap.MapScale.ToString() + "" + "IZVORNO MJERILO KARTE 1:"
+                                + planMap.OriginalScale.ToString()));
 
-                            /*
                             Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
                             Picture rasterPic = rasterImage.CreatePicture();
                             if (rasterPic.Height > 900)
                                 rasterPic.Height = 900;
                             imagesParagraph.AppendPicture(rasterPic);
-                            */
 
                             Image legImage = await StreamService.getImageFromUrl(document, map.Legend.Href);
                             Picture legPic = legImage.CreatePicture();
