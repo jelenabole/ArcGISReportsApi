@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ArcGisExportApi.Models
+namespace ArcGisExportApi.Inputs
 {
     // [DataContract]
     public sealed class DataRequest

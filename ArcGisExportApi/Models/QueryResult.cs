@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ArcGisExportApi.Tests
+namespace ArcGisExportApi.Models
 {
     // TODO - Geometry already exists in models (request)
 
@@ -18,7 +18,7 @@ namespace ArcGisExportApi.Tests
 
     public class Attributes
     {
-        public string ObjectId { get; set; }
+        public int ObjectId { get; set; }
         public string Name { get; set; }
         public string Karta_sifra { get; set; }
     }

@@ -3,7 +3,8 @@ using ArcGisExportApi.Models;
 using Novacode;
 using System.Threading.Tasks;
 using System.IO;
-using static ArcGisExportApi.Models.UrbanisticPlansResults;
+using ArcGisExportApi.Inputs;
+using static ArcGisExportApi.Inputs.UrbanisticPlansResults;
 
 namespace ArcGisExportApi.Services
 {

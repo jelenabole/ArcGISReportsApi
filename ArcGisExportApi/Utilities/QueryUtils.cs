@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using ArcGisExportApi.Tests;
 using ArcGisExportApi.Services;
+using ArcGisExportApi.Models;
 
 namespace ArcGisExportApi.Utilities
 {

@@ -1,9 +1,9 @@
-﻿using ArcGisExportApi.Models;
-using ArcGisExportApi.Tests;
+﻿using ArcGisExportApi.Inputs;
+using ArcGisExportApi.Models;
 using ArcGisExportApi.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static ArcGisExportApi.Models.UrbanisticPlansResults;
+using static ArcGisExportApi.Inputs.UrbanisticPlansResults;
 
 namespace ArcGisExportApi.Services
 {

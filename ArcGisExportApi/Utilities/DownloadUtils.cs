@@ -1,4 +1,4 @@
-﻿using ArcGisExportApi.Models;
+﻿using ArcGisExportApi.Inputs;
 using ArcGisExportApi.Services;
 using Newtonsoft.Json;
 using System;

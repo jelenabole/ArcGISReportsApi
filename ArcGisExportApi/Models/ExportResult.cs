@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArcGisExportApi.Tests
+namespace ArcGisExportApi.Models
 {
     public class ExportResultList
     {

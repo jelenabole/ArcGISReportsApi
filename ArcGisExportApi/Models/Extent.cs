@@ -1,4 +1,4 @@
-﻿namespace ArcGisExportApi.Tests
+﻿namespace ArcGisExportApi.Models
 {
     public class Extent
     {
