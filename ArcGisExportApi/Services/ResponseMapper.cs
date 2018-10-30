@@ -58,7 +58,12 @@ namespace ArcGisExportApi.Services
                 {
                     if (response.Maps[i].Id == rasterImages.MapPlans[j].Karta_Sifra)
                     {
-                        response.Maps[i].Raster = mapExportedDataToResponse(rasterImages.MapPlans[j]);
+                        response.Maps[i].Raster = new MapImage
+                        {
+                            Href = rasterImages.MapPlans[j].Href,
+                            Scale = rasterImages.MapPlans[j].Scale
+                        };
+
                         break;
                     }
                 }
@@ -66,19 +71,6 @@ namespace ArcGisExportApi.Services
 
             return true;
         }
-
-        public static MapImage mapExportedDataToResponse(ExportResult mapPlan)
-        {
-            MapImage mapImage = new MapImage
-            {
-                Href = mapPlan.Href,
-                Scale = mapPlan.Scale
-            };
-            return mapImage;
-        }
-
-
-
 
 
 
