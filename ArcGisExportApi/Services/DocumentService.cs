@@ -16,9 +16,11 @@ namespace ArcGisExportApi.Services
             DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
 
             DocX document = DocX.Create(ms);
-
-            DocX docTemplate = DocX.Load("C:/template.docx");
-
+            DocX docTemplate = DocX.Load(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                    + "/" + "template" + "/" + "pgzTemplate.docx");
+            //DocX docTemplate = DocX.Load("C:/template.docx");
+            
+            document = docTemplate.Copy();
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
             int i = 1;
@@ -26,27 +28,11 @@ namespace ArcGisExportApi.Services
             String klasa = "proba";
             String urBroj = "urudžbeni broj";
             String datum = DateTime.Now.ToLongDateString();
-            /*
-            docTemplate.ReplaceText("[KLASA]", klasa);
-            docTemplate.ReplaceText("[UBROJ]", urBroj);
-            docTemplate.ReplaceText("[DATUM]", datum);
 
-            foreach (Paragraph par in docTemplate.Paragraphs)
-            {
-                document.InsertParagraph(par);
-                Console.WriteLine("par");
-                
-
-            }*/
-
-            document.InsertDocument(docTemplate, false);
-
-            //docTemplate.SaveAs("C:/filledTemplate.docx");
-            /*
             document.ReplaceText("[KLASA]", klasa);
             document.ReplaceText("[UBROJ]", urBroj);
             document.ReplaceText("[DATUM]", datum);
-            */
+            
             Table katCesticeTable = document.AddTable(numSpatialCond, 3);
             katCesticeTable.Design = TableDesign.LightGrid;
             katCesticeTable.Alignment = Alignment.left;
@@ -132,6 +118,7 @@ namespace ArcGisExportApi.Services
             //document.Save();
             return document;
         }
+
 
     }
 }
