@@ -6,6 +6,7 @@ using System.IO;
 using ArcGisExportApi.Inputs;
 using static ArcGisExportApi.Inputs.UrbanisticPlansResults;
 using Spire.Doc;
+using System.Reflection;
 
 namespace ArcGisExportApi.Services
 {
@@ -17,10 +18,11 @@ namespace ArcGisExportApi.Services
             DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
 
             DocX document = DocX.Create(ms);
-            
-            DocX docTemplate = DocX.Load(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-                    + "/" + "template" + "/" + "pgzTemplate.docx");
-            //DocX docTemplate = DocX.Load("C:/template.docx");
+
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\template\pgzTemplate.docx");
+
+            DocX docTemplate = DocX.Load(path);
+
             document = docTemplate.Copy();
             
                 
