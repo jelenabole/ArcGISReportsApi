@@ -48,7 +48,10 @@ namespace ArcGisExportApi.Services
         async public static Task<bool> AddRaster(DataResponse response, string restUrl, List<string> mapPlanIds)
         {
             QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            ExportResultList rasterImages = await ExportUtils.getInfo(rasterInfo, restUrl);
+
+            // response (for scales):
+            ExportResultList rasterImages = await ExportUtils.getInfo(response,
+                rasterInfo, restUrl);
 
             // response, add maps to that
             // TODO - put data in output object (by id) (...)

@@ -10,6 +10,15 @@ namespace ArcGisExportApi.Models
         {
             Maps = new List<MapObject>();
         }
+
+        public MapObject GetById(string id)
+        {
+            foreach (MapObject map in this.Maps) {
+                if (map.Id == id)
+                    return map;
+            }
+            return null;
+        }
     }
 
     public class MapObject

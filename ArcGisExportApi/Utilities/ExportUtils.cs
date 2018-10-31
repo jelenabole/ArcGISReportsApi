@@ -14,7 +14,8 @@ namespace ArcGisExportApi.Utilities
         static int paperHeightPixels = 900;
 
         // get info (with the url and other info) by export:
-        async public static Task<ExportResultList> getInfo(QueryResult queryResult, string uriLayer)
+        async public static Task<ExportResultList> getInfo(DataResponse response,
+            QueryResult queryResult, string uriLayer)
         {
             ExportResultList results = new ExportResultList();
             results.MapPlans = new List<ExportResult>();
@@ -29,7 +30,8 @@ namespace ArcGisExportApi.Utilities
                 string linkMap = "?f=json"
                     + "&format=png"
                     + AddBoundingBox(extent)
-                    + ScaleSizeToCrop(extent)
+                    + "&size=" + paperWidthPixels + "," + paperHeightPixels
+                    + "&mapScale=" + response.GetById(kartaSifra).MapScale
                     + AddLayer(uriLayer)
                     + AddLayerDefs(uriLayer, kartaSifra);
 

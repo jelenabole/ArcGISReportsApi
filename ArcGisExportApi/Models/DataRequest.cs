@@ -5,6 +5,9 @@ namespace ArcGisExportApi.Inputs
     // [DataContract]
     public sealed class DataRequest
     {
+        public string FileFormat { get; set; }
+        public string DocumentTemplateId { get; set; }
+
         // [DataMember]
         public List<SpatialCondition> SpatialConditionList;
         // [DataMember]
