@@ -1,14 +1,14 @@
 ﻿using System;
-using ArcGisExportApi.Models;
+using PGZ.UI.PrintService.Models;
 using Novacode;
 using System.Threading.Tasks;
 using System.IO;
-using ArcGisExportApi.Inputs;
-using static ArcGisExportApi.Inputs.UrbanisticPlansResults;
+using PGZ.UI.PrintService.Inputs;
+using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 using Spire.Doc;
 using System.Reflection;
 
-namespace ArcGisExportApi.Services
+namespace PGZ.UI.PrintService.Services
 {
     class DocumentService
     {

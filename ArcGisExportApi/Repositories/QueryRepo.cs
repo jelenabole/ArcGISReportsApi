@@ -1,10 +1,10 @@
-﻿using ArcGisExportApi.Models;
+﻿using PGZ.UI.PrintService.Models;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace ArcGisExportApi.Services
+namespace PGZ.UI.PrintService.Services
 {
     class QueryRepo
     {

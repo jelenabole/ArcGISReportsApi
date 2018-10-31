@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using ArcGisExportApi.Services;
-using ArcGisExportApi.Models;
+using PGZ.UI.PrintService.Services;
+using PGZ.UI.PrintService.Models;
 
-namespace ArcGisExportApi.Utilities
+namespace PGZ.UI.PrintService.Utilities
 {
     public class QueryUtils
     {

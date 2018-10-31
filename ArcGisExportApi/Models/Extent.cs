@@ -1,4 +1,4 @@
-﻿namespace ArcGisExportApi.Models
+﻿namespace PGZ.UI.PrintService.Models
 {
     public class Extent
     {

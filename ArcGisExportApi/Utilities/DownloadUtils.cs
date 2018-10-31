@@ -1,9 +1,9 @@
-﻿using ArcGisExportApi.Inputs;
+﻿using PGZ.UI.PrintService.Inputs;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 
-namespace ArcGisExportApi.Utilities
+namespace PGZ.UI.PrintService.Utilities
 {
     public class DownloadUtils
     {

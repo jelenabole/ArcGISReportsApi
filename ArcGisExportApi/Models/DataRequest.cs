@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ArcGisExportApi.Inputs
+namespace PGZ.UI.PrintService.Inputs
 {
     // [DataContract]
     public sealed class DataRequest

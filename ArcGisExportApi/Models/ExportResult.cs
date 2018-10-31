@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArcGisExportApi.Models
+namespace PGZ.UI.PrintService.Models
 {
     public class ExportResultList
     {

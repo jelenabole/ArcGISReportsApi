@@ -1,11 +1,11 @@
-﻿using ArcGisExportApi.Inputs;
-using ArcGisExportApi.Models;
-using ArcGisExportApi.Utilities;
+﻿using PGZ.UI.PrintService.Inputs;
+using PGZ.UI.PrintService.Models;
+using PGZ.UI.PrintService.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static ArcGisExportApi.Inputs.UrbanisticPlansResults;
+using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 
-namespace ArcGisExportApi.Services
+namespace PGZ.UI.PrintService.Services
 {
     public class ResponseMapper
     {

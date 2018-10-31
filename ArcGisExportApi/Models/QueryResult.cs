@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ArcGisExportApi.Models
+namespace PGZ.UI.PrintService.Models
 {
     // TODO - Geometry already exists in models (request)
 

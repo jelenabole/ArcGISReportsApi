@@ -3,14 +3,14 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ArcGisExportApi.Inputs;
-using ArcGisExportApi.Services;
-using ArcGisExportApi.Utilities;
+using PGZ.UI.PrintService.Inputs;
+using PGZ.UI.PrintService.Services;
+using PGZ.UI.PrintService.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Novacode;
 
 
-namespace ArcGisExportApi.Controllers
+namespace PGZ.UI.PrintService.Controllers
 {
     [Route("[controller]")]
     [ApiController]

@@ -1,11 +1,11 @@
-﻿using ArcGisExportApi.Services;
+﻿using PGZ.UI.PrintService.Services;
 using System.Threading.Tasks;
 using System;
 using System.Globalization;
 using System.Collections.Generic;
-using ArcGisExportApi.Models;
+using PGZ.UI.PrintService.Models;
 
-namespace ArcGisExportApi.Utilities
+namespace PGZ.UI.PrintService.Utilities
 {
     public class ExportUtils
     {
