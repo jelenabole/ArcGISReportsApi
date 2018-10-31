@@ -10,18 +10,18 @@ namespace ArcGisExportApi.Services
 {
     class DocumentService
     {
-        async public static Task<DocX> createPdf(DataRequest dataRequest, MemoryStream ms)
+        async public static Task<DocX> createDocx(DataRequest dataRequest, MemoryStream ms)
         {
             // get all data and export images:
             DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
 
             DocX document = DocX.Create(ms);
-            /*
+            
             DocX docTemplate = DocX.Load(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
                     + "/" + "template" + "/" + "pgzTemplate.docx");
             //DocX docTemplate = DocX.Load("C:/template.docx");
             document = docTemplate.Copy();
-            */
+            
                 
             int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
@@ -95,6 +95,7 @@ namespace ArcGisExportApi.Services
 
                             Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
                             Picture rasterPic = rasterImage.CreatePicture();
+                            Console.WriteLine("Width:" + rasterPic.Width + " Height:" + rasterPic.Height);
                             imagesParagraph.AppendPicture(rasterPic);
 
                             Image legImage = await StreamService.getImageFromUrl(document, map.LegendUrl);
@@ -115,6 +116,13 @@ namespace ArcGisExportApi.Services
 
             //document.Save();
             return document;
+        }
+
+        async public static Task<MemoryStream> convertDocxToPdf(MemoryStream ms)
+        {
+            Spire.Doc.Document document = new Spire.Doc.Document();
+
+            return ms;
         }
 
 

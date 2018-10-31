@@ -23,7 +23,7 @@ namespace ArcGisExportApi.Controllers
 
             // create docx:
             MemoryStream ms = new MemoryStream();
-            DocX doc = await DocumentService.createPdf(request, ms);
+            DocX doc = await DocumentService.createDocx(request, ms);
             doc.SaveAs(ms);
             ms.Position = 0;
 
@@ -33,8 +33,8 @@ namespace ArcGisExportApi.Controllers
             document.LoadFromStream(ms, FileFormat.Docx);
             MemoryStream msPdf = new MemoryStream();
             document.SaveToStream(msPdf, FileFormat.PDF);
+            msPdf.Position = 0;
             */
-            
             var response = new HttpResponseMessage(HttpStatusCode.OK);
             var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
             {
@@ -49,7 +49,7 @@ namespace ArcGisExportApi.Controllers
         {
             // create pdf:
             MemoryStream ms = new MemoryStream();
-            DocX doc = await DocumentService.createPdf(request, ms);
+            DocX doc = await DocumentService.createDocx(request, ms);
             doc.SaveAs(ms);
             ms.Position = 0;
 
