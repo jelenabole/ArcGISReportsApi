@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.IO;
 using ArcGisExportApi.Inputs;
 using static ArcGisExportApi.Inputs.UrbanisticPlansResults;
+using Spire.Doc;
 
 namespace ArcGisExportApi.Services
 {
@@ -34,8 +35,8 @@ namespace ArcGisExportApi.Services
             document.ReplaceText("[KLASA]", klasa);
             document.ReplaceText("[UBROJ]", urBroj);
             document.ReplaceText("[DATUM]", datum);
-            
-            Table katCesticeTable = document.AddTable(numSpatialCond, 3);
+
+            Novacode.Table katCesticeTable = document.AddTable(numSpatialCond, 3);
             katCesticeTable.Design = TableDesign.LightGrid;
             katCesticeTable.Alignment = Alignment.left;
             katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
@@ -58,7 +59,7 @@ namespace ArcGisExportApi.Services
             katCesticeTitle.Alignment = Alignment.left;
             katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
 
-            Table rezUrbIdentTable = document.AddTable(1, 4);
+            Novacode.Table rezUrbIdentTable = document.AddTable(1, 4);
             rezUrbIdentTable.Design = TableDesign.LightGrid;
             rezUrbIdentTable.Alignment = Alignment.center;
             Double spacing = 15;
@@ -72,7 +73,7 @@ namespace ArcGisExportApi.Services
             foreach (UrbanisticPlansResults resUrbIdent in dataRequest.UrbanisticPlansResults)
             {
                 Paragraph resPlanUrbPar;
-                Table table = document.AddTable(1, 4);
+                Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.LightGrid;
                 table.Alignment = Alignment.center;
                 table.Rows[0].Cells[0].Paragraphs[0].Append(resUrbIdent.Status);
@@ -121,8 +122,11 @@ namespace ArcGisExportApi.Services
         async public static Task<MemoryStream> convertDocxToPdf(MemoryStream ms)
         {
             Spire.Doc.Document document = new Spire.Doc.Document();
-
-            return ms;
+            MemoryStream msPdf = new MemoryStream();
+            document.LoadFromStream(ms, FileFormat.Docx);
+            document.SaveToStream(msPdf, FileFormat.PDF);
+            msPdf.Position = 0;
+            return msPdf;
         }
 
 

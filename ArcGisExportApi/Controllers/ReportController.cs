@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using ArcGisExportApi.Services;
 using ArcGisExportApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Novacode;
-using Spire.Doc;
+
 
 namespace ArcGisExportApi.Controllers
 {
@@ -23,25 +24,36 @@ namespace ArcGisExportApi.Controllers
 
             // create docx:
             MemoryStream ms = new MemoryStream();
+            MemoryStream msPdf = new MemoryStream();
             DocX doc = await DocumentService.createDocx(request, ms);
             doc.SaveAs(ms);
             ms.Position = 0;
-
             //convert docx to pdf
-            /*
-            Document document = new Document();
-            document.LoadFromStream(ms, FileFormat.Docx);
-            MemoryStream msPdf = new MemoryStream();
-            document.SaveToStream(msPdf, FileFormat.PDF);
-            msPdf.Position = 0;
-            */
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            if (request.FileFormat == "pdf")
             {
-                FileDownloadName = string.Format("PGZ_test.docx")
-            };
+                msPdf = await DocumentService.convertDocxToPdf(ms);
 
-            return file;
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                var file = new FileStreamResult(msPdf, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                {
+                    FileDownloadName = string.Format("PGZ_test.pdf")
+                };
+
+                return file;
+            }
+            else
+            {
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                {
+                    FileDownloadName = string.Format("PGZ_test.docx")
+                };
+
+                return file;
+            }
+            
+            
+            
         }
 
         [HttpPost]
