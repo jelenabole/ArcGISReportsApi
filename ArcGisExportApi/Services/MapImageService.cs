@@ -7,12 +7,12 @@ using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 
 namespace PGZ.UI.PrintService.Services
 {
-    public class ResponseMapper
+    public class MapImageService
     {
         public static string exportServer = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
 
 
-        async public static Task<DataResponse> mapToReponse(DataRequest request)
+        async public static Task<MapImageList> mapToReponse(DataRequest request)
         {
             // CHECK - if there are no urban.plan. results checked - return null:
             if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
@@ -21,12 +21,12 @@ namespace PGZ.UI.PrintService.Services
             }
 
             // create a list of maps:
-            DataResponse response = new DataResponse();
+            MapImageList response = new MapImageList();
             List<string> mapPlanIdList = new List<string>();
             foreach (PlanMap planMap in request.UrbanisticPlansResults[0].PlanMaps)
             {
                 // create map plan, with id and scales:
-                MapObject map = new MapObject
+                MapImageList map = new MapImageList
                 {
                     Id = planMap.Id,
                     MapScale = planMap.MapScale,
@@ -45,7 +45,7 @@ namespace PGZ.UI.PrintService.Services
             return response;
         }
 
-        async public static Task<bool> AddRaster(DataResponse response, string restUrl, List<string> mapPlanIds)
+        async public static Task<bool> AddRaster(MapImageList response, string restUrl, List<string> mapPlanIds)
         {
             QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
 
@@ -79,7 +79,7 @@ namespace PGZ.UI.PrintService.Services
 
 
 
-        async public static Task<bool> AddLegends(DataResponse response, string restUrl, List<string> mapPlanIds)
+        async public static Task<bool> AddLegends(MapImageList response, string restUrl, List<string> mapPlanIds)
         {
             QueryResult legendsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
 
@@ -92,7 +92,7 @@ namespace PGZ.UI.PrintService.Services
             return true;
         }
 
-        async public static Task<bool> AddComponents(DataResponse response, string restUrl, List<string> mapPlanIds)
+        async public static Task<bool> AddComponents(MapImageList response, string restUrl, List<string> mapPlanIds)
         {
             QueryResult componentsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
 

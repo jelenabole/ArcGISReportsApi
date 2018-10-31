@@ -1,22 +1,40 @@
 ﻿using System;
-using PGZ.UI.PrintService.Models;
-using Novacode;
-using System.Threading.Tasks;
 using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
+using PGZ.UI.PrintService.Models;
 using PGZ.UI.PrintService.Inputs;
 using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
+using Novacode;
 using Spire.Doc;
-using System.Reflection;
 
 namespace PGZ.UI.PrintService.Services
 {
     class DocumentService
     {
-        async public static Task<DocX> createDocx(DataRequest dataRequest, MemoryStream ms)
+        async public static Task<string> createDocument(DataRequest request, MemoryStream ms)
         {
-            // get all data and export images:
-            DataResponse dataResponse = await ResponseMapper.mapToReponse(dataRequest);
+            // get all map images:
+            MapImageList mapImages = await MapImageService.mapToReponse(request);
 
+            // create document (docx):
+            DocX doc = await createDocx(request, mapImages, ms);
+            doc.SaveAs(ms);
+
+            // convert to other formats, if needed:
+            if (request.FileFormat == "pdf")
+            {
+                convertDocxToPdf(ms);
+                return "pdf";
+            }
+
+            return "docx";
+        }
+
+
+        async public static Task<DocX> createDocx(DataRequest request,
+            MapImageList mapImages, MemoryStream ms)
+        {
             DocX document = DocX.Create(ms);
 
             string path = Path.Combine(Path.GetDirectoryName(Assembly
@@ -27,8 +45,8 @@ namespace PGZ.UI.PrintService.Services
             document = docTemplate.Copy();
             
                 
-            int numSpatialCond = dataRequest.SpatialConditionList.Count + 1;
-            int numUrbanisticPlanResult = dataRequest.UrbanisticPlansResults.Count;
+            int numSpatialCond = request.SpatialConditionList.Count + 1;
+            int numUrbanisticPlanResult = request.UrbanisticPlansResults.Count;
             int i = 1;
             
             String klasa = "proba";
@@ -46,7 +64,7 @@ namespace PGZ.UI.PrintService.Services
             katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
             katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
 
-            foreach (SpatialCondition spatial in dataRequest.SpatialConditionList)
+            foreach (SpatialCondition spatial in request.SpatialConditionList)
             {
                 katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
                 katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
@@ -72,8 +90,7 @@ namespace PGZ.UI.PrintService.Services
             rezUrbIdentTitle.Alignment = Alignment.left;
             rezUrbIdentTitle.SpacingBefore(spacing);
 
-            Console.WriteLine("Broj urb planova:" + dataRequest.UrbanisticPlansResults.Count);
-            foreach (UrbanisticPlansResults resUrbIdent in dataRequest.UrbanisticPlansResults)
+            foreach (UrbanisticPlansResults resUrbIdent in request.UrbanisticPlansResults)
             {
                 Paragraph resPlanUrbPar;
                 Novacode.Table table = document.AddTable(1, 4);
@@ -89,7 +106,7 @@ namespace PGZ.UI.PrintService.Services
 
                 foreach (PlanMap planMap in resUrbIdent.PlanMaps)
                 {
-                    foreach (MapObject map in dataResponse.Maps)
+                    foreach (MapImageList map in mapImages.Maps)
                     {
                         if (planMap.Id == map.Id)
                         {
@@ -122,16 +139,13 @@ namespace PGZ.UI.PrintService.Services
             return document;
         }
 
-        async public static Task<MemoryStream> convertDocxToPdf(MemoryStream ms)
+        async public static void convertDocxToPdf(MemoryStream ms)
         {
             Document document = new Document();
-            MemoryStream msPdf = new MemoryStream();
             document.LoadFromStream(ms, FileFormat.Docx);
-            document.SaveToStream(msPdf, FileFormat.PDF);
-            msPdf.Position = 0;
-            return msPdf;
+            ms.Position = 0;
+            document.SaveToStream(ms, FileFormat.PDF);
         }
-
 
     }
 }

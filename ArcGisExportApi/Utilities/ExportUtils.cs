@@ -14,7 +14,7 @@ namespace PGZ.UI.PrintService.Utilities
         static int paperHeightPixels = 900;
 
         // get info (with the url and other info) by export:
-        async public static Task<ExportResultList> getInfo(DataResponse response,
+        async public static Task<ExportResultList> getInfo(MapImageList response,
             QueryResult queryResult, string uriLayer)
         {
             ExportResultList results = new ExportResultList();
