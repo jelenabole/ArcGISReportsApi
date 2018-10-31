@@ -4,16 +4,16 @@ namespace PGZ.UI.PrintService.Models
 {
     public sealed class MapImageList
     {
-        public List<MapImageList> Maps { get; set; }
+        public List<MapPlans> Maps { get; set; }
 
         public MapImageList()
         {
-            Maps = new List<MapImageList>();
+            Maps = new List<MapPlans>();
         }
 
-        public MapImageList GetById(string id)
+        public MapPlans GetById(string id)
         {
-            foreach (MapImageList map in Maps) {
+            foreach (MapPlans map in Maps) {
                 if (map.Id == id)
                     return map;
             }
@@ -21,7 +21,7 @@ namespace PGZ.UI.PrintService.Models
         }
     }
 
-    public class MapImageList
+    public class MapPlans
     {
         public string Id { get; set; }
         public string MapScale { get; set; }

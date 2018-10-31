@@ -106,7 +106,7 @@ namespace PGZ.UI.PrintService.Services
 
                 foreach (PlanMap planMap in resUrbIdent.PlanMaps)
                 {
-                    foreach (MapImageList map in mapImages.Maps)
+                    foreach (MapPlans map in mapImages.Maps)
                     {
                         if (planMap.Id == map.Id)
                         {

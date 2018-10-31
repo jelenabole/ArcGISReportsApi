@@ -26,7 +26,7 @@ namespace PGZ.UI.PrintService.Services
             foreach (PlanMap planMap in request.UrbanisticPlansResults[0].PlanMaps)
             {
                 // create map plan, with id and scales:
-                MapImageList map = new MapImageList
+                MapPlans map = new MapPlans
                 {
                     Id = planMap.Id,
                     MapScale = planMap.MapScale,
