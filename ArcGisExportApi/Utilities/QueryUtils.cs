@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using PGZ.UI.PrintService.Services;
 using PGZ.UI.PrintService.Models;
@@ -14,7 +13,6 @@ namespace PGZ.UI.PrintService.Utilities
         async public static Task<QueryResult> queryAll(string uri, List<string> mapPlanIds)
         {
             uri = createQuery(uri, mapPlanIds);
-            Trace.WriteLine("query all: " + uri);
 
             QueryResult result = await queryService.getQuery(uri);
             return result;

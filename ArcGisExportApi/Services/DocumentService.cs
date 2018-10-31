@@ -19,7 +19,8 @@ namespace PGZ.UI.PrintService.Services
 
             DocX document = DocX.Create(ms);
 
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\template\pgzTemplate.docx");
+            string path = Path.Combine(Path.GetDirectoryName(Assembly
+                .GetExecutingAssembly().Location), @"..\..\..\Templates\pgzTemplate.docx");
 
             DocX docTemplate = DocX.Load(path);
 
@@ -123,7 +124,7 @@ namespace PGZ.UI.PrintService.Services
 
         async public static Task<MemoryStream> convertDocxToPdf(MemoryStream ms)
         {
-            Spire.Doc.Document document = new Spire.Doc.Document();
+            Document document = new Document();
             MemoryStream msPdf = new MemoryStream();
             document.LoadFromStream(ms, FileFormat.Docx);
             document.SaveToStream(msPdf, FileFormat.PDF);
