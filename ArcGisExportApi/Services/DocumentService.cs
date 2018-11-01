@@ -7,11 +7,14 @@ using PGZ.UI.PrintService.Inputs;
 using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 using Novacode;
 using Spire.Doc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace PGZ.UI.PrintService.Services
 {
     class DocumentService
     {
+        
         async public static Task<string> createDocument(DataRequest request, MemoryStream ms)
         {
             // get all map images:
@@ -147,5 +150,21 @@ namespace PGZ.UI.PrintService.Services
             document.SaveToStream(ms, FileFormat.PDF);
         }
 
+
+        async public static void CreateCacheFile(DataRequest request, IMemoryCache _cache, string key)
+        {
+            // create document:
+            MemoryStream ms = new MemoryStream();
+            string format = await createDocument(request, ms);
+            ms.Position = 0;
+
+            // send response:
+            var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            {
+                FileDownloadName = string.Format("PGZ_test." + format)
+            };
+
+            _cache.Set(key, file);
+        }
     }
 }
