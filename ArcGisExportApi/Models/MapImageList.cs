@@ -5,6 +5,7 @@ namespace PGZ.UI.PrintService.Models
     public sealed class MapImageList
     {
         public List<MapPlans> Maps { get; set; }
+        public string TemplatePath { get; set; }
 
         public MapImageList()
         {

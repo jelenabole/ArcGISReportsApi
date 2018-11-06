@@ -15,10 +15,11 @@ namespace PGZ.UI.PrintService.Services
     class DocumentService
     {
         
-        async public static Task<string> createDocument(DataRequest request, MemoryStream ms)
+        async public static Task<string> createDocument(DataRequest request, MemoryStream ms, string webPath)
         {
             // get all map images:
             MapImageList mapImages = await MapImageService.mapToReponse(request);
+            AddTemplate(mapImages, request.DocumentTemplateId, webRootPath);
 
             // create document (docx):
             DocX doc = await createDocx(request, mapImages, ms);
@@ -34,25 +35,28 @@ namespace PGZ.UI.PrintService.Services
             return "docx";
         }
 
+        private static void AddTemplate(MapImageList mapImages, string templateId, string webRootPath)
+        {
+            // TODO - find template by id:
+            string templateName = "pgzTemplate.docx";
+            mapImages.TemplatePath = Path.Combine(webRootPath, "Templates", templateName);
+        }
+
 
         async public static Task<DocX> createDocx(DataRequest request,
             MapImageList mapImages, MemoryStream ms)
         {
             DocX document = DocX.Create(ms);
-
-            string path = Path.Combine(Path.GetDirectoryName(Assembly
-                .GetExecutingAssembly().Location), @"..\..\..\Templates\pgzTemplate.docx");
-
-            DocX docTemplate = DocX.Load(path);
-
+            // string path2 = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "pgzTemplate.docx");
+            DocX docTemplate = DocX.Load(mapImages.TemplatePath);
             document = docTemplate.Copy();
-            
+
                 
             int numSpatialCond = request.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = request.UrbanisticPlansResults.Count;
             int i = 1;
             
-            String klasa = "proba";
+            String klasa = "klasa";
             String urBroj = "urudžbeni broj";
             String datum = DateTime.Now.ToLongDateString();
 
@@ -151,7 +155,8 @@ namespace PGZ.UI.PrintService.Services
         }
 
 
-        async public static void CreateCacheFile(DataRequest request, IMemoryCache _cache, string key)
+        async public static void CreateCacheFile(DataRequest request, 
+            IMemoryCache _cache, string key, string webRootPath)
         {
             // cache options:
             var policy = new MemoryCacheEntryOptions()
@@ -166,7 +171,7 @@ namespace PGZ.UI.PrintService.Services
             {
                 try
                 {
-                    string format = await createDocument(request, ms);
+                    string format = await createDocument(request, ms, webRootPath);
                     ms.Position = 0;
                     cached.Document = ms.ToArray();
                     cached.StatusCode = ResponseStatusCode.OK;

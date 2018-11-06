@@ -8,16 +8,20 @@ using PGZ.UI.PrintService.Responses;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PGZ.UI.PrintService.Controllers
 {
     [ApiController]
     public class ReportController : ControllerBase
     {
+        private readonly IHostingEnvironment _hostingEnvironment;
         private IMemoryCache _cache;
-        public ReportController(IMemoryCache memoryCache)
+
+        public ReportController(IMemoryCache memoryCache, IHostingEnvironment hostingEnvironment)
         {
             _cache = memoryCache;
+            _hostingEnvironment = hostingEnvironment;
         }
 
 
@@ -27,10 +31,11 @@ namespace PGZ.UI.PrintService.Controllers
         {
             // test data:
             DataRequest request = DownloadUtils.getData();
+            string contentRootPath = _hostingEnvironment.ContentRootPath;
 
             // create document:
             MemoryStream ms = new MemoryStream();
-            string format = await DocumentService.createDocument(request, ms);
+            string format = await DocumentService.createDocument(request, ms, contentRootPath);
             ms.Position = 0;
 
             // send response:
@@ -60,7 +65,7 @@ namespace PGZ.UI.PrintService.Controllers
             {
                 // generate key, and start file creation:
                 string key = Guid.NewGuid().ToString();
-                DocumentService.CreateCacheFile(request, _cache, key);
+                DocumentService.CreateCacheFile(request, _cache, key, _hostingEnvironment.ContentRootPath);
 
                 return serializeToJson(new SubmitResponse(key));
             }

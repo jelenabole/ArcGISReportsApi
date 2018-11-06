@@ -15,4 +15,10 @@
     <PackageReference Include="Spire.Doc" Version="6.10.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Templates\pgzTemplate.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
