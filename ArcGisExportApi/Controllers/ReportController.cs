@@ -4,6 +4,8 @@ using PGZ.UI.PrintService.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using PGZ.UI.PrintService.Responses;
+using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -47,32 +49,45 @@ namespace PGZ.UI.PrintService.Controllers
 
 
         [HttpPost]
-        [Route("[controller]/get")]
-        public string StartCreatingDocument([FromBody] DataRequest request)
+        [Route("[controller]/submit")]
+        public string Submit([FromBody] DataRequest request)
         {
-            // generate key, and start file creation:
-            string key = Guid.NewGuid().ToString();
-            DocumentService.CreateCacheFile(request, _cache, key);
+            // TODO - check request mistakes (wrong type, null)
+            if (request.FileFormat == null)
+            {
+                return serializeToJson(new ResponseStatus("File Format Empty"));
+            } else
+            {
+                // generate key, and start file creation:
+                string key = Guid.NewGuid().ToString();
+                DocumentService.CreateCacheFile(request, _cache, key);
 
-            return key;
+                return serializeToJson(new SubmitResponse(key));
+            }
         }
+
 
         [HttpGet]
         [Route("[controller]/check/{key}")]
-        public bool CheckDocumentStatus(string key)
+        public string CheckStatus(string key)
         {
             if (_cache.Get<FileStreamResult>(key) != null)
             {
-                return true;
+                return serializeToJson(
+                    new CheckResponse("https://" + Request.Host.ToString() 
+                    + "/report/download/" + key));
+            } else
+            {
+                return serializeToJson(new ResponseStatus("Document not ready").SetToWaiting());
             }
-            return false;
         }
 
         [HttpGet]
-        [Route("[controller]/get/{key}")]
-        public FileStreamResult GetDocument(string key)
+        [Route("[controller]/download/{key}")]
+        public FileStreamResult Download(string key)
         {
-            return _cache.Get<FileStreamResult>(key);
+           return _cache.Get<FileStreamResult>(key);
+        }
         }
 
     }
