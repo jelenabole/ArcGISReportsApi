@@ -73,7 +73,7 @@ namespace PGZ.UI.PrintService.Controllers
 
 
         [HttpGet]
-        [Route("[controller]/check/{key}")]
+        [Route("[controller]/ping/{key}")]
         public string CheckStatus(string key)
         {
             DocumentResponse cached = _cache.Get<DocumentResponse>(key);

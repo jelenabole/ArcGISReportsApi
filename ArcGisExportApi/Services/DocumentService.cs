@@ -15,7 +15,7 @@ namespace PGZ.UI.PrintService.Services
     class DocumentService
     {
         
-        async public static Task<string> createDocument(DataRequest request, MemoryStream ms, string webPath)
+        async public static Task<string> createDocument(DataRequest request, MemoryStream ms, string webRootPath)
         {
             // get all map images:
             MapImageList mapImages = await MapImageService.mapToReponse(request);
