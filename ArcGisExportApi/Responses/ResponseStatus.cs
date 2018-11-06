@@ -8,7 +8,6 @@ namespace PGZ.UI.PrintService.Responses
         [JsonConverter(typeof(StringEnumConverter))]
         public ResponseStatusCode StatusCode { get; set; }
         public string ErrorDescription { get; set; }
-        public string ErrorTrace { get; set; }
 
         public ResponseStatus() { }
 
@@ -18,10 +17,11 @@ namespace PGZ.UI.PrintService.Responses
             ErrorDescription = errorMessage;
         }
 
-        public ResponseStatus SetToWaiting()
+        public ResponseStatus(string errorMessage, ResponseStatusCode statusCode)
         {
-            StatusCode = ResponseStatusCode.PENDING;
-            return this;
+            StatusCode = ResponseStatusCode.ERROR;
+            ErrorDescription = errorMessage;
+            StatusCode = statusCode;
         }
     }
 

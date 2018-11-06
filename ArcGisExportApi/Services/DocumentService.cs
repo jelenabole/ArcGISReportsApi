@@ -7,8 +7,8 @@ using PGZ.UI.PrintService.Inputs;
 using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 using Novacode;
 using Spire.Doc;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using PGZ.UI.PrintService.Responses;
 
 namespace PGZ.UI.PrintService.Services
 {
@@ -153,18 +153,31 @@ namespace PGZ.UI.PrintService.Services
 
         async public static void CreateCacheFile(DataRequest request, IMemoryCache _cache, string key)
         {
+            // cache options:
+            var policy = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+
+            // add cache with pending status:
+            DocumentResponse cached = new DocumentResponse();
+            _cache.Set(key, cached, policy);
+
             // create document:
-            MemoryStream ms = new MemoryStream();
-            string format = await createDocument(request, ms);
-            ms.Position = 0;
-
-            // send response:
-            var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            using (MemoryStream ms = new MemoryStream())
             {
-                FileDownloadName = string.Format("PGZ_test." + format)
-            };
-
-            _cache.Set(key, file);
+                try
+                {
+                    string format = await createDocument(request, ms);
+                    ms.Position = 0;
+                    cached.Document = ms.ToArray();
+                    cached.StatusCode = ResponseStatusCode.OK;
+                    cached.Format = request.FileFormat;
+                }
+                catch (Exception ex)
+                {
+                    cached.StatusCode = ResponseStatusCode.ERROR;
+                    cached.ErrorDescription = ex.Message;
+                }
+            }
         }
     }
 }

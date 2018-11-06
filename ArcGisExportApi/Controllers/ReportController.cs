@@ -71,14 +71,24 @@ namespace PGZ.UI.PrintService.Controllers
         [Route("[controller]/check/{key}")]
         public string CheckStatus(string key)
         {
-            if (_cache.Get<FileStreamResult>(key) != null)
+            DocumentResponse cached = _cache.Get<DocumentResponse>(key);
+            // no key:
+            if (cached == null)
             {
-                return serializeToJson(
-                    new CheckResponse("https://" + Request.Host.ToString() 
-                    + "/report/download/" + key));
+                return serializeToJson(new ResponseStatus("No file with that key"));
+            }
+
+            if (cached.StatusCode == ResponseStatusCode.OK)
+            {
+                return serializeToJson(new CheckResponse(
+                         "https://" + Request.Host.ToString() + "/report/download/" + key));
+            } else if (cached.StatusCode == ResponseStatusCode.PENDING)
+            {
+                return serializeToJson(new ResponseStatus("Document not ready", cached.StatusCode));
             } else
             {
-                return serializeToJson(new ResponseStatus("Document not ready").SetToWaiting());
+                // error:
+                return serializeToJson(new ResponseStatus(cached.ErrorDescription));
             }
         }
 
@@ -86,8 +96,28 @@ namespace PGZ.UI.PrintService.Controllers
         [Route("[controller]/download/{key}")]
         public FileStreamResult Download(string key)
         {
-           return _cache.Get<FileStreamResult>(key);
+            DocumentResponse cached = _cache.Get<DocumentResponse>(key);
+            if (cached == null)
+                return null;
+
+            // create document:
+            MemoryStream ms = new MemoryStream(cached.Document);
+            ms.Position = 0;
+
+            // send response:
+            var file = new FileStreamResult(ms, cached.GetMimeTypeByFormat())
+            {
+                FileDownloadName = string.Format("PGZ_test." + cached.Format)
+            };
+            return file;
         }
+
+        private string serializeToJson(object obj)
+        {
+            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
         }
 
     }
