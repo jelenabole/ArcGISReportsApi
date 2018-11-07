@@ -81,6 +81,7 @@ namespace PGZ.UI.PrintService.Services
 
             Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
             title.Alignment = Alignment.center;
+            title.SpacingBefore(30d);
             title.SpacingAfter(40d);
 
             Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
@@ -97,6 +98,8 @@ namespace PGZ.UI.PrintService.Services
             rezUrbIdentTitle.Alignment = Alignment.left;
             rezUrbIdentTitle.SpacingBefore(spacing);
 
+            UrbanisticPlansResults lastUrbPlanResult = request.UrbanisticPlansResults[request.UrbanisticPlansResults.Count - 1];
+
             foreach (UrbanisticPlansResults resUrbIdent in request.UrbanisticPlansResults)
             {
                 Paragraph resPlanUrbPar;
@@ -110,6 +113,8 @@ namespace PGZ.UI.PrintService.Services
 
                 resPlanUrbPar = document.InsertParagraph();
                 resPlanUrbPar.InsertTableBeforeSelf(table);
+                resPlanUrbPar.InsertPageBreakAfterSelf();
+
 
                 foreach (PlanMap planMap in resUrbIdent.PlanMaps)
                 {
@@ -134,10 +139,15 @@ namespace PGZ.UI.PrintService.Services
                             Picture compPic = compImage.CreatePicture();
                             imagesParagraph.AppendPicture(compPic);
 
-                            imagesParagraph.InsertPageBreakAfterSelf();
+                            if (lastUrbPlanResult.Id != resUrbIdent.Id)
+                            {
+                                imagesParagraph.InsertPageBreakAfterSelf();
+                            }
+                            
                         }
                     }
                 }
+                
                 //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
             }
             
