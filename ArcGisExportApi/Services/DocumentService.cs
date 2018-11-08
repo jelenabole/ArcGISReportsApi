@@ -100,6 +100,8 @@ namespace PGZ.UI.PrintService.Services
 
             UrbanisticPlansResults lastUrbPlanResult = request.UrbanisticPlansResults[request.UrbanisticPlansResults.Count - 1];
 
+            int firstResUrbIdent = 0;
+
             foreach (UrbanisticPlansResults resUrbIdent in request.UrbanisticPlansResults)
             {
                 Paragraph resPlanUrbPar;
@@ -112,8 +114,14 @@ namespace PGZ.UI.PrintService.Services
                 table.Rows[0].Cells[3].Paragraphs[0].Append(resUrbIdent.GisCode);
 
                 resPlanUrbPar = document.InsertParagraph();
-                resPlanUrbPar.InsertTableBeforeSelf(table);
-                resPlanUrbPar.InsertPageBreakAfterSelf();
+                resPlanUrbPar.InsertTableAfterSelf(table);
+
+                if(firstResUrbIdent == 1)
+                {
+                    resPlanUrbPar.InsertPageBreakBeforeSelf();
+                }
+
+                firstResUrbIdent = 1;
 
 
                 foreach (PlanMap planMap in resUrbIdent.PlanMaps)
@@ -125,7 +133,7 @@ namespace PGZ.UI.PrintService.Services
                             Paragraph imagesParagraph = document.InsertParagraph((planMap.Name 
                                 + " " + "MJERILO KARTE 1:" + planMap.MapScale
                                 + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
-
+                            imagesParagraph.InsertPageBreakBeforeSelf();
                             Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
                             Picture rasterPic = rasterImage.CreatePicture();
                             Console.WriteLine("Width:" + rasterPic.Width + " Height:" + rasterPic.Height);
@@ -139,20 +147,12 @@ namespace PGZ.UI.PrintService.Services
                             Picture compPic = compImage.CreatePicture();
                             imagesParagraph.AppendPicture(compPic);
 
-                            if (lastUrbPlanResult.Id != resUrbIdent.Id)
-                            {
-                                imagesParagraph.InsertPageBreakAfterSelf();
-                            }
-                            
                         }
                     }
                 }
-                
-                //resPlanUrbPar.AppendPicture(dataResponse.Maps[0].Legend.Image.CreatePicture());
+
             }
             
-
-            //document.Save();
             return document;
         }
 
