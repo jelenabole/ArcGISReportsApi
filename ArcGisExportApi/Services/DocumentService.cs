@@ -13,10 +13,8 @@ namespace PGZ.UI.PrintService.Services
 {
     class DocumentService
     {
-        
         async public static Task<string> createDocument(DataRequest request, MemoryStream ms, string webRootPath)
         {
-
             // load document template (docx):
             DocX doc = AddTemplate(request.DocumentTemplateId, webRootPath);
 

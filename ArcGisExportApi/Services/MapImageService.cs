@@ -5,10 +5,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 using Novacode;
-using System.Threading;
 using System.IO;
 using System.Drawing;
-using System;
 using System.Drawing.Imaging;
 
 namespace PGZ.UI.PrintService.Services
