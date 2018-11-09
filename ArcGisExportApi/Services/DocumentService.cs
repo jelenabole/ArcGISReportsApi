@@ -123,11 +123,11 @@ namespace PGZ.UI.PrintService.Services
                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
                         + " " + "MJERILO KARTE 1:" + planMap.MapScale
                         + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
-
+                    imagesParagraph.InsertPageBreakBeforeSelf();
                     imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.RasterImage).CreatePicture());
                     imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.LegendImage).CreatePicture());
                     imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.ComponentImage).CreatePicture());
-                    imagesParagraph.InsertPageBreakAfterSelf();
+                    //imagesParagraph.InsertPageBreakAfterSelf();
                 }
             }
             
