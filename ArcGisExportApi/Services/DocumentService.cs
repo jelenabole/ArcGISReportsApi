@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using PGZ.UI.PrintService.Models;
 using PGZ.UI.PrintService.Inputs;
@@ -17,12 +16,13 @@ namespace PGZ.UI.PrintService.Services
         
         async public static Task<string> createDocument(DataRequest request, MemoryStream ms, string webRootPath)
         {
-            // get all map images:
-            MapImageList mapImages = await MapImageService.mapToReponse(request);
-            AddTemplate(mapImages, request.DocumentTemplateId, webRootPath);
 
-            // create document (docx):
-            DocX doc = await createDocx(request, mapImages, ms);
+            // load document template (docx):
+            DocX doc = AddTemplate(request.DocumentTemplateId, webRootPath);
+
+            // get all map images and add them to docx:
+            MapImageList mapImages = await MapImageService.mapToReponse(doc, request);
+            await AddInfo(doc, request, mapImages);
             doc.SaveAs(ms);
 
             // convert to other formats, if needed:
@@ -35,23 +35,19 @@ namespace PGZ.UI.PrintService.Services
             return "docx";
         }
 
-        private static void AddTemplate(MapImageList mapImages, string templateId, string webRootPath)
+        private static DocX AddTemplate(string templateId, string webRootPath)
         {
             // TODO - find template by id:
             string templateName = "pgzTemplate.docx";
-            mapImages.TemplatePath = Path.Combine(webRootPath, "Templates", templateName);
+
+            string path = Path.Combine(webRootPath, "Templates", templateName);
+            return DocX.Load(path).Copy();
         }
 
 
-        async public static Task<DocX> createDocx(DataRequest request,
-            MapImageList mapImages, MemoryStream ms)
+        async public static Task<DocX> AddInfo(DocX document, DataRequest request,
+            MapImageList mapImages)
         {
-            DocX document = DocX.Create(ms);
-            // string path2 = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "pgzTemplate.docx");
-            DocX docTemplate = DocX.Load(mapImages.TemplatePath);
-            document = docTemplate.Copy();
-
-                
             int numSpatialCond = request.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = request.UrbanisticPlansResults.Count;
             int i = 1;
@@ -123,34 +119,18 @@ namespace PGZ.UI.PrintService.Services
 
                 firstResUrbIdent = 1;
 
-
                 foreach (PlanMap planMap in resUrbIdent.PlanMaps)
                 {
-                    foreach (MapPlans map in mapImages.Maps)
-                    {
-                        if (planMap.Id == map.Id)
-                        {
-                            Paragraph imagesParagraph = document.InsertParagraph((planMap.Name 
-                                + " " + "MJERILO KARTE 1:" + planMap.MapScale
-                                + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
-                            imagesParagraph.InsertPageBreakBeforeSelf();
-                            Image rasterImage = await StreamService.getImageFromUrl(document, map.Raster.Href);
-                            Picture rasterPic = rasterImage.CreatePicture();
-                            Console.WriteLine("Width:" + rasterPic.Width + " Height:" + rasterPic.Height);
-                            imagesParagraph.AppendPicture(rasterPic);
+                    MapPlans map = mapImages.GetById(planMap.Id);
+                    Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
+                        + " " + "MJERILO KARTE 1:" + planMap.MapScale
+                        + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
 
-                            Image legImage = await StreamService.getImageFromUrl(document, map.LegendUrl);
-                            Picture legPic = legImage.CreatePicture();
-                            imagesParagraph.AppendPicture(legPic);
-
-                            Image compImage = await StreamService.getImageFromUrl(document, map.ComponentUrl);
-                            Picture compPic = compImage.CreatePicture();
-                            imagesParagraph.AppendPicture(compPic);
-
-                        }
-                    }
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.RasterImage).CreatePicture());
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.LegendImage).CreatePicture());
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.ComponentImage).CreatePicture());
+                    imagesParagraph.InsertPageBreakAfterSelf();
                 }
-
             }
             
             return document;
@@ -170,7 +150,7 @@ namespace PGZ.UI.PrintService.Services
         {
             // cache options:
             var policy = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
             // add cache with pending status:
             DocumentResponse cached = new DocumentResponse();
@@ -182,7 +162,6 @@ namespace PGZ.UI.PrintService.Services
                 try
                 {
                     string format = await createDocument(request, ms, webRootPath);
-                    ms.Position = 0;
                     cached.Document = ms.ToArray();
                     cached.StatusCode = ResponseStatusCode.OK;
                     cached.Format = request.FileFormat;

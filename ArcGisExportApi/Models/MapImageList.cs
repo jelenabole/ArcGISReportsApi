@@ -6,6 +6,7 @@ namespace PGZ.UI.PrintService.Models
     {
         public List<MapPlans> Maps { get; set; }
         public string TemplatePath { get; set; }
+        public string ServerPath { get; set; }
 
         public MapImageList()
         {
@@ -32,11 +33,19 @@ namespace PGZ.UI.PrintService.Models
         public MapImage Raster { get; set; }
         public string LegendUrl { get; set; }
         public string ComponentUrl { get; set; }
+
+        public byte[] RasterImage { get; set; }
+        public byte[] LegendImage { get; set; }
+        public byte[] ComponentImage { get; set; }
     }
 
     public class MapImage
     {
         public string Href { get; set; }
         public double Scale { get; set; }
+
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public Extent Extent { get; set; }
     }
 }

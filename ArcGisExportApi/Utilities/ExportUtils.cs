@@ -9,6 +9,9 @@ namespace PGZ.UI.PrintService.Utilities
 {
     public class ExportUtils
     {
+        // TODO - remove this link to server
+        static string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/";
+
         // size in pixels (by calculation 553 x 930):
         static int paperWidthPixels = 550;
         static int paperHeightPixels = 900;
@@ -27,7 +30,7 @@ namespace PGZ.UI.PrintService.Utilities
                 Extent extent = FindPoints(queryResult.Features[i].Geometry);
                 string kartaSifra = queryResult.Features[i].Attributes.Karta_sifra;
 
-                string linkMap = "?f=json"
+                string linkMap = "export?f=json"
                     + "&format=png"
                     + AddBoundingBox(extent)
                     + "&size=" + paperWidthPixels + "," + paperHeightPixels
@@ -35,7 +38,7 @@ namespace PGZ.UI.PrintService.Utilities
                     + AddLayer(uriLayer)
                     + AddLayerDefs(uriLayer, kartaSifra);
 
-                ExportResult result = await ExportRepo.getImageInfo(linkMap);
+                ExportResult result = await ExportRepo.getImageInfo(serverExport + linkMap);
                 result.Karta_Sifra = kartaSifra;
                 results.MapPlans.Add(result);
 
@@ -86,13 +89,8 @@ namespace PGZ.UI.PrintService.Utilities
         private static string getLayerFromUri(string link)
         {
             // global - search term should be name of the server
-            string search = "/MapServer/";
+            string search = "/";
             link = link.Substring(link.LastIndexOf(search) + search.Length);
-            int end = link.IndexOf("/");
-
-            // if / == null or the
-            if (end != -1)
-                link = link.Substring(0, end);
 
             return link;
         }

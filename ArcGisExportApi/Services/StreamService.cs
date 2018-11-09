@@ -37,5 +37,27 @@ namespace PGZ.UI.PrintService.Services
             }
         }
 
-     }
+        // used for get image from url (in doc):
+        public static async Task<byte[]> getImageFromUrlAsync(string uri)
+        {
+            Uri requestUri = new Uri(uri);
+            using (WebClient webClient = new WebClient())
+            {
+                byte[] data = webClient.DownloadData(requestUri);
+                return data;
+            }
+        }
+
+        // used for get image from url (in doc):
+        public static Image convertToImage(DocX doc, byte[] bytes)
+        {
+            using (MemoryStream mem = new MemoryStream(bytes))
+            {
+                Image image = doc.AddImage(mem);
+                return image;
+            }
+        }
+
+
+    }
 }

@@ -8,14 +8,11 @@ namespace PGZ.UI.PrintService.Services
 {
     class ExportRepo
     {
-        static string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/export";
-
-        public static async Task<ExportResult> getImageInfo(string link)
+        public static async Task<ExportResult> getImageInfo(string uri)
         {
             using (var client = new HttpClient())
             {
                 // create map uri:
-                String uri = serverExport + link;
                 // json settings = ignore null fields:
                 var jsonSettings = new JsonSerializerSettings
                 {
