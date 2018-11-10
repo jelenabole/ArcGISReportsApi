@@ -17,18 +17,17 @@ namespace PGZ.UI.PrintService.Utilities
         static int paperHeightPixels = 900;
 
         // get info (with the url and other info) by export:
-        async public static Task<ExportResultList> getInfo(MapImageList response,
-            QueryResult queryResult, string uriLayer)
+        async public static Task<ExportResultList> getInfo(MapImageList response, List<string> PlanIdList,
+            Extent extent, string uriLayer)
         {
             ExportResultList results = new ExportResultList();
             results.MapPlans = new List<ExportResult>();
 
             // get each component by exporting geometry:
             // CHECK = queryResult.Features == null
-            for (int i = 0; i < queryResult.Features.Count; i++)
+            for (int i = 0; i < PlanIdList.Count; i++)
             {
-                Extent extent = FindPoints(queryResult.Features[i].Geometry);
-                string kartaSifra = queryResult.Features[i].Attributes.Karta_sifra;
+                string kartaSifra = PlanIdList[i];
 
                 string linkMap = "export?f=json"
                     + "&format=png"
@@ -98,6 +97,35 @@ namespace PGZ.UI.PrintService.Utilities
 
 
         /* ADDITIONAL FUNCTIONS FOR MAP SIZE CALCS */
+
+        public static Extent FindPoints(List<MapPolygon> polygons)
+        {
+            Extent borders = new Extent
+            {
+                Xmin = Double.MaxValue,
+                Xmax = 0,
+                Ymin = Double.MaxValue,
+                Ymax = 0
+            };
+
+            foreach (MapPolygon polygon in polygons)
+            {
+                foreach (MapPoint point in polygon.Points)
+                {
+                    if (point.XPoint < borders.Xmin)
+                        borders.Xmin = point.XPoint;
+                    if (point.XPoint > borders.Xmax)
+                        borders.Xmax = point.XPoint;
+
+                    if (point.YPoint < borders.Ymin)
+                        borders.Ymin = point.YPoint;
+                    if (point.YPoint > borders.Ymax)
+                        borders.Ymax = point.YPoint;
+                }
+            }
+
+            return borders;
+        }
 
         public static Extent FindPoints(Geometry geometry)
         {

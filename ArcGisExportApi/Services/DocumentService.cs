@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using PGZ.UI.PrintService.Models;
 using PGZ.UI.PrintService.Inputs;
-using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 using Novacode;
 using Spire.Doc;
 using Microsoft.Extensions.Caching.Memory;
@@ -19,8 +18,9 @@ namespace PGZ.UI.PrintService.Services
             DocX doc = AddTemplate(request.DocumentTemplateId, webRootPath);
 
             // get all map images and add them to docx:
-            MapImageList mapImages = await MapImageService.mapToReponse(doc, request);
-            await AddInfo(doc, request, mapImages);
+            
+            DataResponse dataResponse = await MapImageService.mapToReponse(doc, request);
+            await AddInfo(doc, request, dataResponse);
             doc.SaveAs(ms);
 
             // convert to other formats, if needed:
@@ -43,8 +43,7 @@ namespace PGZ.UI.PrintService.Services
         }
 
 
-        async public static Task<DocX> AddInfo(DocX document, DataRequest request,
-            MapImageList mapImages)
+        async public static Task<DocX> AddInfo(DocX document, DataRequest request, DataResponse response)
         {
             int numSpatialCond = request.SpatialConditionList.Count + 1;
             int numUrbanisticPlanResult = request.UrbanisticPlansResults.Count;
@@ -96,16 +95,16 @@ namespace PGZ.UI.PrintService.Services
 
             int firstResUrbIdent = 0;
 
-            foreach (UrbanisticPlansResults resUrbIdent in request.UrbanisticPlansResults)
+            foreach (MapImageList mapImageList in response.UrbanPlansImages)
             {
                 Paragraph resPlanUrbPar;
                 Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.LightGrid;
                 table.Alignment = Alignment.center;
-                table.Rows[0].Cells[0].Paragraphs[0].Append(resUrbIdent.Status);
-                table.Rows[0].Cells[1].Paragraphs[0].Append(resUrbIdent.Type);
-                table.Rows[0].Cells[2].Paragraphs[0].Append(resUrbIdent.Name);
-                table.Rows[0].Cells[3].Paragraphs[0].Append(resUrbIdent.GisCode);
+                table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
+                table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
+                table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
+                table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
 
                 resPlanUrbPar = document.InsertParagraph();
                 resPlanUrbPar.InsertTableAfterSelf(table);
@@ -117,17 +116,19 @@ namespace PGZ.UI.PrintService.Services
 
                 firstResUrbIdent = 1;
 
-                foreach (PlanMap planMap in resUrbIdent.PlanMaps)
+                foreach (MapPlans planMap in mapImageList.Maps)
                 {
-                    MapPlans map = mapImages.GetById(planMap.Id);
                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
                         + " " + "MJERILO KARTE 1:" + planMap.MapScale
                         + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
                     imagesParagraph.InsertPageBreakBeforeSelf();
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.RasterImage).CreatePicture());
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.LegendImage).CreatePicture());
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, map.ComponentImage).CreatePicture());
-                    //imagesParagraph.InsertPageBreakAfterSelf();
+
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                        planMap.RasterImage).CreatePicture());
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, 
+                        planMap.LegendImage).CreatePicture());
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                        planMap.ComponentImage).CreatePicture());
                 }
             }
             

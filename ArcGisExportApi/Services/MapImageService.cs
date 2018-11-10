@@ -13,7 +13,7 @@ namespace PGZ.UI.PrintService.Services
 {
     public class MapImageService
     {
-        async public static Task<MapImageList> mapToReponse(DocX doc, DataRequest request)
+        async public static Task<DataResponse> mapToReponse(DocX doc, DataRequest request)
         {
             // CHECK - if there are no urban.plan. results checked - return null:
             if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
@@ -29,42 +29,50 @@ namespace PGZ.UI.PrintService.Services
             }
 
             // create a list of maps:
-            MapImageList response = new MapImageList();
-            response.ServerPath = GetServerName(request.UrbanisticPlansResults[0].RasterRestURL);
-            List<string> mapPlanIdList = new List<string>();
+            DataResponse response = new DataResponse();
 
-            foreach (PlanMap planMap in request.UrbanisticPlansResults[0].PlanMaps)
+            // go through all urbanistic plans
+            foreach (UrbanisticPlansResults urbanisticPlan in request.UrbanisticPlansResults)
             {
-                // create map plan, with id and scales:
-                MapPlans map = new MapPlans
+                List<string> mapPlanIdList = new List<string>();
+
+                MapImageList planResults = new MapImageList(urbanisticPlan.Status, urbanisticPlan.Type, 
+                    urbanisticPlan.GisCode, urbanisticPlan.Name);
+                planResults.ServerPath = GetServerName(request.UrbanisticPlansResults[0].RasterRestURL);
+
+                foreach (PlanMap planMap in urbanisticPlan.PlanMaps)
                 {
-                    Id = planMap.Id,
-                    MapScale = planMap.MapScale,
-                    OriginalScale = planMap.OriginalScale
+                    // create map plan, with id and scales:
+                    MapPlans map = new MapPlans
+                    {
+                        Id = planMap.Id,
+                        Name = planMap.Name,
+                        MapScale = planMap.MapScale,
+                        OriginalScale = planMap.OriginalScale
+                    };
+                    planResults.Maps.Add(map);
+                    mapPlanIdList.Add(planMap.Id);
+                }
+                response.UrbanPlansImages.Add(planResults);
+
+                var queryTasks = new List<Task>
+                {
+                    AddRaster(planResults, polygons, urbanisticPlan.RasterRestURL, mapPlanIdList),
+                    AddLegends(planResults, urbanisticPlan.LegendRestURL, mapPlanIdList),
+                    AddComponents(planResults, urbanisticPlan.ComponentRestURL, mapPlanIdList)
                 };
-                response.Maps.Add(map);
+                await Task.WhenAll(queryTasks);
 
-                mapPlanIdList.Add(planMap.Id);
+                // get images of this urban plan:
+                var imageTasks = new List<Task>();
+                for (int i = 0; i < planResults.Maps.Count; i++)
+                {
+                    imageTasks.Add(DownloadRaster(planResults.Maps[i], polygons, i, i + " - rast"));
+                    imageTasks.Add(DownloadLegend(planResults.Maps[i], i, i + " - leg"));
+                    imageTasks.Add(DownloadComponent(planResults.Maps[i], i, i + " - comp"));
+                }
+                await Task.WhenAll(imageTasks);
             }
-
-            // TODO - +polygon
-            // TODO - do this for all urban plans:
-            var queryTasks = new List<Task>
-            {
-                AddRaster(response, request.UrbanisticPlansResults[0].RasterRestURL, mapPlanIdList),
-                AddLegends(response, request.UrbanisticPlansResults[0].LegendRestURL, mapPlanIdList),
-                AddComponents(response, request.UrbanisticPlansResults[0].ComponentRestURL, mapPlanIdList)
-            };
-            await Task.WhenAll(queryTasks);
-            // get images:
-            var imageTasks = new List<Task>();
-            for (int i = 0; i < response.Maps.Count; i++)
-            {
-                imageTasks.Add(DownloadRaster(response.Maps[i], polygons, i, i + " - rast"));
-                imageTasks.Add(DownloadLegend(response.Maps[i], i, i + " - leg"));
-                imageTasks.Add(DownloadComponent(response.Maps[i], i, i + " - comp"));
-            }
-            await Task.WhenAll(imageTasks);
 
             return response;
         }
@@ -88,7 +96,7 @@ namespace PGZ.UI.PrintService.Services
                 Graphics graphics = Graphics.FromImage(newBitmap);
                 graphics.DrawImage(new Bitmap(ms), 0, 0);
 
-                Pen blackPen = new Pen(Color.OrangeRed, 3);
+                Pen blackPen = new Pen(Color.Fuchsia, 5);
                 foreach (ScaledPolygon polygon in scaledPolyList)
                 {
                     for (int i = 1; i < polygon.Points.Count; i++)
@@ -165,13 +173,13 @@ namespace PGZ.UI.PrintService.Services
             return layerURL.Substring(0, layerURL.LastIndexOf("/"));
         }
 
-        async public static Task AddRaster(MapImageList response, string restUrl, List<string> mapPlanIds)
+        async public static Task AddRaster(MapImageList response, List<MapPolygon> polygons,
+            string restUrl, List<string> mapPlanIds)
         {
-            QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-
+            Extent extent = ExportUtils.FindPoints(polygons);
             // response (for scales):
-            ExportResultList rasterImages = await ExportUtils.getInfo(response,
-                rasterInfo, restUrl);
+            ExportResultList rasterImages = await ExportUtils.getInfo(response, mapPlanIds,
+                extent, restUrl);
 
             // response, add maps to that
             // TODO - put data in output object (by id) (...)
