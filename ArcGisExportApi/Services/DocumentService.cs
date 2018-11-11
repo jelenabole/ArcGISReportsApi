@@ -53,6 +53,11 @@ namespace PGZ.UI.PrintService.Services
             document.ReplaceText("[UBROJ]", urBroj);
             document.ReplaceText("[DATUM]", datum);
 
+            Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
+            title.Alignment = Alignment.center;
+            title.SpacingBefore(30d);
+            title.SpacingAfter(40d);
+
             // spatial condition list:
             if (request.SpatialConditionList != null && request.SpatialConditionList.Count != 0)
             {
@@ -72,11 +77,6 @@ namespace PGZ.UI.PrintService.Services
                     katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description);
                     i++;
                 }
-
-                Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
-                title.Alignment = Alignment.center;
-                title.SpacingBefore(30d);
-                title.SpacingAfter(40d);
 
                 Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
                 katCesticeTitle.Alignment = Alignment.left;

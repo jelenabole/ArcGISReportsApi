@@ -20,12 +20,9 @@ namespace PGZ.UI.PrintService.Services
             {
                 return new DataResponse();
             }
-
-            // copy polygons (to draw later):
-            List<MapPolygon> polygons = new List<MapPolygon>();
-            foreach (SpatialCondition spatialCondition in request.SpatialConditionList)
+            if (request.SpatialConditionList == null || request.SpatialConditionList.Count == 0)
             {
-                polygons.Add(new MapPolygon(spatialCondition.Geometry));
+                return new DataResponse();
             }
 
             // create a list of maps:
@@ -54,6 +51,18 @@ namespace PGZ.UI.PrintService.Services
                     mapPlanIdList.Add(planMap.Id);
                 }
                 response.UrbanPlansImages.Add(planResults);
+
+                if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
+                {
+                    return new DataResponse();
+                }
+
+                // copy polygons (to draw later):
+                List<MapPolygon> polygons = new List<MapPolygon>();
+                foreach (SpatialCondition spatialCondition in request.SpatialConditionList)
+                {
+                    polygons.Add(new MapPolygon(spatialCondition.Geometry));
+                }
 
                 var queryTasks = new List<Task>
                 {
