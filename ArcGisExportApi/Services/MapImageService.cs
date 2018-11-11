@@ -18,7 +18,7 @@ namespace PGZ.UI.PrintService.Services
             // CHECK - if there are no urban.plan. results checked - return null:
             if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
             {
-                return null;
+                return new DataResponse();
             }
 
             // copy polygons (to draw later):

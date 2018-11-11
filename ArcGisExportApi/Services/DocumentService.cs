@@ -18,7 +18,6 @@ namespace PGZ.UI.PrintService.Services
             DocX doc = AddTemplate(request.DocumentTemplateId, webRootPath);
 
             // get all map images and add them to docx:
-            
             DataResponse dataResponse = await MapImageService.mapToReponse(doc, request);
             await AddInfo(doc, request, dataResponse);
             doc.SaveAs(ms);
@@ -45,10 +44,7 @@ namespace PGZ.UI.PrintService.Services
 
         async public static Task<DocX> AddInfo(DocX document, DataRequest request, DataResponse response)
         {
-            int numSpatialCond = request.SpatialConditionList.Count + 1;
-            int numUrbanisticPlanResult = request.UrbanisticPlansResults.Count;
-            int i = 1;
-            
+            // template:
             String klasa = "klasa";
             String urBroj = "urudžbeni broj";
             String datum = DateTime.Now.ToLongDateString();
@@ -57,47 +53,45 @@ namespace PGZ.UI.PrintService.Services
             document.ReplaceText("[UBROJ]", urBroj);
             document.ReplaceText("[DATUM]", datum);
 
-            Novacode.Table katCesticeTable = document.AddTable(numSpatialCond, 3);
-            katCesticeTable.Design = TableDesign.LightGrid;
-            katCesticeTable.Alignment = Alignment.left;
-            katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
-            katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
-            katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
-
-            foreach (SpatialCondition spatial in request.SpatialConditionList)
+            // spatial condition list:
+            if (request.SpatialConditionList != null && request.SpatialConditionList.Count != 0)
             {
-                katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
-                katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
-                katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description);
-                i++;
+                Novacode.Table katCesticeTable = document.AddTable(
+                    request.SpatialConditionList.Count + 1, 3);
+                katCesticeTable.Design = TableDesign.LightGrid;
+                katCesticeTable.Alignment = Alignment.left;
+                katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
+                katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
+                katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
+
+                int i = 1;
+                foreach (SpatialCondition spatial in request.SpatialConditionList)
+                {
+                    katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
+                    katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
+                    katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description);
+                    i++;
+                }
+
+                Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
+                title.Alignment = Alignment.center;
+                title.SpacingBefore(30d);
+                title.SpacingAfter(40d);
+
+                Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
+                katCesticeTitle.Alignment = Alignment.left;
+                katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
             }
 
-            Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
-            title.Alignment = Alignment.center;
-            title.SpacingBefore(30d);
-            title.SpacingAfter(40d);
-
-            Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
-            katCesticeTitle.Alignment = Alignment.left;
-            katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
-
-            Novacode.Table rezUrbIdentTable = document.AddTable(1, 4);
-            rezUrbIdentTable.Design = TableDesign.LightGrid;
-            rezUrbIdentTable.Alignment = Alignment.center;
-            Double spacing = 15;
-
-
-            Paragraph rezUrbIdentTitle = document.InsertParagraph("Rezultat urbanističke identifikacije".ToUpper());
-            rezUrbIdentTitle.Alignment = Alignment.left;
-            rezUrbIdentTitle.SpacingBefore(spacing);
-
-            UrbanisticPlansResults lastUrbPlanResult = request.UrbanisticPlansResults[request.UrbanisticPlansResults.Count - 1];
-
-            int firstResUrbIdent = 0;
-
+            // urbanistic plans results:
+            bool firstResUrbIdent = true;
             foreach (MapImageList mapImageList in response.UrbanPlansImages)
             {
-                Paragraph resPlanUrbPar;
+                Paragraph rezUrbIdentTitle = document.InsertParagraph(
+                    "Rezultat urbanističke identifikacije".ToUpper());
+                rezUrbIdentTitle.Alignment = Alignment.left;
+                rezUrbIdentTitle.SpacingBefore(15d);
+
                 Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.LightGrid;
                 table.Alignment = Alignment.center;
@@ -106,16 +100,15 @@ namespace PGZ.UI.PrintService.Services
                 table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
                 table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
 
-                resPlanUrbPar = document.InsertParagraph();
-                resPlanUrbPar.InsertTableAfterSelf(table);
-
-                if(firstResUrbIdent == 1)
+                rezUrbIdentTitle.InsertTableAfterSelf(table);
+                if (!firstResUrbIdent)
                 {
-                    resPlanUrbPar.InsertPageBreakBeforeSelf();
+                    rezUrbIdentTitle.InsertPageBreakBeforeSelf();
                 }
+                firstResUrbIdent = false;
 
-                firstResUrbIdent = 1;
 
+                // all maps (with leg and comp) in this urban plan:
                 foreach (MapPlans planMap in mapImageList.Maps)
                 {
                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
