@@ -102,6 +102,7 @@ namespace PGZ.UI.PrintService.Services
 
                 if (!firstResUrbIdent)
                 {
+                    resPlanUrbPar.InsertPageBreakBeforeSelf();
                     resPlanUrbPar.InsertTableBeforeSelf(table);
                 }
                 else
