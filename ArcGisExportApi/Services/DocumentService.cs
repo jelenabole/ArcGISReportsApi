@@ -65,8 +65,8 @@ namespace PGZ.UI.PrintService.Services
             {
                 Novacode.Table katCesticeTable = document.AddTable(
                     request.SpatialConditionList.Count + 1, 3);
-                katCesticeTable.Design = TableDesign.LightGrid;
-                katCesticeTable.Alignment = Alignment.left;
+                katCesticeTable.Design = TableDesign.TableGrid;
+                katCesticeTable.Alignment = Alignment.center;
                 katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
@@ -90,13 +90,9 @@ namespace PGZ.UI.PrintService.Services
             bool firstResUrbIdent = true;
             foreach (MapImageList mapImageList in response.UrbanPlansImages)
             {
-                Paragraph rezUrbIdentTitle = document.InsertParagraph(
-                    "Rezultat urbanističke identifikacije".ToUpper());
-                rezUrbIdentTitle.Alignment = Alignment.left;
-                rezUrbIdentTitle.SpacingBefore(25d);
-
+                Paragraph resPlanUrbPar = document.InsertParagraph();
                 Novacode.Table table = document.AddTable(1, 4);
-                table.Design = TableDesign.LightGrid;
+                table.Design = TableDesign.TableGrid;
                 table.Alignment = Alignment.center;
                 table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
                 table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
@@ -104,11 +100,20 @@ namespace PGZ.UI.PrintService.Services
                 table.Rows[0].Cells[2].Width = 400;
                 table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
 
-                rezUrbIdentTitle.InsertTableAfterSelf(table);
                 if (!firstResUrbIdent)
                 {
-                    rezUrbIdentTitle.InsertPageBreakBeforeSelf();
+                    resPlanUrbPar.InsertTableBeforeSelf(table);
                 }
+                else
+                {
+                    resPlanUrbPar = document.InsertParagraph(
+                    "Rezultat urbanističke identifikacije".ToUpper());
+                    resPlanUrbPar.Alignment = Alignment.left;
+                    resPlanUrbPar.SpacingBefore(25d);
+                    resPlanUrbPar.InsertTableAfterSelf(table);
+                    
+                }
+                
                 firstResUrbIdent = false;
 
 
