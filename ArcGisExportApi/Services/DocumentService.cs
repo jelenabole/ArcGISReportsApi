@@ -56,7 +56,9 @@ namespace PGZ.UI.PrintService.Services
             Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
             title.Alignment = Alignment.center;
             title.SpacingBefore(30d);
-            title.SpacingAfter(40d);
+            title.SpacingAfter(25d);
+
+            float[] tableWidthKatCestice = { 200F, 200F, 200F };
 
             // spatial condition list:
             if (request.SpatialConditionList != null && request.SpatialConditionList.Count != 0)
@@ -65,6 +67,7 @@ namespace PGZ.UI.PrintService.Services
                     request.SpatialConditionList.Count + 1, 3);
                 katCesticeTable.Design = TableDesign.LightGrid;
                 katCesticeTable.Alignment = Alignment.left;
+                katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
@@ -90,7 +93,7 @@ namespace PGZ.UI.PrintService.Services
                 Paragraph rezUrbIdentTitle = document.InsertParagraph(
                     "Rezultat urbanističke identifikacije".ToUpper());
                 rezUrbIdentTitle.Alignment = Alignment.left;
-                rezUrbIdentTitle.SpacingBefore(15d);
+                rezUrbIdentTitle.SpacingBefore(25d);
 
                 Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.LightGrid;
@@ -98,6 +101,7 @@ namespace PGZ.UI.PrintService.Services
                 table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
                 table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
                 table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
+                table.Rows[0].Cells[2].Width = 400;
                 table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
 
                 rezUrbIdentTitle.InsertTableAfterSelf(table);
