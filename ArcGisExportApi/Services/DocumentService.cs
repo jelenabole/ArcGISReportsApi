@@ -58,7 +58,7 @@ namespace PGZ.UI.PrintService.Services
             title.SpacingBefore(30d);
             title.SpacingAfter(25d);
 
-            float[] tableWidthKatCestice = { 200F, 200F, 200F };
+            float[] tableWidthKatCestice = { 100F, 100F, 100F };
 
             // spatial condition list:
             if (request.SpatialConditionList != null && request.SpatialConditionList.Count != 0)
@@ -69,15 +69,21 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTable.Alignment = Alignment.center;
                 katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
+                katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
+                katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
-
+                katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                Console.WriteLine("OK");
                 int i = 1;
                 foreach (SpatialCondition spatial in request.SpatialConditionList)
                 {
                     katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
+                    katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Alignment = Alignment.center;
                     katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
+                    katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Alignment = Alignment.center;
                     katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description);
+                    katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Alignment = Alignment.center;
                     i++;
                 }
 
@@ -94,11 +100,16 @@ namespace PGZ.UI.PrintService.Services
                 Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.TableGrid;
                 table.Alignment = Alignment.center;
+                
                 table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
+                table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
                 table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
+                table.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
                 table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
                 table.Rows[0].Cells[2].Width = 400;
+                table.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
                 table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
+                table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
 
                 if (!firstResUrbIdent)
                 {
