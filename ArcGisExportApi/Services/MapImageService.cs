@@ -183,7 +183,6 @@ namespace PGZ.UI.PrintService.Services
         async public static Task AddRaster(MapImageList response, string restUrl, List<string> mapPlanIds)
         {
             Extent extent = ExportUtils.FindPoints(response.MapPolygons);
-
             ExportResultList rasterImages = await ExportUtils.getInfo(response, restUrl, mapPlanIds,
                 extent);
 
