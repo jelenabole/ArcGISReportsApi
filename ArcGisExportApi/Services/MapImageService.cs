@@ -15,12 +15,7 @@ namespace PGZ.UI.PrintService.Services
     {
         async public static Task<DataResponse> mapToReponse(DocX doc, DataRequest request)
         {
-            // CHECK - if there are no urban.plan. results checked - return null:
             if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
-            {
-                return new DataResponse();
-            }
-            if (request.SpatialConditionList == null || request.SpatialConditionList.Count == 0)
             {
                 return new DataResponse();
             }
@@ -51,11 +46,6 @@ namespace PGZ.UI.PrintService.Services
                     mapPlanIdList.Add(planMap.Id);
                 }
                 response.UrbanPlansImages.Add(planResults);
-
-                if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
-                {
-                    return new DataResponse();
-                }
 
                 // copy polygons (to draw later):
                 List<MapPolygon> polygons = new List<MapPolygon>();
@@ -163,8 +153,6 @@ namespace PGZ.UI.PrintService.Services
 
             return scaledPoly;
         }
-
-
 
         async public static Task DownloadLegend(MapPlans map, int i, string name)
         {

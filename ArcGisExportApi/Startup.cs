@@ -29,7 +29,10 @@ namespace ArcGisExportApi
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
-                    builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
             });
 
             services.AddMemoryCache();
@@ -47,7 +50,6 @@ namespace ArcGisExportApi
             {
                 app.UseHsts();
             }
-
 
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();

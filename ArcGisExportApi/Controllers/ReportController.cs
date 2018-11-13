@@ -61,8 +61,10 @@ namespace PGZ.UI.PrintService.Controllers
             if (request.FileFormat == null)
             {
                 return serializeToJson(new ResponseStatus("File Format Empty"));
-            } else
+            } else if (request.SpatialConditionList == null || request.SpatialConditionList.Count == 0)
             {
+                return serializeToJson(new ResponseStatus("No spatial conditions"));
+            } else {
                 // generate key, and start file creation:
                 string key = Guid.NewGuid().ToString();
                 DocumentService.CreateCacheFile(request, _cache, key, _hostingEnvironment.ContentRootPath);
