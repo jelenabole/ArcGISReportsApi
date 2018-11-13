@@ -12,13 +12,9 @@ namespace PGZ.UI.PrintService.Utilities
         // TODO - remove this link to server
         static string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/";
 
-        // size in pixels (by calculation 553 x 930):
-        static int paperWidthPixels = 550;
-        static int paperHeightPixels = 900;
-
-        // get info (with the url and other info) by export:
-        async public static Task<ExportResultList> getInfo(MapImageList response, List<string> PlanIdList,
-            Extent extent, string uriLayer)
+        // get info by export (from extent)
+        async public static Task<ExportResultList> getInfo(MapImageList response, string uriLayer,
+            List<string> PlanIdList, Extent extent)
         {
             ExportResultList results = new ExportResultList();
             results.MapPlans = new List<ExportResult>();
@@ -32,7 +28,7 @@ namespace PGZ.UI.PrintService.Utilities
                 string linkMap = "export?f=json"
                     + "&format=png"
                     + AddBoundingBox(extent)
-                    + "&size=" + paperWidthPixels + "," + paperHeightPixels
+                    + "&size=" + response.PaperSize.Width + "," + response.PaperSize.Height
                     + "&mapScale=" + response.GetById(kartaSifra).MapScale
                     + AddLayer(uriLayer)
                     + AddLayerDefs(uriLayer, kartaSifra);
@@ -53,7 +49,7 @@ namespace PGZ.UI.PrintService.Utilities
             return "&layerDefs=" + QueryUtils.encodeUrl(query);
         }
         
-        public static string getImageUrl(Geometry geometry, string uriLayer)
+        public static string getImageUrl(Geometry geometry, Size paperSize, string uriLayer)
         {
             Extent extent = FindPoints(geometry);
 
@@ -61,7 +57,7 @@ namespace PGZ.UI.PrintService.Utilities
             string linkMap = "?f=image"
                     + "&format=png"
                     + AddBoundingBox(extent)
-                    + ScaleSizeToCrop(extent)
+                    + ScaleSizeToCrop(extent, paperSize)
                     + AddLayer(uriLayer);
 
             return linkMap;
@@ -158,15 +154,15 @@ namespace PGZ.UI.PrintService.Utilities
         }
 
         // crop legend/component layer (size scaled to fit the paper size):
-        private static string ScaleSizeToCrop(Extent extent)
+        private static string ScaleSizeToCrop(Extent extent, Size paperSize)
         {
             // size of the image (in coo):
             double xSize = extent.Xmax - extent.Xmin;
             double ySize = extent.Ymax - extent.Ymin;
 
             // scale by smaller size:
-            double widthScale = paperWidthPixels / xSize;
-            double heightScale = paperHeightPixels / ySize;
+            double widthScale = paperSize.Width / xSize;
+            double heightScale = paperSize.Height / ySize;
             double scale = widthScale < heightScale ? widthScale : heightScale;
 
             xSize *= scale;

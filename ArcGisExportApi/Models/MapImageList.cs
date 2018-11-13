@@ -15,6 +15,9 @@ namespace PGZ.UI.PrintService.Models
 
     public sealed class MapImageList
     {
+        public List<MapPolygon> MapPolygons { get; set; }
+        public Size PaperSize { get; set; }
+
         public List<MapPlans> Maps { get; set; }
         public string ServerPath { get; set; }
 
@@ -23,14 +26,10 @@ namespace PGZ.UI.PrintService.Models
         public string GisCode;
         public string Name;
 
-        public MapImageList(string status, string type, string gisCode, string name)
+        public MapImageList()
         {
             Maps = new List<MapPlans>();
-
-            Status = status;
-            Type = type;
-            GisCode = gisCode;
-            Name = name;
+            MapPolygons = new List<MapPolygon>();
         }
 
         public MapPlans GetById(string id)
