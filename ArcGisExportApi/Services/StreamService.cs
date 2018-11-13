@@ -58,6 +58,5 @@ namespace PGZ.UI.PrintService.Services
             }
         }
 
-
     }
 }

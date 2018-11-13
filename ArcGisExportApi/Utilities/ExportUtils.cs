@@ -9,9 +9,6 @@ namespace PGZ.UI.PrintService.Utilities
 {
     public class ExportUtils
     {
-        // TODO - remove this link to server
-        static string serverExport = "https://gdiportal.gdi.net/server/rest/services/PGZ/PGZ_UI_QUERY_DATA/MapServer/";
-
         // get info by export (from extent)
         async public static Task<ExportResultList> getInfo(MapImageList response, string uriLayer,
             List<string> PlanIdList, Extent extent)
@@ -33,7 +30,7 @@ namespace PGZ.UI.PrintService.Utilities
                     + AddLayer(uriLayer)
                     + AddLayerDefs(uriLayer, kartaSifra);
 
-                ExportResult result = await ExportRepo.getImageInfo(serverExport + linkMap);
+                ExportResult result = await ExportRepo.getImageInfo(response.ServerPath + "/" + linkMap);
                 result.Karta_Sifra = kartaSifra;
                 results.MapPlans.Add(result);
 
