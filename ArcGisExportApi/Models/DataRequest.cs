@@ -41,6 +41,7 @@ namespace PGZ.UI.PrintService.Inputs
         public string Name;
 
         // urls:
+        public string RasterIdAttribute;
         public string Sn;
         public string PolygonRestURL;
         public string RasterRestURL;

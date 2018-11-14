@@ -10,8 +10,8 @@ namespace PGZ.UI.PrintService.Utilities
     public class ExportUtils
     {
         // get info by export (from extent)
-        async public static Task<ExportResultList> getInfo(MapImageList response, string uriLayer,
-            List<string> PlanIdList, Extent extent)
+        async public static Task<ExportResultList> getImageInfo(MapImageList response, string uriLayer,
+            List<string> PlanIdList, Extent extent, QueryResult rasterInfo)
         {
             ExportResultList results = new ExportResultList();
             results.MapPlans = new List<ExportResult>();
@@ -22,13 +22,32 @@ namespace PGZ.UI.PrintService.Utilities
             {
                 string kartaSifra = PlanIdList[i];
 
+                MapPlans currentMapPlan = response.GetById(kartaSifra);
+
+                // map scale provjeriti i izračunati:
+                string mapScale = null;
+                string boundingBox = null;
+                if (currentMapPlan.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
+                {
+                    mapScale = null;
+                    boundingBox = AddBoundingBox(extent);
+                } else if (currentMapPlan.MapScale.Contains("PLAN_MAP_EXTENT"))
+                {
+                    mapScale = null;
+                    boundingBox = AddBoundingBox(FindPoints(rasterInfo.GetGeometryByKartaSifra(kartaSifra)));
+                } else
+                {
+                    mapScale = currentMapPlan.MapScale;
+                    boundingBox = AddBoundingBox(extent);
+                }
+
                 string linkMap = "export?f=json"
                     + "&format=png"
-                    + AddBoundingBox(extent)
+                    + boundingBox
                     + "&size=" + response.PaperSize.Width + "," + response.PaperSize.Height
-                    + "&mapScale=" + response.GetById(kartaSifra).MapScale
+                    + "&mapScale=" + mapScale
                     + AddLayer(uriLayer)
-                    + AddLayerDefs(uriLayer, kartaSifra);
+                    + AddLayerDefs(uriLayer, currentMapPlan.RasterIdAttribute, kartaSifra);
 
                 ExportResult result = await ExportRepo.getImageInfo(response.ServerPath + "/" + linkMap);
                 result.Karta_Sifra = kartaSifra;
@@ -40,9 +59,9 @@ namespace PGZ.UI.PrintService.Utilities
             return results;
         }
 
-        private static string AddLayerDefs(string uriLayer, string kartaSifra)
+        private static string AddLayerDefs(string uriLayer, string byField, string kartaSifra)
         {
-            string query = getLayerFromUri(uriLayer) + ":" + "karta_sifra='" + kartaSifra + "'";
+            string query = getLayerFromUri(uriLayer) + ":" + byField + "='" + kartaSifra + "'";
             return "&layerDefs=" + QueryUtils.encodeUrl(query);
         }
         

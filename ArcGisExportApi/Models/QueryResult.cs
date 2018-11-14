@@ -8,6 +8,17 @@ namespace PGZ.UI.PrintService.Models
     {
         // list of objects by id:
         public List<Feature> Features { get; set; }
+
+        public Geometry GetGeometryByKartaSifra(string kartaSifra)
+        {
+            foreach (Feature feat in Features)
+            {
+                if (feat.Attributes.Karta_sifra.Equals(kartaSifra)) {
+                    return feat.Geometry;
+                }
+            }
+            return null;
+        }
     }
 
     public class Feature

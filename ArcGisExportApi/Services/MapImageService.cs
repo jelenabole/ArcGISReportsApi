@@ -42,6 +42,8 @@ namespace PGZ.UI.PrintService.Services
                     }
                 };
 
+                string rasterIdAttribute = urbanisticPlan.RasterIdAttribute;
+
                 foreach (PlanMap planMap in urbanisticPlan.PlanMaps)
                 {
                     // create map plan, with id and scales:
@@ -50,7 +52,8 @@ namespace PGZ.UI.PrintService.Services
                         Id = planMap.Id,
                         Name = planMap.Name,
                         MapScale = planMap.MapScale,
-                        OriginalScale = planMap.OriginalScale
+                        OriginalScale = planMap.OriginalScale,
+                        RasterIdAttribute = rasterIdAttribute
                     };
                     planResults.Maps.Add(map);
                     mapPlanIdList.Add(planMap.Id);
@@ -104,7 +107,7 @@ namespace PGZ.UI.PrintService.Services
                 Graphics graphics = Graphics.FromImage(newBitmap);
                 graphics.DrawImage(new Bitmap(ms), 0, 0);
 
-                Pen blackPen = new Pen(Color.Fuchsia, 5);
+                Pen blackPen = new Pen(Color.Fuchsia, 4);
                 foreach (ScaledPolygon polygon in scaledPolyList)
                 {
                     for (int i = 1; i < polygon.Points.Count; i++)
@@ -182,12 +185,13 @@ namespace PGZ.UI.PrintService.Services
         // spatial condition added for geometry:
         async public static Task AddRaster(MapImageList response, string restUrl, List<string> mapPlanIds)
         {
+            QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
             Extent extent = ExportUtils.FindPoints(response.MapPolygons);
-            ExportResultList rasterImages = await ExportUtils.getInfo(response, restUrl, mapPlanIds,
-                extent);
+
+            ExportResultList rasterImages = await ExportUtils.getImageInfo(response, restUrl, mapPlanIds,
+                extent, rasterInfo);
 
             // response, add maps to that
-            // TODO - put data in output object (by id) (...)
             for (int i = 0; i < response.Maps.Count; i++)
             {
                 for (int j = 0; j < rasterImages.MapPlans.Count; j++)

@@ -136,7 +136,7 @@ namespace PGZ.UI.PrintService.Services
                 foreach (MapPlans planMap in mapImageList.Maps)
                 {
                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
-                        + " " + "MJERILO KARTE 1:" + planMap.MapScale
+                        + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)
                         + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
                     imagesParagraph.InsertPageBreakBeforeSelf();
 

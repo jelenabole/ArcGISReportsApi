@@ -50,7 +50,8 @@ namespace PGZ.UI.PrintService.Models
         public string MapScale { get; set; }
         public string OriginalScale { get; set; }
 
-        public MapImage Polygon { get; set; }
+        public string RasterIdAttribute { get; set; }
+
         public MapImage Raster { get; set; }
         public string LegendUrl { get; set; }
         public string ComponentUrl { get; set; }
