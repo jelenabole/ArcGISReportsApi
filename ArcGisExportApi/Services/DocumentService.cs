@@ -69,10 +69,13 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTable.Alignment = Alignment.center;
                 katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
+                katCesticeTable.Rows[0].Cells[0].FillColor = System.Drawing.Color.LightGray;
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
+                katCesticeTable.Rows[0].Cells[1].FillColor = System.Drawing.Color.LightGray;
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
+                katCesticeTable.Rows[0].Cells[2].FillColor = System.Drawing.Color.LightGray;
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
                 Console.WriteLine("OK");
                 int i = 1;
