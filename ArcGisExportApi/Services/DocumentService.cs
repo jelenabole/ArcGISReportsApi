@@ -157,7 +157,6 @@ namespace PGZ.UI.PrintService.Services
             document.SaveToStream(ms, FileFormat.PDF);
         }
 
-
         async public static void CreateCacheFile(DataRequest request, 
             IMemoryCache _cache, string key, string webRootPath)
         {
