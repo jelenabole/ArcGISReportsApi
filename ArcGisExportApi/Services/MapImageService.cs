@@ -34,7 +34,7 @@ namespace PGZ.UI.PrintService.Services
                     Type = urbanisticPlan.Type,
                     GisCode = urbanisticPlan.GisCode,
                     Name = urbanisticPlan.Name,
-                    ServerPath = GetServerName(request.UrbanisticPlansResults[0].RasterRestURL),
+                    ServerPath = GetServerName(urbanisticPlan.RasterRestURL),
                     PaperSize = new Models.Size()
                     {
                         Width = (int) doc.PageWidth,
