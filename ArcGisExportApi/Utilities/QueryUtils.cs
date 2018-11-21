@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using PGZ.UI.PrintService.Services;
 using PGZ.UI.PrintService.Models;
 
@@ -7,30 +6,27 @@ namespace PGZ.UI.PrintService.Utilities
 {
     public class QueryUtils
     {
-        // TODO - delete:
-        private static QueryRepo queryService = new QueryRepo();
-
-        async public static Task<QueryResult> queryAll(string uri, List<string> mapPlanIds)
+        async public static Task<QueryResult> queryAll(UrbanPlan urbanPlan, string layerUrl)
         {
-            uri = createQuery(uri, mapPlanIds);
+            string uri = createQuery(layerUrl, urbanPlan);
 
-            QueryResult result = await queryService.getQuery(uri);
+            QueryResult result = await QueryRepo.getQuery(uri);
             return result;
         }
 
-        public static string createQuery(string uri, List<string> mapPlanIds)
+        public static string createQuery(string uri, UrbanPlan urbanPlan)
         {
             uri += "/query?f=json";
 
             // add this fields: *
-            uri += "&outFields=" + encodeUrl("objectid, name, KARTA_SIFRA");
+            uri += "&outFields=" + encodeUrl("objectid,name," + urbanPlan.RasterIdAttribute);
             uri += "&where=";
 
             string query = "";
-            for (int i = 0; i < mapPlanIds.Count; i++)
+            for (int i = 0; i < urbanPlan.Maps.Count; i++)
             {
-                query += "KARTA_SIFRA=" + "'" + mapPlanIds[i] + "'";
-                if (i < mapPlanIds.Count - 1)
+                query += urbanPlan.RasterIdAttribute + "=" + "'" + urbanPlan.Maps[i] + "'";
+                if (i < urbanPlan.Maps.Count - 1)
                     query += " OR ";
             }
             // change url signs:

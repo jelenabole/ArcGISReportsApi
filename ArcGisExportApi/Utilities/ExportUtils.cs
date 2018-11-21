@@ -10,53 +10,59 @@ namespace PGZ.UI.PrintService.Utilities
     public class ExportUtils
     {
         // get info by export (from extent)
-        async public static Task<ExportResultList> getImageInfo(MapImageList response, string uriLayer,
-            List<string> PlanIdList, Extent extent, QueryResult rasterInfo)
+        async public static Task getRasterInfo(UrbanPlan urbanPlan, Extent extent, QueryResult rasterInfo)
         {
-            ExportResultList results = new ExportResultList();
-            results.MapPlans = new List<ExportResult>();
+            /*
+            ExportResultList results = new ExportResultList()
+            {
+                MapPlans = new List<ExportResult>()
+            };
+            */
 
             // get each component by exporting geometry:
             // CHECK = queryResult.Features == null
-            for (int i = 0; i < PlanIdList.Count; i++)
+            foreach (Map map in urbanPlan.Maps)
             {
-                string kartaSifra = PlanIdList[i];
-
-                MapPlans currentMapPlan = response.GetById(kartaSifra);
-
                 // map scale provjeriti i izračunati:
                 string mapScale = null;
                 string boundingBox = null;
-                if (currentMapPlan.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
+                if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
                 {
                     mapScale = null;
                     boundingBox = AddBoundingBox(extent);
-                } else if (currentMapPlan.MapScale.Contains("PLAN_MAP_EXTENT"))
+                }
+                else if (map.MapScale.Contains("PLAN_MAP_EXTENT"))
                 {
                     mapScale = null;
-                    boundingBox = AddBoundingBox(FindPoints(rasterInfo.GetGeometryByKartaSifra(kartaSifra)));
-                } else
+                    boundingBox = AddBoundingBox(FindPoints(rasterInfo.GetGeometryByMapId(map.Id)));
+                }
+                else
                 {
-                    mapScale = currentMapPlan.MapScale;
+                    // parse to number:
+                    mapScale = map.MapScale;
+                    // try parse = throw error, value not recognized (for map scale)
                     boundingBox = AddBoundingBox(extent);
                 }
 
                 string linkMap = "export?f=json"
                     + "&format=png"
                     + boundingBox
-                    + "&size=" + response.PaperSize.Width + "," + response.PaperSize.Height
+                    + "&size=" + urbanPlan.PaperSize.Width + "," + urbanPlan.PaperSize.Height
                     + "&mapScale=" + mapScale
-                    + AddLayer(uriLayer)
-                    + AddLayerDefs(uriLayer, currentMapPlan.RasterIdAttribute, kartaSifra);
+                    + AddLayer(urbanPlan.RasterRestURL)
+                    + AddLayerDefs(urbanPlan.RasterRestURL, urbanPlan.RasterIdAttribute, map.Id);
 
-                ExportResult result = await ExportRepo.getImageInfo(response.ServerPath + "/" + linkMap);
-                result.Karta_Sifra = kartaSifra;
-                results.MapPlans.Add(result);
+                ExportResult result = await ExportRepo.getImageInfo(urbanPlan.ServerPath + "/" + linkMap);
 
-                // TODO - add info and result (img) to output object
+                map.Raster = new MapImage
+                {
+                    Href = result.Href,
+                    Scale = result.Scale,
+                    Extent = result.Extent,
+                    Width = result.Width,
+                    Height = result.Height
+                };
             }
-
-            return results;
         }
 
         private static string AddLayerDefs(string uriLayer, string byField, string kartaSifra)

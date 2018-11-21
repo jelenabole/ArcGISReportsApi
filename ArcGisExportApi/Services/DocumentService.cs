@@ -7,6 +7,7 @@ using Novacode;
 using Spire.Doc;
 using Microsoft.Extensions.Caching.Memory;
 using PGZ.UI.PrintService.Responses;
+using PGZ.UI.PrintService.Mappers;
 
 namespace PGZ.UI.PrintService.Services
 {
@@ -18,7 +19,10 @@ namespace PGZ.UI.PrintService.Services
             DocX doc = AddTemplate(request.DocumentTemplateId, webRootPath);
 
             // get all map images and add them to docx:
-            DataResponse dataResponse = await MapImageService.mapToReponse(doc, request);
+            DataResponse dataResponse = DataRequestMapper.MapToResponse(doc, request);
+
+            dataResponse = await MapImageService.mapToReponse(doc, dataResponse);
+
             await AddInfo(doc, request, dataResponse);
             doc.SaveAs(ms);
 
@@ -97,7 +101,7 @@ namespace PGZ.UI.PrintService.Services
 
             // urbanistic plans results:
             bool firstResUrbIdent = true;
-            foreach (MapImageList mapImageList in response.UrbanPlansImages)
+            foreach (UrbanPlan mapImageList in response.UrbanPlans)
             {
                 Paragraph resPlanUrbPar = document.InsertParagraph();
                 Novacode.Table table = document.AddTable(1, 4);
@@ -133,7 +137,7 @@ namespace PGZ.UI.PrintService.Services
 
 
                 // all maps (with leg and comp) in this urban plan:
-                foreach (MapPlans planMap in mapImageList.Maps)
+                foreach (Map planMap in mapImageList.Maps)
                 {
                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
                         + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)

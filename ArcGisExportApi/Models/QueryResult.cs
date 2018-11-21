@@ -9,7 +9,7 @@ namespace PGZ.UI.PrintService.Models
         // list of objects by id:
         public List<Feature> Features { get; set; }
 
-        public Geometry GetGeometryByKartaSifra(string kartaSifra)
+        public Geometry GetGeometryByMapId(string kartaSifra)
         {
             foreach (Feature feat in Features)
             {

@@ -8,7 +8,7 @@ namespace PGZ.UI.PrintService.Services
 {
     class QueryRepo
     {
-        public async Task<QueryResult> getQuery(String uri)
+        public static async Task<QueryResult> getQuery(String uri)
         {
             using (var client = new HttpClient())
             {

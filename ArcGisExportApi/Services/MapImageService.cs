@@ -1,9 +1,7 @@
-﻿using PGZ.UI.PrintService.Inputs;
-using PGZ.UI.PrintService.Models;
+﻿using PGZ.UI.PrintService.Models;
 using PGZ.UI.PrintService.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static PGZ.UI.PrintService.Inputs.UrbanisticPlansResults;
 using Novacode;
 using System.IO;
 using System.Drawing;
@@ -13,74 +11,27 @@ namespace PGZ.UI.PrintService.Services
 {
     public class MapImageService
     {
-        async public static Task<DataResponse> mapToReponse(DocX doc, DataRequest request)
+        async public static Task<DataResponse> mapToReponse(DocX doc, DataResponse response)
         {
-            if (request.UrbanisticPlansResults == null || request.UrbanisticPlansResults.Count == 0)
+            // go through all urbanistic plans:
+            foreach (UrbanPlan urbanPlan in response.UrbanPlans)
             {
-                return new DataResponse();
-            }
-
-            // create a list of maps:
-            DataResponse response = new DataResponse();
-
-            // go through all urbanistic plans
-            foreach (UrbanisticPlansResults urbanisticPlan in request.UrbanisticPlansResults)
-            {
-                List<string> mapPlanIdList = new List<string>();
-
-                MapImageList planResults = new MapImageList()
-                {
-                    Status = urbanisticPlan.Status,
-                    Type = urbanisticPlan.Type,
-                    GisCode = urbanisticPlan.GisCode,
-                    Name = urbanisticPlan.Name,
-                    ServerPath = GetServerName(urbanisticPlan.RasterRestURL),
-                    PaperSize = new Models.Size()
-                    {
-                        Width = (int) doc.PageWidth,
-                        Height = (int) doc.PageHeight
-                    }
-                };
-
-                string rasterIdAttribute = urbanisticPlan.RasterIdAttribute;
-
-                foreach (PlanMap planMap in urbanisticPlan.PlanMaps)
-                {
-                    // create map plan, with id and scales:
-                    MapPlans map = new MapPlans
-                    {
-                        Id = planMap.Id,
-                        Name = planMap.Name,
-                        MapScale = planMap.MapScale,
-                        OriginalScale = planMap.OriginalScale,
-                        RasterIdAttribute = rasterIdAttribute
-                    };
-                    planResults.Maps.Add(map);
-                    mapPlanIdList.Add(planMap.Id);
-                }
-                response.UrbanPlansImages.Add(planResults);
-
-                // copy polygons (to draw later):
-                foreach (SpatialCondition spatialCondition in request.SpatialConditionList)
-                {
-                    planResults.MapPolygons.Add(new MapPolygon(spatialCondition.Geometry));
-                }
-
                 var queryTasks = new List<Task>
                 {
-                    AddRaster(planResults, urbanisticPlan.RasterRestURL, mapPlanIdList),
-                    AddLegends(planResults, urbanisticPlan.LegendRestURL, mapPlanIdList),
-                    AddComponents(planResults, urbanisticPlan.ComponentRestURL, mapPlanIdList)
+                    AddRaster(urbanPlan, response.PolygonsExtent),
+                    AddLegends(urbanPlan),
+                    AddComponents(urbanPlan)
                 };
                 await Task.WhenAll(queryTasks);
 
                 // get images of this urban plan:
                 var imageTasks = new List<Task>();
-                for (int i = 0; i < planResults.Maps.Count; i++)
+                for (int i = 0; i < urbanPlan.Maps.Count; i++)
                 {
-                    imageTasks.Add(DownloadRaster(planResults.Maps[i], planResults.MapPolygons));
-                    imageTasks.Add(DownloadLegend(planResults.Maps[i]));
-                    imageTasks.Add(DownloadComponent(planResults.Maps[i]));
+                    imageTasks.Add(DownloadRaster(urbanPlan.Maps[i],
+                        response.Polygons, response.HighlightColor));
+                    imageTasks.Add(DownloadLegend(urbanPlan.Maps[i]));
+                    imageTasks.Add(DownloadComponent(urbanPlan.Maps[i]));
                 }
                 await Task.WhenAll(imageTasks);
             }
@@ -88,15 +39,16 @@ namespace PGZ.UI.PrintService.Services
             return response;
         }
 
-        async public static Task DownloadRaster(MapPlans map, List<MapPolygon> polygons)
+        async public static Task DownloadRaster(Map map, List<MapPolygon> polygons, string color)
         {
             map.RasterImage = await StreamService.getImageFromUrlAsync(map.Raster.Href);
 
             // draw on the picture:
-            map.RasterImage = DrawLines(map.RasterImage, map.Raster, polygons);
+            map.RasterImage = DrawLines(map.RasterImage, map.Raster, polygons, color);
         }
 
-        public static byte[] DrawLines(byte[] imageBytes, MapImage rasterInfo, List<MapPolygon> polygons)
+        public static byte[] DrawLines(byte[] imageBytes, MapImage rasterInfo, List<MapPolygon> polygons,
+            string color)
         {
             Bitmap newBitmap = new Bitmap(rasterInfo.Width, rasterInfo.Height);
             using (var ms = new MemoryStream(imageBytes))
@@ -107,12 +59,21 @@ namespace PGZ.UI.PrintService.Services
                 Graphics graphics = Graphics.FromImage(newBitmap);
                 graphics.DrawImage(new Bitmap(ms), 0, 0);
 
-                Pen blackPen = new Pen(Color.Fuchsia, 4);
+                Color penColor = new Color();
+                if (color == null)
+                {
+                    penColor = Color.Fuchsia;
+                } else
+                {
+                    penColor = ColorTranslator.FromHtml(color);
+                }
+                Pen colorPen = new Pen(penColor, 4);
+
                 foreach (ScaledPolygon polygon in scaledPolyList)
                 {
                     for (int i = 1; i < polygon.Points.Count; i++)
                     {
-                        graphics.DrawLine(blackPen,
+                        graphics.DrawLine(colorPen,
                             polygon.Points[i - 1].XPoint, polygon.Points[i - 1].YPoint,
                             polygon.Points[i].XPoint, polygon.Points[i].YPoint);
                     }
@@ -166,72 +127,48 @@ namespace PGZ.UI.PrintService.Services
             return scaledPoly;
         }
 
-        async public static Task DownloadLegend(MapPlans map)
+        async public static Task DownloadLegend(Map map)
         {
             map.LegendImage = await StreamService.getImageFromUrlAsync(map.LegendUrl);
         }
 
-        async public static Task DownloadComponent(MapPlans map)
+        async public static Task DownloadComponent(Map map)
         {
             map.ComponentImage = await StreamService.getImageFromUrlAsync(map.ComponentUrl);
         }
 
 
-        public static string GetServerName(string layerURL)
-        {
-            return layerURL.Substring(0, layerURL.LastIndexOf("/"));
-        }
+       
 
         // spatial condition added for geometry:
-        async public static Task AddRaster(MapImageList response, string restUrl, List<string> mapPlanIds)
+        async public static Task AddRaster(UrbanPlan urbanPlan, Extent polygonsExtent) // UrbanPlan response, string restUrl, List<string> mapPlanIds)
         {
-            QueryResult rasterInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-            Extent extent = ExportUtils.FindPoints(response.MapPolygons);
+            QueryResult rasterInfo = await QueryUtils.queryAll(urbanPlan, urbanPlan.RasterRestURL);
 
-            ExportResultList rasterImages = await ExportUtils.getImageInfo(response, restUrl, mapPlanIds,
-                extent, rasterInfo);
+            await ExportUtils.getRasterInfo(urbanPlan, polygonsExtent, rasterInfo);
+        }
 
-            // response, add maps to that
-            for (int i = 0; i < response.Maps.Count; i++)
+        async public static Task AddLegends(UrbanPlan urbanPlan)
+        {
+            QueryResult legendsInfo = await QueryUtils.queryAll(urbanPlan, urbanPlan.LegendRestURL);
+
+            for (int i = 0; i < urbanPlan.Maps.Count; i++)
             {
-                for (int j = 0; j < rasterImages.MapPlans.Count; j++)
-                {
-                    if (response.Maps[i].Id == rasterImages.MapPlans[j].Karta_Sifra)
-                    {
-                        response.Maps[i].Raster = new MapImage
-                        {
-                            Href = rasterImages.MapPlans[j].Href,
-                            Scale = rasterImages.MapPlans[j].Scale,
-                            Extent = rasterImages.MapPlans[j].Extent,
-                            Width = rasterImages.MapPlans[j].Width,
-                            Height = rasterImages.MapPlans[j].Height
-                        };
-
-                        break;
-                    }
-                }
+                urbanPlan.Maps[i].LegendUrl = urbanPlan.ServerPath + "/export" + 
+                    ExportUtils.getImageUrl(legendsInfo.Features[i].Geometry,
+                        urbanPlan.PaperSize, urbanPlan.LegendRestURL);
             }
         }
 
-        async public static Task AddLegends(MapImageList response, string restUrl, List<string> mapPlanIds)
+        async public static Task AddComponents(UrbanPlan urbanPlan)
         {
-            QueryResult legendsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
+            QueryResult componentsInfo = await QueryUtils.queryAll(urbanPlan, urbanPlan.ComponentRestURL);
 
-            for (int i = 0; i < response.Maps.Count; i++)
+            for (int i = 0; i < urbanPlan.Maps.Count; i++)
             {
-                response.Maps[i].LegendUrl = response.ServerPath + "/export" + ExportUtils
-                    .getImageUrl(legendsInfo.Features[i].Geometry, response.PaperSize, restUrl);
-            }
-        }
-
-        async public static Task AddComponents(MapImageList response, string restUrl, List<string> mapPlanIds)
-        {
-            QueryResult componentsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
-
-            for (int i = 0; i < response.Maps.Count; i++)
-            {
-                response.Maps[i].ComponentUrl = response.ServerPath + "/export" + ExportUtils
-                    .getImageUrl(componentsInfo.Features[i].Geometry, response.PaperSize, restUrl);
+                urbanPlan.Maps[i].ComponentUrl = urbanPlan.ServerPath + "/export" +
+                    ExportUtils.getImageUrl(componentsInfo.Features[i].Geometry,
+                        urbanPlan.PaperSize, urbanPlan.ComponentRestURL);
             }
         }
     }

@@ -4,37 +4,45 @@ namespace PGZ.UI.PrintService.Models
 {
     public sealed class DataResponse
     {
-        public List<MapImageList> UrbanPlansImages { get; set; }
-        public string TemplatePath { get; set; }
+        public string FileFormat { get; set; }
+        // add file format MIME type by the format type
 
-        public DataResponse()
-        {
-            UrbanPlansImages = new List<MapImageList>();
-        }
+        public string HighlightColor { get; set; }
+
+        // spatial condition list
+        public List<MapPolygon> Polygons { get; set; }
+        public Extent PolygonsExtent { get; set; }
+
+        // first copy data:
+        public List<UrbanPlan> UrbanPlans { get; set; }
     }
 
-    public sealed class MapImageList
+
+    // info
+    public sealed class UrbanPlan
     {
-        public List<MapPolygon> MapPolygons { get; set; }
+        // public List<MapPolygon> MapPolygons { get; set; }
+        public List<Map> Maps { get; set; }
+        public string ServerPath { get; set; }
         public Size PaperSize { get; set; }
 
-        public List<MapPlans> Maps { get; set; }
-        public string ServerPath { get; set; }
+        // prepisani podaci - za mape:
+        public int Id;
+        public string RasterIdAttribute;
+        public string PolygonRestURL;
+        public string RasterRestURL;
+        public string LegendRestURL;
+        public string ComponentRestURL;
 
+        // za dokument:
         public string Status;
         public string Type;
         public string GisCode;
         public string Name;
 
-        public MapImageList()
+        public Map GetById(string id)
         {
-            Maps = new List<MapPlans>();
-            MapPolygons = new List<MapPolygon>();
-        }
-
-        public MapPlans GetById(string id)
-        {
-            foreach (MapPlans map in Maps)
+            foreach (Map map in Maps)
             {
                 if (map.Id == id)
                     return map;
@@ -43,14 +51,14 @@ namespace PGZ.UI.PrintService.Models
         }
     }
 
-    public class MapPlans
+    public class Map
     {
         public string Id { get; set; }
         public string Name { get; set; }
         public string MapScale { get; set; }
         public string OriginalScale { get; set; }
 
-        public string RasterIdAttribute { get; set; }
+        // public string RasterIdAttribute { get; set; }
 
         public MapImage Raster { get; set; }
         public string LegendUrl { get; set; }
