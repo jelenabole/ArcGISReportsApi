@@ -7,6 +7,18 @@ namespace PGZ.UI.PrintService.Models
     {
         // list of server results (exports):
         public List<ExportResult> MapPlans { get; set; }
+
+        public ExportResult GetById(string kartaSifra)
+        {
+            foreach (ExportResult plan in MapPlans)
+            {
+                if (plan.Karta_Sifra.Equals(kartaSifra))
+                {
+                    return plan;
+                }
+            }
+            return null;
+        }
     }
 
     public class ExportResult

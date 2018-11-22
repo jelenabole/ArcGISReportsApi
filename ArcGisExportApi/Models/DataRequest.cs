@@ -6,6 +6,7 @@ namespace PGZ.UI.PrintService.Inputs
     {
         public string FileFormat { get; set; }
         public string DocumentTemplateId { get; set; }
+        public string HighlightColor { get; set; }
 
         public List<SpatialCondition> SpatialConditionList;
         public List<UrbanisticPlansResults> UrbanisticPlansResults;

@@ -24,7 +24,6 @@ namespace PGZ.UI.PrintService.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-
         [HttpGet]
         [Route("[controller]")]
         async public Task<FileStreamResult> Get()
@@ -46,13 +45,6 @@ namespace PGZ.UI.PrintService.Controllers
             return file;
         }
 
-
-
-
-
-
-
-
         [HttpPost]
         [Route("[controller]/submit")]
         public string Submit([FromBody] DataRequest request)
@@ -72,7 +64,6 @@ namespace PGZ.UI.PrintService.Controllers
                 return serializeToJson(new SubmitResponse(key));
             }
         }
-
 
         [HttpGet]
         [Route("[controller]/ping/{key}")]

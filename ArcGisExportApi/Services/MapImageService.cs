@@ -78,7 +78,8 @@ namespace PGZ.UI.PrintService.Services
                 var imageTasks = new List<Task>();
                 for (int i = 0; i < planResults.Maps.Count; i++)
                 {
-                    imageTasks.Add(DownloadRaster(planResults.Maps[i], planResults.MapPolygons));
+                    imageTasks.Add(DownloadRaster(planResults.Maps[i], planResults.MapPolygons,
+                        request.HighlightColor));
                     imageTasks.Add(DownloadLegend(planResults.Maps[i]));
                     imageTasks.Add(DownloadComponent(planResults.Maps[i]));
                 }
@@ -88,15 +89,16 @@ namespace PGZ.UI.PrintService.Services
             return response;
         }
 
-        async public static Task DownloadRaster(MapPlans map, List<MapPolygon> polygons)
+        async public static Task DownloadRaster(MapPlans map, List<MapPolygon> polygons, string color)
         {
             map.RasterImage = await StreamService.getImageFromUrlAsync(map.Raster.Href);
 
             // draw on the picture:
-            map.RasterImage = DrawLines(map.RasterImage, map.Raster, polygons);
+            map.RasterImage = DrawLines(map.RasterImage, map.Raster, polygons, color);
         }
 
-        public static byte[] DrawLines(byte[] imageBytes, MapImage rasterInfo, List<MapPolygon> polygons)
+        public static byte[] DrawLines(byte[] imageBytes, MapImage rasterInfo, List<MapPolygon> polygons,
+            string color)
         {
             Bitmap newBitmap = new Bitmap(rasterInfo.Width, rasterInfo.Height);
             using (var ms = new MemoryStream(imageBytes))
@@ -107,12 +109,20 @@ namespace PGZ.UI.PrintService.Services
                 Graphics graphics = Graphics.FromImage(newBitmap);
                 graphics.DrawImage(new Bitmap(ms), 0, 0);
 
-                Pen blackPen = new Pen(Color.Fuchsia, 4);
+                // set color:
+                Color penColor = Color.Cyan;
+                if (color != null)
+                {
+                    // correct format "#xxxxxx"
+                    penColor = ColorTranslator.FromHtml(color);
+                }
+                Pen colorPen = new Pen(penColor, 4);
+
                 foreach (ScaledPolygon polygon in scaledPolyList)
                 {
                     for (int i = 1; i < polygon.Points.Count; i++)
                     {
-                        graphics.DrawLine(blackPen,
+                        graphics.DrawLine(colorPen,
                             polygon.Points[i - 1].XPoint, polygon.Points[i - 1].YPoint,
                             polygon.Points[i].XPoint, polygon.Points[i].YPoint);
                     }
@@ -121,10 +131,6 @@ namespace PGZ.UI.PrintService.Services
                 // back to byte array:
                 using (var savingMs = new MemoryStream())
                 {
-                    /*
-                    newBitmap.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-                        + "\\image_" + number + ".png");
-                    */
                     newBitmap.Save(savingMs, ImageFormat.Png);
                     return savingMs.ToArray();
                 }
@@ -192,24 +198,17 @@ namespace PGZ.UI.PrintService.Services
                 extent, rasterInfo);
 
             // response, add maps to that
-            for (int i = 0; i < response.Maps.Count; i++)
+            foreach (MapPlans map in response.Maps)
             {
-                for (int j = 0; j < rasterImages.MapPlans.Count; j++)
+                ExportResult plan = rasterImages.GetById(map.Id);
+                map.Raster = new MapImage
                 {
-                    if (response.Maps[i].Id == rasterImages.MapPlans[j].Karta_Sifra)
-                    {
-                        response.Maps[i].Raster = new MapImage
-                        {
-                            Href = rasterImages.MapPlans[j].Href,
-                            Scale = rasterImages.MapPlans[j].Scale,
-                            Extent = rasterImages.MapPlans[j].Extent,
-                            Width = rasterImages.MapPlans[j].Width,
-                            Height = rasterImages.MapPlans[j].Height
-                        };
-
-                        break;
-                    }
-                }
+                    Href = plan.Href,
+                    Scale = plan.Scale,
+                    Extent = plan.Extent,
+                    Width = plan.Width,
+                    Height = plan.Height
+                };
             }
         }
 
@@ -217,10 +216,11 @@ namespace PGZ.UI.PrintService.Services
         {
             QueryResult legendsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
 
-            for (int i = 0; i < response.Maps.Count; i++)
+            foreach (MapPlans map in response.Maps)
             {
-                response.Maps[i].LegendUrl = response.ServerPath + "/export" + ExportUtils
-                    .getImageUrl(legendsInfo.Features[i].Geometry, response.PaperSize, restUrl);
+                map.LegendUrl = response.ServerPath + "/export" + ExportUtils
+                       .getImageUrl(legendsInfo.GetGeometryByKartaSifra(map.Id),
+                       response.PaperSize, restUrl);
             }
         }
 
@@ -228,10 +228,11 @@ namespace PGZ.UI.PrintService.Services
         {
             QueryResult componentsInfo = await QueryUtils.queryAll(restUrl, mapPlanIds);
 
-            for (int i = 0; i < response.Maps.Count; i++)
+            foreach (MapPlans map in response.Maps)
             {
-                response.Maps[i].ComponentUrl = response.ServerPath + "/export" + ExportUtils
-                    .getImageUrl(componentsInfo.Features[i].Geometry, response.PaperSize, restUrl);
+                map.ComponentUrl = response.ServerPath + "/export" + ExportUtils
+                       .getImageUrl(componentsInfo.GetGeometryByKartaSifra(map.Id),
+                       response.PaperSize, restUrl);
             }
         }
     }
