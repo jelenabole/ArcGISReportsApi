@@ -7,6 +7,9 @@ using Novacode;
 using Spire.Doc;
 using Microsoft.Extensions.Caching.Memory;
 using PGZ.UI.PrintService.Responses;
+using PdfSharp.Pdf;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf.IO;
 
 namespace PGZ.UI.PrintService.Services
 {
@@ -77,7 +80,6 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
                 katCesticeTable.Rows[0].Cells[2].FillColor = System.Drawing.Color.LightGray;
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
-                Console.WriteLine("OK");
                 int i = 1;
                 foreach (SpatialCondition spatial in request.SpatialConditionList)
                 {
@@ -116,7 +118,6 @@ namespace PGZ.UI.PrintService.Services
 
                 if (!firstResUrbIdent)
                 {
-                    resPlanUrbPar.InsertPageBreakBeforeSelf();
                     resPlanUrbPar.InsertTableBeforeSelf(table);
                 }
                 else
@@ -158,8 +159,30 @@ namespace PGZ.UI.PrintService.Services
             document.LoadFromStream(ms, FileFormat.Docx);
             ms.Position = 0;
             document.SaveToStream(ms, FileFormat.PDF);
+
+            PdfDocument pdfDoc = PdfReader.Open(ms);
+            PdfPages pages = pdfDoc.Pages;
+            PdfPage page = pages[0];
+            for (int i = 0; i < page.Contents.Elements.Items.Length; i++)
+            {
+                string naziv = page.Contents.Elements.GetDictionary(i).Stream.ToString();
+
+                Console.WriteLine(naziv);
+                Console.WriteLine(i);
+            }
+
+           
+            XGraphics gfx = XGraphics.FromPdfPage(page);
+
+            XPen pen = new XPen(XColors.White, 10);
+            gfx.DrawRectangle(pen, 60, 70, 500, 10);
+
+            pdfDoc.Save(ms);
+           
+
         }
 
+        
         async public static void CreateCacheFile(DataRequest request, 
             IMemoryCache _cache, string key, string webRootPath)
         {
