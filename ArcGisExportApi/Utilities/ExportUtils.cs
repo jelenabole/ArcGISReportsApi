@@ -29,11 +29,9 @@ namespace PGZ.UI.PrintService.Utilities
                 string boundingBox = null;
                 if (currentMapPlan.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
                 {
-                    mapScale = null;
                     boundingBox = AddBoundingBox(extent);
                 } else if (currentMapPlan.MapScale.Contains("PLAN_MAP_EXTENT"))
                 {
-                    mapScale = null;
                     boundingBox = AddBoundingBox(FindPoints(rasterInfo.GetGeometryByKartaSifra(kartaSifra)));
                 } else
                 {
