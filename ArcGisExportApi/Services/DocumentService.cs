@@ -163,23 +163,12 @@ namespace PGZ.UI.PrintService.Services
             PdfDocument pdfDoc = PdfReader.Open(ms);
             PdfPages pages = pdfDoc.Pages;
             PdfPage page = pages[0];
-            for (int i = 0; i < page.Contents.Elements.Items.Length; i++)
-            {
-                string naziv = page.Contents.Elements.GetDictionary(i).Stream.ToString();
-
-                Console.WriteLine(naziv);
-                Console.WriteLine(i);
-            }
-
-           
             XGraphics gfx = XGraphics.FromPdfPage(page);
 
             XPen pen = new XPen(XColors.White, 10);
             gfx.DrawRectangle(pen, 60, 70, 500, 10);
-
             pdfDoc.Save(ms);
            
-
         }
 
         
