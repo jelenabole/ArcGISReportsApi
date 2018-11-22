@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace PGZ.UI.PrintService.Models
 {
-    public class ExportResultList
-    {
-        // list of server results (exports):
-        public List<ExportResult> MapPlans { get; set; }
-    }
-
     public class ExportResult
     {
         // karta_sifra:

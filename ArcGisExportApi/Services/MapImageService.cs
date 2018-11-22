@@ -59,12 +59,11 @@ namespace PGZ.UI.PrintService.Services
                 Graphics graphics = Graphics.FromImage(newBitmap);
                 graphics.DrawImage(new Bitmap(ms), 0, 0);
 
-                Color penColor = new Color();
-                if (color == null)
+                // set color:
+                Color penColor = Color.Cyan;
+                if (color != null)
                 {
-                    penColor = Color.Fuchsia;
-                } else
-                {
+                    // correct format "#xxxxxx"
                     penColor = ColorTranslator.FromHtml(color);
                 }
                 Pen colorPen = new Pen(penColor, 4);
@@ -143,32 +142,39 @@ namespace PGZ.UI.PrintService.Services
         // spatial condition added for geometry:
         async public static Task AddRaster(UrbanPlan urbanPlan, Extent polygonsExtent) // UrbanPlan response, string restUrl, List<string> mapPlanIds)
         {
-            QueryResult rasterInfo = await QueryUtils.queryAll(urbanPlan, urbanPlan.RasterRestURL);
-
-            await ExportUtils.getRasterInfo(urbanPlan, polygonsExtent, rasterInfo);
+            QueryResult rasterInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.RasterRestURL);
+            
+            foreach (Map map in urbanPlan.Maps)
+            {
+                map.FullMapExtent = ExportUtils.FindPoints(rasterInfo.GetGeometryByMapId(map.Id));
+            }
+            
+            await ExportUtils.getRasterInfo(urbanPlan, polygonsExtent);
         }
 
         async public static Task AddLegends(UrbanPlan urbanPlan)
         {
-            QueryResult legendsInfo = await QueryUtils.queryAll(urbanPlan, urbanPlan.LegendRestURL);
+            QueryResult legendsInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.LegendRestURL);
 
-            for (int i = 0; i < urbanPlan.Maps.Count; i++)
+            string exportUrl = urbanPlan.ServerPath + "/export";
+            foreach (Map map in urbanPlan.Maps)
             {
-                urbanPlan.Maps[i].LegendUrl = urbanPlan.ServerPath + "/export" + 
-                    ExportUtils.getImageUrl(legendsInfo.Features[i].Geometry,
-                        urbanPlan.PaperSize, urbanPlan.LegendRestURL);
+                map.LegendUrl = exportUrl + ExportUtils.getImageUrl(
+                    legendsInfo.GetGeometryByMapId(map.Id),
+                    urbanPlan.PaperSize, urbanPlan.LegendRestURL);
             }
         }
 
         async public static Task AddComponents(UrbanPlan urbanPlan)
         {
-            QueryResult componentsInfo = await QueryUtils.queryAll(urbanPlan, urbanPlan.ComponentRestURL);
+            QueryResult componentsInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.ComponentRestURL);
 
-            for (int i = 0; i < urbanPlan.Maps.Count; i++)
+            string exportUrl = urbanPlan.ServerPath + "/export";
+            foreach (Map map in urbanPlan.Maps)
             {
-                urbanPlan.Maps[i].ComponentUrl = urbanPlan.ServerPath + "/export" +
-                    ExportUtils.getImageUrl(componentsInfo.Features[i].Geometry,
-                        urbanPlan.PaperSize, urbanPlan.ComponentRestURL);
+                map.ComponentUrl = exportUrl + ExportUtils.getImageUrl(
+                    componentsInfo.GetGeometryByMapId(map.Id),
+                    urbanPlan.PaperSize, urbanPlan.ComponentRestURL);
             }
         }
     }

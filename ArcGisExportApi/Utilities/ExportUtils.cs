@@ -10,15 +10,8 @@ namespace PGZ.UI.PrintService.Utilities
     public class ExportUtils
     {
         // get info by export (from extent)
-        async public static Task getRasterInfo(UrbanPlan urbanPlan, Extent extent, QueryResult rasterInfo)
+        async public static Task getRasterInfo(UrbanPlan urbanPlan, Extent polygonExtent)
         {
-            /*
-            ExportResultList results = new ExportResultList()
-            {
-                MapPlans = new List<ExportResult>()
-            };
-            */
-
             // get each component by exporting geometry:
             // CHECK = queryResult.Features == null
             foreach (Map map in urbanPlan.Maps)
@@ -28,20 +21,18 @@ namespace PGZ.UI.PrintService.Utilities
                 string boundingBox = null;
                 if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
                 {
-                    mapScale = null;
-                    boundingBox = AddBoundingBox(extent);
+                    boundingBox = AddBoundingBox(polygonExtent);
                 }
                 else if (map.MapScale.Contains("PLAN_MAP_EXTENT"))
                 {
-                    mapScale = null;
-                    boundingBox = AddBoundingBox(FindPoints(rasterInfo.GetGeometryByMapId(map.Id)));
+                    boundingBox = AddBoundingBox(map.FullMapExtent);
                 }
                 else
                 {
                     // parse to number:
                     mapScale = map.MapScale;
                     // try parse = throw error, value not recognized (for map scale)
-                    boundingBox = AddBoundingBox(extent);
+                    boundingBox = AddBoundingBox(polygonExtent);
                 }
 
                 string linkMap = "export?f=json"

@@ -6,12 +6,11 @@ namespace PGZ.UI.PrintService.Utilities
 {
     public class QueryUtils
     {
-        async public static Task<QueryResult> queryAll(UrbanPlan urbanPlan, string layerUrl)
+        async public static Task<QueryResult> createQueryForAll(UrbanPlan urbanPlan, string layerUrl)
         {
             string uri = createQuery(layerUrl, urbanPlan);
+            return await QueryRepo.getQuery(uri);
 
-            QueryResult result = await QueryRepo.getQuery(uri);
-            return result;
         }
 
         public static string createQuery(string uri, UrbanPlan urbanPlan)
@@ -25,7 +24,7 @@ namespace PGZ.UI.PrintService.Utilities
             string query = "";
             for (int i = 0; i < urbanPlan.Maps.Count; i++)
             {
-                query += urbanPlan.RasterIdAttribute + "=" + "'" + urbanPlan.Maps[i] + "'";
+                query += urbanPlan.RasterIdAttribute + "=" + "'" + urbanPlan.Maps[i].Id + "'";
                 if (i < urbanPlan.Maps.Count - 1)
                     query += " OR ";
             }

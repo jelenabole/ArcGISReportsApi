@@ -60,7 +60,9 @@ namespace PGZ.UI.PrintService.Models
 
         // public string RasterIdAttribute { get; set; }
 
+        public Extent FullMapExtent { get; set; }
         public MapImage Raster { get; set; }
+
         public string LegendUrl { get; set; }
         public string ComponentUrl { get; set; }
 
