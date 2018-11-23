@@ -160,7 +160,7 @@ namespace PGZ.UI.PrintService.Services
             ms.Position = 0;
             document.SaveToStream(ms, FileFormat.PDF);
 
-            /*
+            
             PdfDocument pdfDoc = PdfReader.Open(ms);
             PdfPages pages = pdfDoc.Pages;
             PdfPage page = pages[0];
@@ -169,7 +169,7 @@ namespace PGZ.UI.PrintService.Services
             XPen pen = new XPen(XColors.White, 10);
             gfx.DrawRectangle(pen, 60, 70, 500, 10);
             pdfDoc.Save(ms);
-            */
+            
         }
         
         async public static void CreateCacheFile(DataRequest request, 
