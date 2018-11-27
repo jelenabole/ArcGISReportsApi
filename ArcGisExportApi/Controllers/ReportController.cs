@@ -45,10 +45,6 @@ namespace PGZ.UI.PrintService.Controllers
             return file;
         }
 
-
-
-
-
         [HttpPost]
         [Route("[controller]/submit")]
         public string Submit([FromBody] DataRequest request)
@@ -125,6 +121,5 @@ namespace PGZ.UI.PrintService.Controllers
                 NullValueHandling = NullValueHandling.Ignore
             });
         }
-
     }
 }

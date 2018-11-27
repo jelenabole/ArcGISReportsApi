@@ -21,7 +21,7 @@ namespace PGZ.UI.PrintService.Utilities
                 string boundingBox = null;
                 if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
                 {
-                    boundingBox = AddBoundingBox(polygonExtent);
+                    boundingBox = AddBoundingBox(AddPaddingToExtent(polygonExtent));
                 }
                 else if (map.MapScale.Contains("PLAN_MAP_EXTENT"))
                 {
@@ -183,6 +183,26 @@ namespace PGZ.UI.PrintService.Utilities
 
             string str = "&size=" + (int)xSize + "," + (int)ySize;
             return str;
+        }
+
+        // add padding to Raster images (in the case of spatial condition scale):
+        private static Extent AddPaddingToExtent(Extent extent)
+        {
+            double paddingPercent = 0.3;
+
+            double xSize = extent.Xmax - extent.Xmin;
+            double ySize = extent.Ymax - extent.Ymin;
+
+            double paddingHorizontal = xSize * paddingPercent;
+            double paddingVertical = ySize * paddingPercent;
+
+            Extent newExtent = new Extent();
+            newExtent.Xmax = extent.Xmax + paddingHorizontal;
+            newExtent.Xmin = extent.Xmin - paddingHorizontal;
+            newExtent.Ymax = extent.Ymax + paddingVertical;
+            newExtent.Ymin = extent.Ymin - paddingVertical;
+
+            return newExtent;
         }
     }
 }
