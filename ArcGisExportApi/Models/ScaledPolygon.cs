@@ -5,23 +5,26 @@ namespace PGZ.UI.PrintService.Models
 {
     public class ScaledPolygon
     {
-        public List<ScaledPoint> Points { get; set; }
+        public List<ScaledPoint> Points;
 
-        public ScaledPolygon ()
+        public ScaledPolygon()
         {
             Points = new List<ScaledPoint>();
+        }
+
+        public void AddPoint(double x, double y)
+        {
+            Points.Add(new ScaledPoint
+            {
+                XPoint = Convert.ToInt32(x),
+                YPoint = Convert.ToInt32(y)
+            });
         }
     }
 
     public class ScaledPoint
     {
-        public int XPoint { get; set; }
-        public int YPoint { get; set; }
-
-        public ScaledPoint(double x, double y)
-        {
-            XPoint = Convert.ToInt32(x);
-            YPoint = Convert.ToInt32(y);
-        }
+        public int XPoint;
+        public int YPoint;
     }
 }

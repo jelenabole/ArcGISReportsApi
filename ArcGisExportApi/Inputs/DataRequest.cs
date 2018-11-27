@@ -4,21 +4,14 @@ namespace PGZ.UI.PrintService.Inputs
 {
     public sealed class DataRequest
     {
-        public string FileFormat { get; set; }
-        public string DocumentTemplateId { get; set; }
-        public string HighlightColor { get; set; }
+        public string FileFormat;
+        public string DocumentTemplateId;
+        public string HighlightColor;
 
         public List<SpatialCondition> SpatialConditionList;
         public List<UrbanisticPlansResults> UrbanisticPlansResults;
-
-        public DataRequest()
-        {
-            SpatialConditionList = new List<SpatialCondition>();
-            UrbanisticPlansResults = new List<UrbanisticPlansResults>();
-        }
     }
 
-    // for particles:
     public class SpatialCondition
     {
         public string Source;
@@ -29,10 +22,9 @@ namespace PGZ.UI.PrintService.Inputs
 
     public class Geometry
     {
-        public List<List<List<double>>> Rings { get; set; }
+        public List<List<List<double>>> Rings;
     }
 
-    // for map export:
     public class UrbanisticPlansResults
     {
         public int Id;
@@ -40,10 +32,10 @@ namespace PGZ.UI.PrintService.Inputs
         public string Type;
         public string GisCode;
         public string Name;
+        public string Sn;
+        public string RasterIdAttribute;
 
         // urls:
-        public string RasterIdAttribute;
-        public string Sn;
         public string PolygonRestURL;
         public string RasterRestURL;
         public string LegendRestURL;
@@ -53,10 +45,10 @@ namespace PGZ.UI.PrintService.Inputs
 
         public class PlanMap
         {
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public string MapScale { get; set; }
-            public string OriginalScale { get; set; }
+            public string Id;
+            public string Name;
+            public string MapScale;
+            public string OriginalScale;
         }
     }
 }

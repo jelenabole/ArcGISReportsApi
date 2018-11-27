@@ -2,25 +2,22 @@
 {
     public class Extent
     {
-        public double Xmin { get; set; }
-        public double Ymin { get; set; }
-        public double Xmax { get; set; }
-        public double Ymax { get; set; }
-
-        public SpatialReference SpatialReference { get; set; }
+        public double Xmin;
+        public double Ymin;
+        public double Xmax;
+        public double Ymax;
+        public SpatialReference SpatialReference;
     }
 
     public class SpatialReference
     {
-        public int Wkid { get; set; }
-        public int LatestWkid { get; set; }
+        public int Wkid;
+        public int LatestWkid;
     }
-
-
 
     public sealed class Size
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width;
+        public int Height;
     }
 }

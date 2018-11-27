@@ -24,7 +24,6 @@ namespace PGZ.UI.PrintService.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-
         [HttpGet]
         [Route("[controller]")]
         async public Task<FileStreamResult> Get()
@@ -50,9 +49,6 @@ namespace PGZ.UI.PrintService.Controllers
 
 
 
-
-
-
         [HttpPost]
         [Route("[controller]/submit")]
         public string Submit([FromBody] DataRequest request)
@@ -61,10 +57,13 @@ namespace PGZ.UI.PrintService.Controllers
             if (request.FileFormat == null)
             {
                 return serializeToJson(new ResponseStatus("File Format Empty"));
-            } else if (request.SpatialConditionList == null || request.SpatialConditionList.Count == 0)
+            }
+            else if (request.SpatialConditionList == null || request.SpatialConditionList.Count == 0)
             {
                 return serializeToJson(new ResponseStatus("No spatial conditions"));
-            } else {
+            }
+            else
+            {
                 // generate key, and start file creation:
                 string key = Guid.NewGuid().ToString();
                 DocumentService.CreateCacheFile(request, _cache, key, _hostingEnvironment.ContentRootPath);
@@ -72,7 +71,6 @@ namespace PGZ.UI.PrintService.Controllers
                 return serializeToJson(new SubmitResponse(key));
             }
         }
-
 
         [HttpGet]
         [Route("[controller]/ping/{key}")]
@@ -88,10 +86,12 @@ namespace PGZ.UI.PrintService.Controllers
             if (cached.StatusCode == ResponseStatusCode.OK)
             {
                 return serializeToJson(new CheckResponse(Request.Host.ToString() + "/report/download/" + key));
-            } else if (cached.StatusCode == ResponseStatusCode.PENDING)
+            }
+            else if (cached.StatusCode == ResponseStatusCode.PENDING)
             {
                 return serializeToJson(new ResponseStatus("Document not ready", cached.StatusCode));
-            } else
+            }
+            else
             {
                 // error:
                 return serializeToJson(new ResponseStatus(cached.ErrorDescription));

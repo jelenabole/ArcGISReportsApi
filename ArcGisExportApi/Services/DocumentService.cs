@@ -20,8 +20,7 @@ namespace PGZ.UI.PrintService.Services
 
             // get all map images and add them to docx:
             DataResponse dataResponse = DataRequestMapper.MapToResponse(doc, request);
-
-            dataResponse = await MapImageService.mapToReponse(doc, dataResponse);
+            await MapImageService.AddExportedData(doc, dataResponse);
 
             await AddInfo(doc, request, dataResponse);
             doc.SaveAs(ms);

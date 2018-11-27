@@ -4,29 +4,26 @@ namespace PGZ.UI.PrintService.Models
 {
     public sealed class DataResponse
     {
-        public string FileFormat { get; set; }
-        // add file format MIME type by the format type
+        public string FileFormat;
+        public string HighlightColor;
+        public Extent PolygonsExtent;
 
-        public string HighlightColor { get; set; }
+        // spatial conditions:
+        public List<MapPolygon> Polygons;
 
-        // spatial condition list
-        public List<MapPolygon> Polygons { get; set; }
-        public Extent PolygonsExtent { get; set; }
-
-        // first copy data:
-        public List<UrbanPlan> UrbanPlans { get; set; }
+        // urban plans:
+        public List<UrbanPlan> UrbanPlans;
     }
 
-
-    // info
     public sealed class UrbanPlan
     {
-        // public List<MapPolygon> MapPolygons { get; set; }
-        public List<Map> Maps { get; set; }
-        public string ServerPath { get; set; }
-        public Size PaperSize { get; set; }
+        // document:
+        public string Status;
+        public string Type;
+        public string GisCode;
+        public string Name;
 
-        // prepisani podaci - za mape:
+        // layers:
         public int Id;
         public string RasterIdAttribute;
         public string PolygonRestURL;
@@ -34,13 +31,12 @@ namespace PGZ.UI.PrintService.Models
         public string LegendRestURL;
         public string ComponentRestURL;
 
-        // za dokument:
-        public string Status;
-        public string Type;
-        public string GisCode;
-        public string Name;
+        // generated:
+        public string ServerPath;
+        public List<Map> Maps;
+        public Size PaperSize;
 
-        public Map GetById(string id)
+        public Map GetMapById(string id)
         {
             foreach (Map map in Maps)
             {
@@ -53,31 +49,29 @@ namespace PGZ.UI.PrintService.Models
 
     public class Map
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string MapScale { get; set; }
-        public string OriginalScale { get; set; }
+        // document:
+        public string Id;
+        public string Name;
+        public string MapScale;
+        public string OriginalScale;
 
-        // public string RasterIdAttribute { get; set; }
+        // images:
+        public Extent FullMapExtent;
+        public MapImage Raster;
+        public string LegendUrl;
+        public string ComponentUrl;
 
-        public Extent FullMapExtent { get; set; }
-        public MapImage Raster { get; set; }
-
-        public string LegendUrl { get; set; }
-        public string ComponentUrl { get; set; }
-
-        public byte[] RasterImage { get; set; }
-        public byte[] LegendImage { get; set; }
-        public byte[] ComponentImage { get; set; }
+        public byte[] RasterImage;
+        public byte[] LegendImage;
+        public byte[] ComponentImage;
     }
 
     public class MapImage
     {
-        public string Href { get; set; }
-        public double Scale { get; set; }
-
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public Extent Extent { get; set; }
+        public string Href;
+        public double Scale;
+        public int Width;
+        public int Height;
+        public Extent Extent;
     }
 }

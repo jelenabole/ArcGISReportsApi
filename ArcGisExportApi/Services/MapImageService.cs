@@ -11,7 +11,7 @@ namespace PGZ.UI.PrintService.Services
 {
     public class MapImageService
     {
-        async public static Task<DataResponse> mapToReponse(DocX doc, DataResponse response)
+        async public static Task AddExportedData(DocX doc, DataResponse response)
         {
             // go through all urbanistic plans:
             foreach (UrbanPlan urbanPlan in response.UrbanPlans)
@@ -35,8 +35,6 @@ namespace PGZ.UI.PrintService.Services
                 }
                 await Task.WhenAll(imageTasks);
             }
-
-            return response;
         }
 
         async public static Task DownloadRaster(Map map, List<MapPolygon> polygons, string color)
@@ -81,10 +79,6 @@ namespace PGZ.UI.PrintService.Services
                 // back to byte array:
                 using (var savingMs = new MemoryStream())
                 {
-                    /*
-                    newBitmap.Save(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-                        + "\\image_" + number + ".png");
-                    */
                     newBitmap.Save(savingMs, ImageFormat.Png);
                     return savingMs.ToArray();
                 }
@@ -93,7 +87,7 @@ namespace PGZ.UI.PrintService.Services
 
         public static List<ScaledPolygon> calculatePiP(MapImage rasterInfo, List<MapPolygon> polygons)
         {
-            List<ScaledPolygon> scaledPoly = new List<ScaledPolygon>();
+            List<ScaledPolygon> scaledPolygons = new List<ScaledPolygon>();
 
             // extent:
             double Xmin = rasterInfo.Extent.Xmin;
@@ -118,12 +112,12 @@ namespace PGZ.UI.PrintService.Services
                     double y = point.YPoint - Ymin;
                     y = y / endY * rasterInfo.Height;
 
-                    poly.Points.Add(new ScaledPoint(x, y));
+                    poly.AddPoint(x, y);
                 }
-                scaledPoly.Add(poly);
+                scaledPolygons.Add(poly);
             }
 
-            return scaledPoly;
+            return scaledPolygons;
         }
 
         async public static Task DownloadLegend(Map map)
@@ -137,18 +131,16 @@ namespace PGZ.UI.PrintService.Services
         }
 
 
-       
 
-        // spatial condition added for geometry:
-        async public static Task AddRaster(UrbanPlan urbanPlan, Extent polygonsExtent) // UrbanPlan response, string restUrl, List<string> mapPlanIds)
+        async public static Task AddRaster(UrbanPlan urbanPlan, Extent polygonsExtent)
         {
             QueryResult rasterInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.RasterRestURL);
-            
+
             foreach (Map map in urbanPlan.Maps)
             {
                 map.FullMapExtent = ExportUtils.FindPoints(rasterInfo.GetGeometryByMapId(map.Id));
             }
-            
+
             await ExportUtils.getRasterInfo(urbanPlan, polygonsExtent);
         }
 

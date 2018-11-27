@@ -59,8 +59,6 @@ namespace PGZ.UI.PrintService.Mappers
                     ComponentRestURL = urbanisticPlan.ComponentRestURL
                 };
 
-                string rasterIdAttribute = urbanisticPlan.RasterIdAttribute;
-
                 foreach (UrbanisticPlansResults.PlanMap planMap in urbanisticPlan.PlanMaps)
                 {
                     // create map plan, with id and scales:
@@ -70,7 +68,6 @@ namespace PGZ.UI.PrintService.Mappers
                         Name = planMap.Name,
                         MapScale = planMap.MapScale,
                         OriginalScale = planMap.OriginalScale,
-                        // RasterIdAttribute = rasterIdAttribute
                     });
                 }
                 response.UrbanPlans.Add(planResults);
@@ -83,6 +80,5 @@ namespace PGZ.UI.PrintService.Mappers
         {
             return layerURL.Substring(0, layerURL.LastIndexOf("/"));
         }
-
     }
 }
