@@ -3,11 +3,11 @@ using System.IO;
 using System.Threading.Tasks;
 using PGZ.UI.PrintService.Models;
 using PGZ.UI.PrintService.Inputs;
-using Novacode;
-using Spire.Doc;
-using Microsoft.Extensions.Caching.Memory;
 using PGZ.UI.PrintService.Responses;
 using PGZ.UI.PrintService.Mappers;
+using Microsoft.Extensions.Caching.Memory;
+using Novacode;
+using Spire.Doc;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf.IO;
@@ -16,7 +16,7 @@ namespace PGZ.UI.PrintService.Services
 {
     class DocumentService
     {
-        async public static Task<string> createDocument(DataRequest request, MemoryStream ms, string webRootPath)
+        async public static Task createDocument(DataRequest request, MemoryStream ms, string webRootPath)
         {
             // load document template (docx):
             DocX doc = AddTemplate(request.DocumentTemplateId, webRootPath);
@@ -24,18 +24,14 @@ namespace PGZ.UI.PrintService.Services
             // get all map images and add them to docx:
             DataResponse dataResponse = DataRequestMapper.MapToResponse(doc, request);
             await MapImageService.AddExportedData(doc, dataResponse);
-
-            await AddInfo(doc, request, dataResponse);
+            AddInfo(doc, dataResponse);
             doc.SaveAs(ms);
 
             // convert to other formats, if needed:
             if (request.FileFormat == "pdf")
             {
                 convertDocxToPdf(ms);
-                return "pdf";
             }
-
-            return "docx";
         }
 
         private static DocX AddTemplate(string templateId, string webRootPath)
@@ -48,7 +44,7 @@ namespace PGZ.UI.PrintService.Services
         }
 
 
-        async public static Task<DocX> AddInfo(DocX document, DataRequest request, DataResponse response)
+        public static void AddInfo(DocX document, DataResponse response)
         {
             // template:
             String klasa = "klasa";
@@ -66,11 +62,11 @@ namespace PGZ.UI.PrintService.Services
 
             float[] tableWidthKatCestice = { 100F, 100F, 100F };
 
-            // spatial condition list:
-            if (request.SpatialConditionList != null && request.SpatialConditionList.Count != 0)
+            // spatial conditions:
+            if (response.Polygons != null && response.Polygons.Count != 0)
             {
                 Novacode.Table katCesticeTable = document.AddTable(
-                    request.SpatialConditionList.Count + 1, 3);
+                    response.Polygons.Count + 1, 3);
                 katCesticeTable.Design = TableDesign.TableGrid;
                 katCesticeTable.Alignment = Alignment.center;
                 katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
@@ -84,7 +80,7 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTable.Rows[0].Cells[2].FillColor = System.Drawing.Color.LightGray;
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
                 int i = 1;
-                foreach (SpatialCondition spatial in request.SpatialConditionList)
+                foreach (MapPolygon spatial in response.Polygons)
                 {
                     katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
                     katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Alignment = Alignment.center;
@@ -108,7 +104,7 @@ namespace PGZ.UI.PrintService.Services
                 Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.TableGrid;
                 table.Alignment = Alignment.center;
-                
+
                 table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
                 table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
                 table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
@@ -126,15 +122,13 @@ namespace PGZ.UI.PrintService.Services
                 else
                 {
                     resPlanUrbPar = document.InsertParagraph(
-                    "Rezultat urbanističke identifikacije".ToUpper());
+                        "Rezultat urbanističke identifikacije".ToUpper());
                     resPlanUrbPar.Alignment = Alignment.left;
                     resPlanUrbPar.SpacingBefore(25d);
                     resPlanUrbPar.InsertTableAfterSelf(table);
-                    
                 }
-                
-                firstResUrbIdent = false;
 
+                firstResUrbIdent = false;
 
                 // all maps (with leg and comp) in this urban plan:
                 foreach (Map planMap in mapImageList.Maps)
@@ -146,24 +140,21 @@ namespace PGZ.UI.PrintService.Services
 
                     imagesParagraph.AppendPicture(StreamService.convertToImage(document,
                         planMap.RasterImage).CreatePicture());
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document, 
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
                         planMap.LegendImage).CreatePicture());
                     imagesParagraph.AppendPicture(StreamService.convertToImage(document,
                         planMap.ComponentImage).CreatePicture());
                 }
             }
-            
-            return document;
         }
 
-        async public static void convertDocxToPdf(MemoryStream ms)
+        public static void convertDocxToPdf(MemoryStream ms)
         {
             Document document = new Document();
             document.LoadFromStream(ms, FileFormat.Docx);
             ms.Position = 0;
             document.SaveToStream(ms, FileFormat.PDF);
 
-            
             PdfDocument pdfDoc = PdfReader.Open(ms);
             PdfPages pages = pdfDoc.Pages;
             PdfPage page = pages[0];
@@ -171,11 +162,11 @@ namespace PGZ.UI.PrintService.Services
 
             XPen pen = new XPen(XColors.White, 10);
             gfx.DrawRectangle(pen, 60, 70, 500, 10);
+
             pdfDoc.Save(ms);
-            
         }
-        
-        async public static void CreateCacheFile(DataRequest request, 
+
+        async public static void CreateCacheFile(DataRequest request,
             IMemoryCache _cache, string key, string webRootPath)
         {
             // cache options:
@@ -191,7 +182,7 @@ namespace PGZ.UI.PrintService.Services
             {
                 try
                 {
-                    string format = await createDocument(request, ms, webRootPath);
+                    await createDocument(request, ms, webRootPath);
                     cached.Document = ms.ToArray();
                     cached.StatusCode = ResponseStatusCode.OK;
                     cached.Format = request.FileFormat;

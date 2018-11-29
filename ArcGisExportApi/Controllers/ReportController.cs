@@ -34,13 +34,13 @@ namespace PGZ.UI.PrintService.Controllers
 
             // create document:
             MemoryStream ms = new MemoryStream();
-            string format = await DocumentService.createDocument(request, ms, contentRootPath);
+            await DocumentService.createDocument(request, ms, contentRootPath);
             ms.Position = 0;
 
             // send response:
             var file = new FileStreamResult(ms, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
             {
-                FileDownloadName = string.Format("PGZ_test." + format)
+                FileDownloadName = string.Format("PGZ_test." + request.FileFormat)
             };
             return file;
         }

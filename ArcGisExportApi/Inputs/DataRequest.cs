@@ -6,10 +6,10 @@ namespace PGZ.UI.PrintService.Inputs
     {
         public string FileFormat;
         public string DocumentTemplateId;
-        public string HighlightColor;
+        public string ParcelHighlightColor;
 
         public List<SpatialCondition> SpatialConditionList;
-        public List<UrbanisticPlansResults> UrbanisticPlansResults;
+        public List<UrbanisticPlansResult> UrbanisticPlansResults;
     }
 
     public class SpatialCondition
@@ -25,7 +25,7 @@ namespace PGZ.UI.PrintService.Inputs
         public List<List<List<double>>> Rings;
     }
 
-    public class UrbanisticPlansResults
+    public class UrbanisticPlansResult
     {
         public int Id;
         public string Status;

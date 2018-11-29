@@ -16,7 +16,7 @@ namespace PGZ.UI.PrintService.Mappers
                 Polygons = new List<MapPolygon>(),
                 UrbanPlans = new List<UrbanPlan>(),
                 FileFormat = request.FileFormat,
-                HighlightColor = request.HighlightColor
+                HighlightColor = request.ParcelHighlightColor
             };
 
             // copy polygons (to draw from later) - spatial condition list:
@@ -34,7 +34,7 @@ namespace PGZ.UI.PrintService.Mappers
             response.PolygonsExtent = ExportUtils.FindPoints(response.Polygons);
 
             // go through all urbanistic plans
-            foreach (UrbanisticPlansResults urbanisticPlan in request.UrbanisticPlansResults)
+            foreach (UrbanisticPlansResult urbanisticPlan in request.UrbanisticPlansResults)
             {
                 UrbanPlan planResults = new UrbanPlan()
                 {
@@ -59,7 +59,7 @@ namespace PGZ.UI.PrintService.Mappers
                     ComponentRestURL = urbanisticPlan.ComponentRestURL
                 };
 
-                foreach (UrbanisticPlansResults.PlanMap planMap in urbanisticPlan.PlanMaps)
+                foreach (UrbanisticPlansResult.PlanMap planMap in urbanisticPlan.PlanMaps)
                 {
                     // create map plan, with id and scales:
                     planResults.Maps.Add(new Map
