@@ -77,34 +77,37 @@ namespace PGZ.UI.PrintService.Mappers
             }
 
             // spatial queries:
-            foreach (SpatialQueryResult spatialQuery in request.SpatialQueryResults)
+            if (request.SpatialQueryResults != null)
             {
-                OtherPlan otherPlan = new OtherPlan()
+                foreach (SpatialQueryResult spatialQuery in request.SpatialQueryResults)
                 {
-                    Id = spatialQuery.Id,
-                    Title = spatialQuery.Title,
-                    RestUrl = spatialQuery.RestUrl,
-                    IdAttribute = spatialQuery.IdAttribute,
-                    ResultFeatures = new List<OtherPlan.ResultFeature>()
-                };
-
-                if (spatialQuery.ResultFeatures != null)
-                {
-                    foreach (SpatialQueryResult.ResultFeature spatResult in spatialQuery.ResultFeatures)
+                    OtherPlan otherPlan = new OtherPlan()
                     {
-                        otherPlan.ResultFeatures.Add(new OtherPlan.ResultFeature()
-                        {
-                            Id = spatResult.Id,
-                            Status = spatResult.Status,
-                            Type = spatResult.Type,
-                            Name = spatResult.Name,
-                            Sn = spatResult.Sn,
-                            MapScale = spatResult.MapScale,
-                        });
-                    }
-                }
+                        Id = spatialQuery.Id,
+                        Title = spatialQuery.Title,
+                        RestUrl = spatialQuery.RestUrl,
+                        IdAttribute = spatialQuery.IdAttribute,
+                        ResultFeatures = new List<OtherPlan.ResultFeature>()
+                    };
 
-                response.OtherPlans.Add(otherPlan);
+                    if (spatialQuery.ResultFeatures != null)
+                    {
+                        foreach (SpatialQueryResult.ResultFeature spatResult in spatialQuery.ResultFeatures)
+                        {
+                            otherPlan.ResultFeatures.Add(new OtherPlan.ResultFeature()
+                            {
+                                Id = spatResult.Id,
+                                Status = spatResult.Status,
+                                Type = spatResult.Type,
+                                Name = spatResult.Name,
+                                Sn = spatResult.Sn,
+                                MapScale = spatResult.MapScale,
+                            });
+                        }
+                    }
+
+                    response.OtherPlans.Add(otherPlan);
+                }
             }
 
             return response;
