@@ -11,7 +11,7 @@ namespace PGZ.UI.PrintService.Responses
 
         public ResponseStatus() { }
 
-        public ResponseStatus (string errorMessage)
+        public ResponseStatus(string errorMessage)
         {
             StatusCode = ResponseStatusCode.ERROR;
             ErrorDescription = errorMessage;

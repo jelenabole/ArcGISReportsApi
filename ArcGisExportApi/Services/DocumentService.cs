@@ -96,7 +96,7 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
             }
 
-            // urbanistic plans results:
+            // urbanistic plans:
             Paragraph resPlanUrbPar = document.InsertParagraph(
                 "Rezultat urbanističke identifikacije".ToUpper());
             resPlanUrbPar.SpacingBefore(25d);
@@ -119,7 +119,6 @@ namespace PGZ.UI.PrintService.Services
 
                 urbanPlanPar.InsertTableBeforeSelf(table);
 
-                // all maps (with leg and comp) in this urban plan:
                 foreach (Map planMap in mapImageList.Maps)
                 {
                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
@@ -142,6 +141,7 @@ namespace PGZ.UI.PrintService.Services
                 }
             }
 
+            // other plans:
             if (response.OtherPlans != null && response.OtherPlans.Count != 0)
             {
                 foreach (OtherPlan other in response.OtherPlans)
@@ -151,6 +151,7 @@ namespace PGZ.UI.PrintService.Services
             }
         }
 
+        // additional function:
         public static void createTableForOtherPlans(DocX document, OtherPlan other)
         {
             Novacode.Table ostaloTable = document.AddTable(other.ResultFeatures.Count + 1, 4);

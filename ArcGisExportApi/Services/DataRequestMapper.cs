@@ -20,8 +20,7 @@ namespace PGZ.UI.PrintService.Mappers
                 HighlightColor = request.ParcelHighlightColor
             };
 
-            // copy polygons (to draw from later) - spatial condition list:
-            // and calculate extent from them (for the map extent):
+            // spatial conditions:
             foreach (SpatialCondition spatialCondition in request.SpatialConditionList)
             {
                 response.Polygons.Add(new MapPolygon
@@ -34,7 +33,7 @@ namespace PGZ.UI.PrintService.Mappers
             }
             response.PolygonsExtent = ExportUtils.FindPoints(response.Polygons);
 
-            // go through all urbanistic plans
+            // urbanistic plans:
             foreach (UrbanisticPlansResult urbanisticPlan in request.UrbanisticPlansResults)
             {
                 UrbanPlan planResults = new UrbanPlan()
@@ -63,7 +62,6 @@ namespace PGZ.UI.PrintService.Mappers
 
                 if (urbanisticPlan.PlanMaps != null)
                 {
-                    // create map plan, with id and scales:
                     foreach (UrbanisticPlansResult.PlanMap planMap in urbanisticPlan.PlanMaps)
                     {
                         planResults.Maps.Add(new Map
@@ -78,6 +76,7 @@ namespace PGZ.UI.PrintService.Mappers
                 response.UrbanPlans.Add(planResults);
             }
 
+            // spatial queries:
             foreach (SpatialQueryResult spatialQuery in request.SpatialQueryResults)
             {
                 OtherPlan otherPlan = new OtherPlan()

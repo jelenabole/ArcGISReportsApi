@@ -28,18 +28,15 @@ namespace PGZ.UI.PrintService.Utilities
                 if (i < urbanPlan.Maps.Count - 1)
                     query += " OR ";
             }
-            // change url signs:
             uri += encodeUrl(query);
 
             return uri;
         }
 
-        // replace special characters from url:
         public static string encodeUrl(string str)
         {
             str = str.Replace(" ", "+");
             str = str.Replace("=", "%3D");
-            // ouput fields:
             str = str.Replace(",", "%2C");
 
             str = str.Replace("\"", "%22");

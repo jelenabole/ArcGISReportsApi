@@ -49,7 +49,6 @@ namespace PGZ.UI.PrintService.Controllers
         [Route("[controller]/submit")]
         public string Submit([FromBody] DataRequest request)
         {
-            // TODO - check request mistakes (wrong type, null)
             if (request.FileFormat == null)
             {
                 return serializeToJson(new ResponseStatus("File Format Empty"));

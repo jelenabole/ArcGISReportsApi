@@ -13,7 +13,7 @@ namespace PGZ.UI.PrintService.Services
     {
         async public static Task AddExportedData(DocX doc, DataResponse response)
         {
-            // go through all urbanistic plans:
+            // urbanistic plans:
             foreach (UrbanPlan urbanPlan in response.UrbanPlans)
             {
                 var queryTasks = new List<Task>
@@ -24,7 +24,7 @@ namespace PGZ.UI.PrintService.Services
                 };
                 await Task.WhenAll(queryTasks);
 
-                // get images of this urban plan:
+                // images of this urban plan:
                 var imageTasks = new List<Task>();
                 for (int i = 0; i < urbanPlan.Maps.Count; i++)
                 {
@@ -41,7 +41,6 @@ namespace PGZ.UI.PrintService.Services
         {
             map.RasterImage = await StreamService.getImageFromUrlAsync(map.Raster.Href);
 
-            // draw on the picture:
             map.RasterImage = DrawLines(map.RasterImage, map.Raster, polygons, color);
         }
 

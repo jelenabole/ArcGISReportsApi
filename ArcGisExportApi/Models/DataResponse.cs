@@ -13,6 +13,8 @@ namespace PGZ.UI.PrintService.Models
 
         // urban plans:
         public List<UrbanPlan> UrbanPlans;
+
+        // spatial queries:
         public List<OtherPlan> OtherPlans;
     }
 

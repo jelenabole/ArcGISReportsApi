@@ -9,7 +9,6 @@ namespace PGZ.UI.PrintService.Utilities
 {
     public class ExportUtils
     {
-        // get info by export (from extent)
         async public static Task getRasterInfo(UrbanPlan urbanPlan, Extent polygonExtent)
         {
             foreach (Map map in urbanPlan.Maps)
@@ -58,12 +57,12 @@ namespace PGZ.UI.PrintService.Utilities
             string query = getLayerFromUri(uriLayer) + ":" + byField + "='" + kartaSifra + "'";
             return "&layerDefs=" + QueryUtils.encodeUrl(query);
         }
-        
+
         public static string getImageUrl(Geometry geometry, Size paperSize, string uriLayer)
         {
             Extent extent = FindPoints(geometry);
 
-            // format PNG by default:
+            // TODO - format PNG:
             string linkMap = "?f=image"
                     + "&format=png"
                     + AddBoundingBox(extent)
@@ -74,8 +73,6 @@ namespace PGZ.UI.PrintService.Utilities
         }
 
 
-
-        /* FUNCTIONS FOR URL */
 
         private static string AddBoundingBox(Extent extent)
         {
@@ -93,16 +90,12 @@ namespace PGZ.UI.PrintService.Utilities
 
         private static string getLayerFromUri(string link)
         {
-            // global - search term should be name of the server
             string search = "/";
             link = link.Substring(link.LastIndexOf(search) + search.Length);
-
             return link;
         }
 
 
-
-        /* ADDITIONAL FUNCTIONS FOR MAP SIZE CALCS */
 
         public static Extent FindPoints(List<MapPolygon> polygons)
         {
@@ -143,10 +136,7 @@ namespace PGZ.UI.PrintService.Utilities
                 Ymax = 0
             };
 
-            // features (particles) x,y points:
             List<List<double>> points = geometry.Rings[0];
-
-            // min/max x,y:
             for (int i = 0; i < points.Count; i++)
             {
                 if (points[i][0] < borders.Xmin)
@@ -163,14 +153,11 @@ namespace PGZ.UI.PrintService.Utilities
             return borders;
         }
 
-        // crop legend/component layer (size scaled to fit the paper size):
         private static string ScaleSizeToCrop(Extent extent, Size paperSize)
         {
-            // size of the image (in coo):
             double xSize = extent.Xmax - extent.Xmin;
             double ySize = extent.Ymax - extent.Ymin;
 
-            // scale by smaller size:
             double widthScale = paperSize.Width / xSize;
             double heightScale = paperSize.Height / ySize;
             double scale = widthScale < heightScale ? widthScale : heightScale;
@@ -182,7 +169,6 @@ namespace PGZ.UI.PrintService.Utilities
             return str;
         }
 
-        // add padding to Raster images (in the case of spatial condition scale):
         private static Extent AddPaddingToExtent(Extent extent)
         {
             double paddingPercent = 0.3;

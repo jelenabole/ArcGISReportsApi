@@ -16,7 +16,8 @@
             if (Format.ToLower() == "pdf")
             {
                 return "application/pdf";
-            } else
+            }
+            else
             {
                 return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             }
