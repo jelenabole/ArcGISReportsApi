@@ -18,7 +18,7 @@ namespace PGZ.UI.PrintService.Utilities
             uri += "/query?f=json";
 
             // add this fields: *
-            uri += "&outFields=" + encodeUrl("objectid,name," + urbanPlan.RasterIdAttribute);
+            uri += "&outFields=" + encodeUrl(urbanPlan.PlanIdAttribute + "," + urbanPlan.RasterIdAttribute);
             uri += "&where=";
 
             string query = "";

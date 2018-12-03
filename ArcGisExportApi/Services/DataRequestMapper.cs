@@ -15,6 +15,7 @@ namespace PGZ.UI.PrintService.Mappers
             {
                 Polygons = new List<MapPolygon>(),
                 UrbanPlans = new List<UrbanPlan>(),
+                OtherPlans = new List<OtherPlan>(),
                 FileFormat = request.FileFormat,
                 HighlightColor = request.ParcelHighlightColor
             };
@@ -52,6 +53,7 @@ namespace PGZ.UI.PrintService.Mappers
                     },
 
                     Id = urbanisticPlan.Id,
+                    PlanIdAttribute = urbanisticPlan.PlanIdAttribute,
                     RasterIdAttribute = urbanisticPlan.RasterIdAttribute,
                     PolygonRestURL = urbanisticPlan.PolygonRestURL,
                     RasterRestURL = urbanisticPlan.RasterRestURL,
@@ -59,18 +61,51 @@ namespace PGZ.UI.PrintService.Mappers
                     ComponentRestURL = urbanisticPlan.ComponentRestURL
                 };
 
-                foreach (UrbanisticPlansResult.PlanMap planMap in urbanisticPlan.PlanMaps)
+                if (urbanisticPlan.PlanMaps != null)
                 {
                     // create map plan, with id and scales:
-                    planResults.Maps.Add(new Map
+                    foreach (UrbanisticPlansResult.PlanMap planMap in urbanisticPlan.PlanMaps)
                     {
-                        Id = planMap.Id,
-                        Name = planMap.Name,
-                        MapScale = planMap.MapScale,
-                        OriginalScale = planMap.OriginalScale,
-                    });
+                        planResults.Maps.Add(new Map
+                        {
+                            Id = planMap.Id,
+                            Name = planMap.Name,
+                            MapScale = planMap.MapScale,
+                            OriginalScale = planMap.OriginalScale,
+                        });
+                    }
                 }
                 response.UrbanPlans.Add(planResults);
+            }
+
+            foreach (SpatialQueryResult spatialQuery in request.SpatialQueryResults)
+            {
+                OtherPlan otherPlan = new OtherPlan()
+                {
+                    Id = spatialQuery.Id,
+                    Title = spatialQuery.Title,
+                    RestUrl = spatialQuery.RestUrl,
+                    IdAttribute = spatialQuery.IdAttribute,
+                    ResultFeatures = new List<OtherPlan.ResultFeature>()
+                };
+
+                if (spatialQuery.ResultFeatures != null)
+                {
+                    foreach (SpatialQueryResult.ResultFeature spatResult in spatialQuery.ResultFeatures)
+                    {
+                        otherPlan.ResultFeatures.Add(new OtherPlan.ResultFeature()
+                        {
+                            Id = spatResult.Id,
+                            Status = spatResult.Status,
+                            Type = spatResult.Type,
+                            Name = spatResult.Name,
+                            Sn = spatResult.Sn,
+                            MapScale = spatResult.MapScale,
+                        });
+                    }
+                }
+
+                response.OtherPlans.Add(otherPlan);
             }
 
             return response;

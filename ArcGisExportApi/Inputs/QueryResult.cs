@@ -28,7 +28,6 @@ namespace PGZ.UI.PrintService.Models
     public class Attributes
     {
         public int ObjectId;
-        public string Name;
         public string Karta_sifra;
     }
 

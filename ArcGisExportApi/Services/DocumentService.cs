@@ -97,13 +97,15 @@ namespace PGZ.UI.PrintService.Services
             }
 
             // urbanistic plans results:
-            bool firstResUrbIdent = true;
+            Paragraph resPlanUrbPar = document.InsertParagraph(
+                "Rezultat urbanističke identifikacije".ToUpper());
+            resPlanUrbPar.SpacingBefore(25d);
+
             foreach (UrbanPlan mapImageList in response.UrbanPlans)
             {
-                Paragraph resPlanUrbPar = document.InsertParagraph();
+                Paragraph urbanPlanPar = document.InsertParagraph();
                 Novacode.Table table = document.AddTable(1, 4);
                 table.Design = TableDesign.TableGrid;
-                table.Alignment = Alignment.center;
 
                 table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
                 table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
@@ -115,20 +117,7 @@ namespace PGZ.UI.PrintService.Services
                 table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
                 table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
 
-                if (!firstResUrbIdent)
-                {
-                    resPlanUrbPar.InsertTableBeforeSelf(table);
-                }
-                else
-                {
-                    resPlanUrbPar = document.InsertParagraph(
-                        "Rezultat urbanističke identifikacije".ToUpper());
-                    resPlanUrbPar.Alignment = Alignment.left;
-                    resPlanUrbPar.SpacingBefore(25d);
-                    resPlanUrbPar.InsertTableAfterSelf(table);
-                }
-
-                firstResUrbIdent = false;
+                urbanPlanPar.InsertTableBeforeSelf(table);
 
                 // all maps (with leg and comp) in this urban plan:
                 foreach (Map planMap in mapImageList.Maps)
@@ -142,10 +131,63 @@ namespace PGZ.UI.PrintService.Services
                         planMap.RasterImage).CreatePicture());
                     imagesParagraph.AppendPicture(StreamService.convertToImage(document,
                         planMap.LegendImage).CreatePicture());
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
-                        planMap.ComponentImage).CreatePicture());
+
+                    Picture pic = StreamService.convertToImage(document,
+                        planMap.ComponentImage).CreatePicture();
+                    imagesParagraph.AppendPicture(pic);
+                    if (pic.Height < 900)
+                    {
+                        imagesParagraph.InsertPageBreakAfterSelf();
+                    }
                 }
             }
+
+            if (response.OtherPlans != null && response.OtherPlans.Count != 0)
+            {
+                foreach (OtherPlan other in response.OtherPlans)
+                {
+                    createTableForOtherPlans(document, other);
+                }
+            }
+        }
+
+        public static void createTableForOtherPlans(DocX document, OtherPlan other)
+        {
+            Novacode.Table ostaloTable = document.AddTable(other.ResultFeatures.Count + 1, 4);
+            ostaloTable.Design = TableDesign.TableGrid;
+            ostaloTable.Alignment = Alignment.center;
+            float[] tableRowsWidth = { 100F, 100F, 100F, 100F };
+            ostaloTable.SetWidthsPercentage(tableRowsWidth, null);
+            ostaloTable.Rows[0].Cells[0].Paragraphs[0].Append("STATUS");
+            ostaloTable.Rows[0].Cells[0].FillColor = System.Drawing.Color.LightGray;
+            ostaloTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
+            ostaloTable.Rows[0].Cells[1].FillColor = System.Drawing.Color.LightGray;
+            ostaloTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[2].Paragraphs[0].Append("NAZIV");
+            ostaloTable.Rows[0].Cells[2].FillColor = System.Drawing.Color.LightGray;
+            ostaloTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[3].Paragraphs[0].Append("BROJ");
+            ostaloTable.Rows[0].Cells[3].FillColor = System.Drawing.Color.LightGray;
+            ostaloTable.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+
+            int i = 1;
+            foreach (OtherPlan.ResultFeature plan in other.ResultFeatures)
+            {
+                ostaloTable.Rows[i].Cells[0].Paragraphs[0].Append(plan.Status);
+                ostaloTable.Rows[i].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[1].Paragraphs[0].Append(plan.Type);
+                ostaloTable.Rows[i].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[2].Paragraphs[0].Append(plan.Name);
+                ostaloTable.Rows[i].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[3].Paragraphs[0].Append(plan.Sn);
+                ostaloTable.Rows[i].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                i++;
+            }
+
+            Paragraph otherPlansPar = document.InsertParagraph(other.Id.ToUpper());
+            otherPlansPar.InsertPageBreakBeforeSelf();
+            otherPlansPar.InsertTableAfterSelf(ostaloTable);
         }
 
         public static void convertDocxToPdf(MemoryStream ms)

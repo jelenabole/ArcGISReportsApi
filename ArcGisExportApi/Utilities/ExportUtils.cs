@@ -12,11 +12,8 @@ namespace PGZ.UI.PrintService.Utilities
         // get info by export (from extent)
         async public static Task getRasterInfo(UrbanPlan urbanPlan, Extent polygonExtent)
         {
-            // get each component by exporting geometry:
-            // CHECK = queryResult.Features == null
             foreach (Map map in urbanPlan.Maps)
             {
-                // map scale provjeriti i izračunati:
                 string mapScale = null;
                 string boundingBox = null;
                 if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))

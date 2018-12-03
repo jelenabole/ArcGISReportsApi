@@ -13,6 +13,7 @@ namespace PGZ.UI.PrintService.Models
 
         // urban plans:
         public List<UrbanPlan> UrbanPlans;
+        public List<OtherPlan> OtherPlans;
     }
 
     public sealed class UrbanPlan
@@ -25,6 +26,7 @@ namespace PGZ.UI.PrintService.Models
 
         // layers:
         public int Id;
+        public string PlanIdAttribute;
         public string RasterIdAttribute;
         public string PolygonRestURL;
         public string RasterRestURL;
@@ -73,5 +75,24 @@ namespace PGZ.UI.PrintService.Models
         public int Width;
         public int Height;
         public Extent Extent;
+    }
+
+    public class OtherPlan
+    {
+        public string Id;
+        public string Title;
+        public string RestUrl;
+        public string IdAttribute;
+        public List<ResultFeature> ResultFeatures;
+
+        public class ResultFeature
+        {
+            public string Id;
+            public string Status;
+            public string Type;
+            public string Name;
+            public string Sn;
+            public string MapScale;
+        }
     }
 }

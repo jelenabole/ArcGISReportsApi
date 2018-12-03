@@ -10,6 +10,7 @@ namespace PGZ.UI.PrintService.Inputs
 
         public List<SpatialCondition> SpatialConditionList;
         public List<UrbanisticPlansResult> UrbanisticPlansResults;
+        public List<SpatialQueryResult> SpatialQueryResults;
     }
 
     public class SpatialCondition
@@ -33,6 +34,7 @@ namespace PGZ.UI.PrintService.Inputs
         public string GisCode;
         public string Name;
         public string Sn;
+        public string PlanIdAttribute;
         public string RasterIdAttribute;
 
         // urls:
@@ -49,6 +51,25 @@ namespace PGZ.UI.PrintService.Inputs
             public string Name;
             public string MapScale;
             public string OriginalScale;
+        }
+    }
+
+    public class SpatialQueryResult
+    {
+        public string Id;
+        public string Title;
+        public string RestUrl;
+        public string IdAttribute;
+        public List<ResultFeature> ResultFeatures;
+
+        public class ResultFeature
+        {
+            public string Id;
+            public string Status;
+            public string Type;
+            public string Name;
+            public string Sn;
+            public string MapScale;
         }
     }
 }

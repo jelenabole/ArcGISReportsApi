@@ -81,7 +81,8 @@ namespace PGZ.UI.PrintService.Controllers
 
             if (cached.StatusCode == ResponseStatusCode.OK)
             {
-                return serializeToJson(new CheckResponse(Request.Host.ToString() + "/report/download/" + key));
+                return serializeToJson(new CheckResponse(Request.Host.ToString()
+                    + "/report/download/" + key));
             }
             else if (cached.StatusCode == ResponseStatusCode.PENDING)
             {
