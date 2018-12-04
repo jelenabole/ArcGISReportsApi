@@ -97,46 +97,43 @@ namespace PGZ.UI.PrintService.Services
             }
 
             // urbanistic plans:
-            Paragraph resPlanUrbPar = document.InsertParagraph(
-                "Rezultat urbanističke identifikacije".ToUpper());
-            resPlanUrbPar.SpacingBefore(25d);
-
-            foreach (UrbanPlan mapImageList in response.UrbanPlans)
+            if (response.UrbanPlans != null && response.UrbanPlans.Count != 0)
             {
-                Paragraph urbanPlanPar = document.InsertParagraph();
-                Novacode.Table table = document.AddTable(1, 4);
-                table.Design = TableDesign.TableGrid;
+                Paragraph resPlanUrbPar = document.InsertParagraph(
+                    "Rezultat urbanističke identifikacije".ToUpper());
+                resPlanUrbPar.SpacingBefore(25d);
 
-                table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
-                table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
-                table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
-                table.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
-                table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
-                table.Rows[0].Cells[2].Width = 400;
-                table.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
-                table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
-                table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
-
-                urbanPlanPar.InsertTableBeforeSelf(table);
-
-                foreach (Map planMap in mapImageList.Maps)
+                foreach (UrbanPlan mapImageList in response.UrbanPlans)
                 {
-                    Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
-                        + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)
-                        + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
-                    imagesParagraph.InsertPageBreakBeforeSelf();
+                    Paragraph urbanPlanPar = document.InsertParagraph();
+                    Novacode.Table table = document.AddTable(1, 4);
+                    table.Design = TableDesign.TableGrid;
 
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
-                        planMap.RasterImage).CreatePicture());
-                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
-                        planMap.LegendImage).CreatePicture());
+                    table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
+                    table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                    table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
+                    table.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                    table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
+                    table.Rows[0].Cells[2].Width = 400;
+                    table.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                    table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
+                    table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
 
-                    Picture pic = StreamService.convertToImage(document,
-                        planMap.ComponentImage).CreatePicture();
-                    imagesParagraph.AppendPicture(pic);
-                    if (pic.Height < 900)
+                    urbanPlanPar.InsertTableBeforeSelf(table);
+
+                    foreach (Map planMap in mapImageList.Maps)
                     {
-                        imagesParagraph.InsertPageBreakAfterSelf();
+                        Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
+                            + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)
+                            + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
+                        imagesParagraph.InsertPageBreakBeforeSelf();
+
+                        imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                            planMap.RasterImage).CreatePicture());
+                        imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                            planMap.LegendImage).CreatePicture());
+                        imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                            planMap.ComponentImage).CreatePicture());
                     }
                 }
             }
