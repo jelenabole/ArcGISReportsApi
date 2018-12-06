@@ -11,11 +11,13 @@ using Spire.Doc;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf.IO;
+using System.Collections.Generic;
 
 namespace PGZ.UI.PrintService.Services
 {
     class DocumentService
     {
+
         async public static Task createDocument(DataRequest request, MemoryStream ms, string webRootPath)
         {
             // load document template (docx):
@@ -36,10 +38,11 @@ namespace PGZ.UI.PrintService.Services
 
         private static DocX AddTemplate(string templateId, string webRootPath)
         {
-            // TODO - find template by id:
-            string templateName = "pgzTemplate.docx";
+            //find template by id:
+            
+            templateId += ".docx";
 
-            string path = Path.Combine(webRootPath, "Templates", templateName);
+            string path = Path.Combine(webRootPath, "Templates", templateId);
             return DocX.Load(path).Copy();
         }
 
@@ -47,9 +50,16 @@ namespace PGZ.UI.PrintService.Services
         public static void AddInfo(DocX document, DataResponse response)
         {
             // template:
-            String klasa = "klasa";
-            String urBroj = "urudžbeni broj";
-            String datum = DateTime.Now.ToLongDateString();
+            string klasa = "klasa";
+            string urBroj = "urudžbeni broj";
+            string datum = DateTime.Now.ToLongDateString();
+
+            List<string> urbanisticPlanResultsOrder = new List<string> { "DPU", "UPU", "PPUOG",
+            "GUP", "PPPPO", "PPZ", "DPPR"};
+
+            List<string> urbanisticPlanResultsStatusOrder = new List<string> { "VAŽEĆI", "U IZRADI", "OBVEZA DONOŠENJA", "VAN SNAGE ODLUKA O IZRADI", "VAN SNAGE"};
+            List<System.Drawing.Color> colorList = new List<System.Drawing.Color> { System.Drawing.Color.LightGreen, System.Drawing.Color.Yellow, System.Drawing.Color.White,
+                System.Drawing.Color.White, System.Drawing.Color.White };
 
             document.ReplaceText("[KLASA]", klasa);
             document.ReplaceText("[UBROJ]", urBroj);
@@ -66,28 +76,40 @@ namespace PGZ.UI.PrintService.Services
             if (response.Polygons != null && response.Polygons.Count != 0)
             {
                 Novacode.Table katCesticeTable = document.AddTable(
-                    response.Polygons.Count + 1, 3);
+                    response.Polygons.Count + 1, 6);
                 katCesticeTable.Design = TableDesign.TableGrid;
                 katCesticeTable.Alignment = Alignment.center;
                 katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
-                katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("IZVOR");
-                katCesticeTable.Rows[0].Cells[0].FillColor = System.Drawing.Color.LightGray;
+                katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
-                katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
-                katCesticeTable.Rows[0].Cells[1].FillColor = System.Drawing.Color.LightGray;
+                katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
-                katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("OPIS");
-                katCesticeTable.Rows[0].Cells[2].FillColor = System.Drawing.Color.LightGray;
+                katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("KO STATUS");
+                katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[4].Paragraphs[0].Append("KO DATUM");
+                katCesticeTable.Rows[0].Cells[4].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[5].Paragraphs[0].Append("KO AKTIVNA");
+                katCesticeTable.Rows[0].Cells[5].Paragraphs[0].Alignment = Alignment.center;
                 int i = 1;
                 foreach (MapPolygon spatial in response.Polygons)
                 {
-                    katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
+                    katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append("KO MBR");
                     katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Alignment = Alignment.center;
-                    katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
+                    String koNaziv = spatial.Description.Substring(spatial.Description.IndexOf("KO") + 1,
+                        spatial.Description.IndexOf(","));
+                    katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(koNaziv);
                     katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Alignment = Alignment.center;
-                    katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(spatial.Description);
+                    String kcBroj = spatial.Description.Substring(spatial.Description.IndexOf(",") + 1);
+                    katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(kcBroj);
                     katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Append("SLUZBENA");
+                    katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[4].Paragraphs[0].Append(DateTime.Now.ToOADate().ToString());
+                    katCesticeTable.Rows[i].Cells[4].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[5].Paragraphs[0].Append("AKTIVNA");
+                    katCesticeTable.Rows[i].Cells[5].Paragraphs[0].Alignment = Alignment.center;
                     i++;
                 }
 
@@ -95,6 +117,39 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTitle.Alignment = Alignment.left;
                 katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
             }
+            if (response.OtherPlans != null && response.OtherPlans.Count != 0)
+            {
+                Paragraph zasticenoPodrucjePar = document.InsertParagraph("Zaštičeno područje".ToUpper());
+                zasticenoPodrucjePar.Alignment = Alignment.left;
+                zasticenoPodrucjePar.SpacingBefore(30d);
+                foreach (OtherPlan otherPlan in response.OtherPlans)
+                {
+                   
+                    if (!urbanisticPlanResultsOrder.Contains(otherPlan.Title))
+                    {
+
+                        for (int i = 0; i < otherPlan.ResultFeatures.Count; i++) {
+                            Novacode.Table zasticenoPodrucjeTable = document.AddTable(
+                                1, 3);
+                            zasticenoPodrucjeTable.Design = TableDesign.TableGrid;
+                            zasticenoPodrucjeTable.Alignment = Alignment.center;
+                            zasticenoPodrucjeTable.Rows[0].Cells[0].Paragraphs[0].Append(otherPlan.ResultFeatures[i].Type);
+                            zasticenoPodrucjeTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                            zasticenoPodrucjeTable.Rows[0].Cells[1].Paragraphs[0].Append(otherPlan.ResultFeatures[i].Name);
+                            zasticenoPodrucjeTable.Rows[0].Cells[1].Width = 400;
+                            zasticenoPodrucjeTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                            zasticenoPodrucjeTable.Rows[0].Cells[2].Paragraphs[0].Append(otherPlan.ResultFeatures[i].Sn);
+                            zasticenoPodrucjeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                            zasticenoPodrucjePar.InsertTableAfterSelf(zasticenoPodrucjeTable);
+                            
+                        }
+                        
+                    }
+
+                }
+            }
+
+            List<UrbanPlan> urbanPlansMaps = new List<UrbanPlan> { };
 
             // urbanistic plans:
             if (response.UrbanPlans != null && response.UrbanPlans.Count != 0)
@@ -102,54 +157,95 @@ namespace PGZ.UI.PrintService.Services
                 Paragraph resPlanUrbPar = document.InsertParagraph(
                     "Rezultat urbanističke identifikacije".ToUpper());
                 resPlanUrbPar.SpacingBefore(25d);
-
-                foreach (UrbanPlan mapImageList in response.UrbanPlans)
+                for (int i = 0; i < urbanisticPlanResultsOrder.Count; i++)
                 {
-                    Paragraph urbanPlanPar = document.InsertParagraph();
-                    Novacode.Table table = document.AddTable(1, 4);
-                    table.Design = TableDesign.TableGrid;
-
-                    table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
-                    table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
-                    table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
-                    table.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
-                    table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
-                    table.Rows[0].Cells[2].Width = 400;
-                    table.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
-                    table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
-                    table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
-
-                    urbanPlanPar.InsertTableBeforeSelf(table);
-
-                    foreach (Map planMap in mapImageList.Maps)
+                    for (int j = 0; j < urbanisticPlanResultsStatusOrder.Count; j++)
                     {
-                        Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
-                            + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)
-                            + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
-                        imagesParagraph.InsertPageBreakBeforeSelf();
+                        foreach (UrbanPlan mapImageList in response.UrbanPlans)
+                        {
+                            if (mapImageList.Type == urbanisticPlanResultsOrder[i] && mapImageList.Status == urbanisticPlanResultsStatusOrder[j])
+                            {
 
-                        imagesParagraph.AppendPicture(StreamService.convertToImage(document,
-                            planMap.RasterImage).CreatePicture());
-                        imagesParagraph.AppendPicture(StreamService.convertToImage(document,
-                            planMap.LegendImage).CreatePicture());
-                        imagesParagraph.AppendPicture(StreamService.convertToImage(document,
-                            planMap.ComponentImage).CreatePicture());
+                                Paragraph urbanPlanPar = document.InsertParagraph();
+                                Novacode.Table table = document.AddTable(1, 4);
+                                table.Design = TableDesign.TableGrid;
+                                table.Alignment = Alignment.center;
+
+
+                                table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
+                                table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                                table.Rows[0].Cells[0].FillColor = colorList[j];
+                                table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
+                                table.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                                table.Rows[0].Cells[1].FillColor = colorList[j];
+                                table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
+                                table.Rows[0].Cells[2].Width = 400;
+                                table.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                                table.Rows[0].Cells[2].FillColor = colorList[j];
+                                table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
+                                table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                                table.Rows[0].Cells[3].FillColor = colorList[j];
+
+                                urbanPlanPar.InsertTableBeforeSelf(table);
+
+                                urbanPlansMaps.Add(mapImageList);
+
+                            }
+                        }
                     }
+
+                    bool firstImageOccurrence = true;
+
+                    if (urbanPlansMaps != null && urbanPlansMaps.Count != 0)
+                    {
+                        foreach (UrbanPlan urbanPlan in urbanPlansMaps)
+                        {
+                            if (urbanPlan.Maps != null && urbanPlan.Maps.Count != 0)
+                            {
+                                foreach (Map planMap in urbanPlan.Maps)
+                                {
+                                    Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
+                                        + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)
+                                        + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
+                                    if (firstImageOccurrence)
+                                    {
+                                        imagesParagraph.InsertPageBreakBeforeSelf();
+                                        firstImageOccurrence = false;
+                                    }
+
+
+                                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                                        planMap.RasterImage).CreatePicture());
+                                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                                        planMap.LegendImage).CreatePicture());
+                                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                                        planMap.ComponentImage).CreatePicture());
+                                    if (planMap == urbanPlan.Maps[urbanPlan.Maps.Count - 1])
+                                    {
+                                        imagesParagraph.InsertPageBreakAfterSelf();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    urbanPlansMaps.Clear();
                 }
             }
+            bool firstOtherPlanOccurrence = true;
 
             // other plans:
             if (response.OtherPlans != null && response.OtherPlans.Count != 0)
             {
                 foreach (OtherPlan other in response.OtherPlans)
                 {
-                    createTableForOtherPlans(document, other);
+                    createTableForOtherPlans(document, other, firstOtherPlanOccurrence);
+                    firstOtherPlanOccurrence = false;
                 }
             }
         }
 
         // additional function:
-        public static void createTableForOtherPlans(DocX document, OtherPlan other)
+        public static void createTableForOtherPlans(DocX document, OtherPlan other, bool occurrence)
         {
             Novacode.Table ostaloTable = document.AddTable(other.ResultFeatures.Count + 1, 4);
             ostaloTable.Design = TableDesign.TableGrid;
@@ -184,7 +280,10 @@ namespace PGZ.UI.PrintService.Services
             }
 
             Paragraph otherPlansPar = document.InsertParagraph(other.Id.ToUpper());
-            otherPlansPar.InsertPageBreakBeforeSelf();
+            if (!occurrence)
+            {
+                otherPlansPar.InsertPageBreakBeforeSelf();
+            }
             otherPlansPar.InsertTableAfterSelf(ostaloTable);
         }
 

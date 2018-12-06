@@ -16,6 +16,7 @@ namespace PGZ.UI.PrintService.Mappers
                 Polygons = new List<MapPolygon>(),
                 UrbanPlans = new List<UrbanPlan>(),
                 OtherPlans = new List<OtherPlan>(),
+                BaseMaps = new List<BaseMap>(),
                 FileFormat = request.FileFormat,
                 HighlightColor = request.ParcelHighlightColor
             };
@@ -107,6 +108,38 @@ namespace PGZ.UI.PrintService.Mappers
                     }
 
                     response.OtherPlans.Add(otherPlan);
+                }
+            }
+
+            // base map results:
+            if (request.BaseMapResults != null)
+            {
+                foreach (BaseMapResult baseMapResult in request.BaseMapResults)
+                {
+                    BaseMap baseMap = new BaseMap()
+                    {
+                        Id = baseMapResult.Id,
+                        Title = baseMapResult.Title,
+                        RestUrl = baseMapResult.RestUrl,
+                        BaseMapTitle = baseMapResult.BaseMapTitle,
+                        ResultFeatures = new List<BaseMap.ResultFeature>()
+                    };
+
+                    if (baseMapResult.ResultFeatures != null)
+                    {
+                        foreach (BaseMapResult.ResultFeature baseResult in baseMapResult.ResultFeatures)
+                        {
+                            baseMap.ResultFeatures.Add(new BaseMap.ResultFeature()
+                            {
+                                Id = baseResult.Id,
+                                Type = baseResult.Type,
+                                Name = baseResult.Name,
+                                MapScale = baseResult.MapScale,
+                            });
+                        }
+                    }
+
+                    response.BaseMaps.Add(baseMap);
                 }
             }
 

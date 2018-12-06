@@ -11,6 +11,7 @@ namespace PGZ.UI.PrintService.Inputs
         public List<SpatialCondition> SpatialConditionList;
         public List<UrbanisticPlansResult> UrbanisticPlansResults;
         public List<SpatialQueryResult> SpatialQueryResults;
+        public List<BaseMapResult> BaseMapResults;
     }
 
     public class SpatialCondition
@@ -71,5 +72,23 @@ namespace PGZ.UI.PrintService.Inputs
             public string Sn;
             public string MapScale;
         }
+    }
+
+    public class BaseMapResult
+    {
+        public string Id;
+        public string Title;
+        public string RestUrl;
+        public string BaseMapTitle;
+        public List<ResultFeature> ResultFeatures;
+
+        public class ResultFeature
+        {
+            public string Id;
+            public string Type;
+            public string Name;
+            public string MapScale;
+        }
+
     }
 }

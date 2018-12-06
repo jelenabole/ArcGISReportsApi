@@ -16,6 +16,9 @@ namespace PGZ.UI.PrintService.Models
 
         // spatial queries:
         public List<OtherPlan> OtherPlans;
+
+        //baseMapResults:
+        public List<BaseMap> BaseMaps;
     }
 
     public sealed class UrbanPlan
@@ -96,5 +99,23 @@ namespace PGZ.UI.PrintService.Models
             public string Sn;
             public string MapScale;
         }
+    }
+
+    public class BaseMap
+    {
+        public string Id;
+        public string Title;
+        public string RestUrl;
+        public string BaseMapTitle;
+        public List<ResultFeature> ResultFeatures;
+
+        public class ResultFeature
+        {
+            public string Id;
+            public string Type;
+            public string Name;
+            public string MapScale;
+        }
+
     }
 }
