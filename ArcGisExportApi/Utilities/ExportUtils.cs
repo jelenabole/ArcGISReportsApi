@@ -49,12 +49,63 @@ namespace PGZ.UI.PrintService.Utilities
                     Width = result.Width,
                     Height = result.Height
                 };
+
             }
         }
 
-        private static string AddLayerDefs(string uriLayer, string byField, string kartaSifra)
+        async public static Task getBasemapInfo(BaseMap baseMap, Extent polygonExtent)
+        {
+            foreach (BaseMap.ResultFeature map in baseMap.ResultFeatures)
+            {
+                string mapScale = null;
+                string boundingBox = null;
+                if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
+                {
+                    boundingBox = AddBoundingBox(AddPaddingToExtent(polygonExtent));
+                }
+                else if (map.MapScale.Contains("PLAN_MAP_EXTENT"))
+                {
+                    boundingBox = AddBoundingBox(map.FullMapExtent);
+                }
+                else
+                {
+                    // parse to number:
+                    mapScale = map.MapScale;
+                    // try parse = throw error, value not recognized (for map scale)
+                    boundingBox = AddBoundingBox(polygonExtent);
+                }
+
+                string linkMap = "export?f=json"
+                    + "&format=png"
+                    + boundingBox
+                    + "&size=" + baseMap.PaperSize.Width + "," + baseMap.PaperSize.Height
+                    + "&mapScale=" + mapScale
+                    + AddLayer(baseMap.RestUrl)
+                    + AddBaseMapLayerDefs(baseMap.RestUrl, "KARTA_SIFRA", map.Id);
+
+                ExportResult result = await ExportRepo.getImageInfo(baseMap.ServerPath + "/" + linkMap);
+
+                map.BaseMap = new MapImage
+                {
+                    Href = result.Href,
+                    Scale = result.Scale,
+                    Extent = result.Extent,
+                    Width = result.Width,
+                    Height = result.Height
+                };
+
+            }
+        }
+
+        public static string AddLayerDefs(string uriLayer, string byField, string kartaSifra)
         {
             string query = getLayerFromUri(uriLayer) + ":" + byField + "='" + kartaSifra + "'";
+            return "&layerDefs=" + QueryUtils.encodeUrl(query);
+        }
+
+        public static string AddBaseMapLayerDefs(string uriLayer, string byField, string kartaSifra)
+        {
+            string query = getLayerFromUri(uriLayer);
             return "&layerDefs=" + QueryUtils.encodeUrl(query);
         }
 
@@ -71,8 +122,6 @@ namespace PGZ.UI.PrintService.Utilities
 
             return linkMap;
         }
-
-
 
         private static string AddBoundingBox(Extent extent)
         {

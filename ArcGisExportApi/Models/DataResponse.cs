@@ -109,12 +109,22 @@ namespace PGZ.UI.PrintService.Models
         public string BaseMapTitle;
         public List<ResultFeature> ResultFeatures;
 
+        public string ServerPath;
+        public Size PaperSize;
+
+
         public class ResultFeature
         {
             public string Id;
             public string Type;
             public string Name;
             public string MapScale;
+            public Extent FullMapExtent;
+
+            public MapImage BaseMap;
+
+            public byte[] BaseMapImage;
+
         }
 
     }

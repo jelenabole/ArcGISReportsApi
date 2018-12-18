@@ -26,6 +26,7 @@ namespace PGZ.UI.PrintService.Services
             // get all map images and add them to docx:
             DataResponse dataResponse = DataRequestMapper.MapToResponse(doc, request);
             await MapImageService.AddExportedData(doc, dataResponse);
+
             AddInfo(doc, dataResponse);
             doc.SaveAs(ms);
 
@@ -53,7 +54,8 @@ namespace PGZ.UI.PrintService.Services
             string klasa = "klasa";
             string urBroj = "urudžbeni broj";
             string datum = DateTime.Now.ToLongDateString();
-
+            string font = "Arial";
+            int fontSize = 12;
             List<string> urbanisticPlanResultsOrder = new List<string> { "DPU", "UPU", "PPUOG",
             "GUP", "PPPPO", "PPZ", "DPPR"};
 
@@ -64,13 +66,13 @@ namespace PGZ.UI.PrintService.Services
             document.ReplaceText("[KLASA]", klasa);
             document.ReplaceText("[UBROJ]", urBroj);
             document.ReplaceText("[DATUM]", datum);
-
-            Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper());
+           
+            Paragraph title = document.InsertParagraph("Urbanistička identifikacija".ToUpper()).Font(font).FontSize(fontSize);
             title.Alignment = Alignment.center;
             title.SpacingBefore(30d);
             title.SpacingAfter(25d);
 
-            float[] tableWidthKatCestice = { 100F, 100F, 100F };
+            float[] tableWidthKatCestice = { 40F, 40F, 40F, 40F, 40F, 60F};
 
             // spatial conditions:
             if (response.Polygons != null && response.Polygons.Count != 0)
@@ -82,45 +84,60 @@ namespace PGZ.UI.PrintService.Services
                 katCesticeTable.SetWidthsPercentage(tableWidthKatCestice, null);
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Append("KO MBR");
                 katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[0].Paragraphs[0].Font(font);
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Append("KO NAZIV");
                 katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[1].Paragraphs[0].Font(font);
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Append("KČ BROJ");
                 katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[2].Paragraphs[0].Font(font);
                 katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Append("KO STATUS");
                 katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[3].Paragraphs[0].Font(font);
                 katCesticeTable.Rows[0].Cells[4].Paragraphs[0].Append("KO DATUM");
                 katCesticeTable.Rows[0].Cells[4].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[4].Paragraphs[0].Font(font);
                 katCesticeTable.Rows[0].Cells[5].Paragraphs[0].Append("KO AKTIVNA");
                 katCesticeTable.Rows[0].Cells[5].Paragraphs[0].Alignment = Alignment.center;
+                katCesticeTable.Rows[0].Cells[5].Paragraphs[0].Font(font);
                 int i = 1;
                 foreach (MapPolygon spatial in response.Polygons)
                 {
+                    //katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append(spatial.Source);
                     katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Append("KO MBR");
                     katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Alignment = Alignment.center;
-                    String koNaziv = spatial.Description.Substring(spatial.Description.IndexOf("KO") + 1,
-                        spatial.Description.IndexOf(","));
+                    katCesticeTable.Rows[i].Cells[0].Paragraphs[0].Font(font);
+                    //katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(spatial.Type);
+                    String koNaziv = spatial.Description.Substring(spatial.Description.IndexOf("KO") + 2,
+                        spatial.Description.IndexOf(",") - 2);
                     katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Append(koNaziv);
                     katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[1].Paragraphs[0].Font(font);
                     String kcBroj = spatial.Description.Substring(spatial.Description.IndexOf(",") + 1);
                     katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Append(kcBroj);
                     katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[2].Paragraphs[0].Font(font);
                     katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Append("SLUZBENA");
                     katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[3].Paragraphs[0].Font(font);
                     katCesticeTable.Rows[i].Cells[4].Paragraphs[0].Append(DateTime.Now.ToOADate().ToString());
                     katCesticeTable.Rows[i].Cells[4].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[4].Paragraphs[0].Font(font);
                     katCesticeTable.Rows[i].Cells[5].Paragraphs[0].Append("AKTIVNA");
                     katCesticeTable.Rows[i].Cells[5].Paragraphs[0].Alignment = Alignment.center;
+                    katCesticeTable.Rows[i].Cells[5].Paragraphs[0].Font(font);
                     i++;
                 }
 
-                Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper());
+                Paragraph katCesticeTitle = document.InsertParagraph("Katastarske čestice".ToUpper()).Font(font).FontSize(fontSize);
                 katCesticeTitle.Alignment = Alignment.left;
                 katCesticeTitle.InsertTableAfterSelf(katCesticeTable);
             }
             if (response.OtherPlans != null && response.OtherPlans.Count != 0)
             {
-                Paragraph zasticenoPodrucjePar = document.InsertParagraph("Zaštičeno područje".ToUpper());
+                Paragraph zasticenoPodrucjePar = document.InsertParagraph("Zaštičeno područje".ToUpper()).Font(font).FontSize(fontSize);
                 zasticenoPodrucjePar.Alignment = Alignment.left;
+                zasticenoPodrucjePar.Font(font);
                 zasticenoPodrucjePar.SpacingBefore(30d);
                 foreach (OtherPlan otherPlan in response.OtherPlans)
                 {
@@ -135,11 +152,14 @@ namespace PGZ.UI.PrintService.Services
                             zasticenoPodrucjeTable.Alignment = Alignment.center;
                             zasticenoPodrucjeTable.Rows[0].Cells[0].Paragraphs[0].Append(otherPlan.ResultFeatures[i].Type);
                             zasticenoPodrucjeTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                            zasticenoPodrucjeTable.Rows[0].Cells[0].Paragraphs[0].Font(font);
                             zasticenoPodrucjeTable.Rows[0].Cells[1].Paragraphs[0].Append(otherPlan.ResultFeatures[i].Name);
                             zasticenoPodrucjeTable.Rows[0].Cells[1].Width = 400;
                             zasticenoPodrucjeTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                            zasticenoPodrucjeTable.Rows[0].Cells[1].Paragraphs[0].Font(font);
                             zasticenoPodrucjeTable.Rows[0].Cells[2].Paragraphs[0].Append(otherPlan.ResultFeatures[i].Sn);
                             zasticenoPodrucjeTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                            zasticenoPodrucjeTable.Rows[0].Cells[2].Paragraphs[0].Font(font);
                             zasticenoPodrucjePar.InsertTableAfterSelf(zasticenoPodrucjeTable);
                             
                         }
@@ -155,7 +175,7 @@ namespace PGZ.UI.PrintService.Services
             if (response.UrbanPlans != null && response.UrbanPlans.Count != 0)
             {
                 Paragraph resPlanUrbPar = document.InsertParagraph(
-                    "Rezultat urbanističke identifikacije".ToUpper());
+                    "Rezultat urbanističke identifikacije".ToUpper()).Font(font).FontSize(fontSize);
                 resPlanUrbPar.SpacingBefore(25d);
                 for (int i = 0; i < urbanisticPlanResultsOrder.Count; i++)
                 {
@@ -175,16 +195,20 @@ namespace PGZ.UI.PrintService.Services
                                 table.Rows[0].Cells[0].Paragraphs[0].Append(mapImageList.Status);
                                 table.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
                                 table.Rows[0].Cells[0].FillColor = colorList[j];
+                                table.Rows[0].Cells[0].Paragraphs[0].Font(font);
                                 table.Rows[0].Cells[1].Paragraphs[0].Append(mapImageList.Type);
                                 table.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
                                 table.Rows[0].Cells[1].FillColor = colorList[j];
+                                table.Rows[0].Cells[1].Paragraphs[0].Font(font);
                                 table.Rows[0].Cells[2].Paragraphs[0].Append(mapImageList.Name);
                                 table.Rows[0].Cells[2].Width = 400;
                                 table.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
                                 table.Rows[0].Cells[2].FillColor = colorList[j];
+                                table.Rows[0].Cells[2].Paragraphs[0].Font(font);
                                 table.Rows[0].Cells[3].Paragraphs[0].Append(mapImageList.GisCode);
                                 table.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
                                 table.Rows[0].Cells[3].FillColor = colorList[j];
+                                table.Rows[0].Cells[3].Paragraphs[0].Font(font);
 
                                 urbanPlanPar.InsertTableBeforeSelf(table);
 
@@ -206,7 +230,7 @@ namespace PGZ.UI.PrintService.Services
                                 {
                                     Paragraph imagesParagraph = document.InsertParagraph((planMap.Name
                                         + " " + "MJERILO KARTE 1:" + Math.Round(planMap.Raster.Scale)
-                                        + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale));
+                                        + " " + "IZVORNO MJERILO KARTE 1:" + planMap.OriginalScale)).Font(font).FontSize(fontSize);
                                     if (firstImageOccurrence)
                                     {
                                         imagesParagraph.InsertPageBreakBeforeSelf();
@@ -238,48 +262,79 @@ namespace PGZ.UI.PrintService.Services
             {
                 foreach (OtherPlan other in response.OtherPlans)
                 {
-                    createTableForOtherPlans(document, other, firstOtherPlanOccurrence);
-                    firstOtherPlanOccurrence = false;
+                    if (urbanisticPlanResultsOrder.Contains(other.Title))
+                    {
+                        createTableForOtherPlans(document, other, firstOtherPlanOccurrence, font, fontSize);
+                        firstOtherPlanOccurrence = false;
+                    }
                 }
             }
+
+            //add basemap
+            
+            if(response.BaseMaps.Count != 0 && response.BaseMaps != null)
+            {
+                foreach(BaseMap baseMap in response.BaseMaps)
+                {
+                    Paragraph imagesParagraph = document.InsertParagraph((baseMap.ResultFeatures[0].Name
+                                        + " " + "MJERILO KARTE 1:" + baseMap.ResultFeatures[0].MapScale)).Font(font).FontSize(fontSize);
+                    
+                    imagesParagraph.AppendPicture(StreamService.convertToImage(document,
+                        baseMap.ResultFeatures[0].BaseMapImage).CreatePicture());
+                    if (baseMap != response.BaseMaps[response.BaseMaps.Count - 1])
+                    {
+                        imagesParagraph.InsertPageBreakAfterSelf();
+                    }
+                }
+            }
+            
+           
         }
 
         // additional function:
-        public static void createTableForOtherPlans(DocX document, OtherPlan other, bool occurrence)
+        public static void createTableForOtherPlans(DocX document, OtherPlan other, bool occurrence, string font, int fontSize)
         {
+            float[] tableColsWidth = { 20, 10, 100, 20 };
             Novacode.Table ostaloTable = document.AddTable(other.ResultFeatures.Count + 1, 4);
             ostaloTable.Design = TableDesign.TableGrid;
             ostaloTable.Alignment = Alignment.center;
-            float[] tableRowsWidth = { 100F, 100F, 100F, 100F };
-            ostaloTable.SetWidthsPercentage(tableRowsWidth, null);
+            //ostaloTable.SetWidthsPercentage(tableColsWidth, null);
             ostaloTable.Rows[0].Cells[0].Paragraphs[0].Append("STATUS");
             ostaloTable.Rows[0].Cells[0].FillColor = System.Drawing.Color.LightGray;
             ostaloTable.Rows[0].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[0].Paragraphs[0].Font(font);
             ostaloTable.Rows[0].Cells[1].Paragraphs[0].Append("VRSTA");
             ostaloTable.Rows[0].Cells[1].FillColor = System.Drawing.Color.LightGray;
             ostaloTable.Rows[0].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[0].Paragraphs[0].Font(font);
             ostaloTable.Rows[0].Cells[2].Paragraphs[0].Append("NAZIV");
             ostaloTable.Rows[0].Cells[2].FillColor = System.Drawing.Color.LightGray;
             ostaloTable.Rows[0].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[2].Paragraphs[0].Font(font);
             ostaloTable.Rows[0].Cells[3].Paragraphs[0].Append("BROJ");
             ostaloTable.Rows[0].Cells[3].FillColor = System.Drawing.Color.LightGray;
             ostaloTable.Rows[0].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+            ostaloTable.Rows[0].Cells[3].Paragraphs[0].Font(font);
 
             int i = 1;
             foreach (OtherPlan.ResultFeature plan in other.ResultFeatures)
             {
                 ostaloTable.Rows[i].Cells[0].Paragraphs[0].Append(plan.Status);
                 ostaloTable.Rows[i].Cells[0].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[0].Paragraphs[0].Font(font);
                 ostaloTable.Rows[i].Cells[1].Paragraphs[0].Append(plan.Type);
                 ostaloTable.Rows[i].Cells[1].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[1].Paragraphs[0].Font(font);
                 ostaloTable.Rows[i].Cells[2].Paragraphs[0].Append(plan.Name);
                 ostaloTable.Rows[i].Cells[2].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[2].Paragraphs[0].Font(font);
                 ostaloTable.Rows[i].Cells[3].Paragraphs[0].Append(plan.Sn);
                 ostaloTable.Rows[i].Cells[3].Paragraphs[0].Alignment = Alignment.center;
+                ostaloTable.Rows[i].Cells[3].Paragraphs[0].Font(font);
                 i++;
             }
 
-            Paragraph otherPlansPar = document.InsertParagraph(other.Id.ToUpper());
+            Paragraph otherPlansPar = document.InsertParagraph("Ostali planovi na području JLS (nepoznat obuhvat)").Font(font).FontSize(fontSize);
             if (!occurrence)
             {
                 otherPlansPar.InsertPageBreakBeforeSelf();

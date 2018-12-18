@@ -13,6 +13,13 @@ namespace PGZ.UI.PrintService.Utilities
 
         }
 
+        async public static Task<QueryResult> createQueryForAll(UrbanPlan urbanPlan,string rasterRestURL, BaseMap baseMap, Map map)
+        {
+            string uri = createQuery(rasterRestURL, urbanPlan, baseMap);
+            return await QueryRepo.getQuery(uri);
+
+        }
+
         public static string createQuery(string uri, UrbanPlan urbanPlan)
         {
             uri += "/query?f=json";
@@ -26,6 +33,25 @@ namespace PGZ.UI.PrintService.Utilities
             {
                 query += urbanPlan.RasterIdAttribute + "=" + "'" + urbanPlan.Maps[i].Id + "'";
                 if (i < urbanPlan.Maps.Count - 1)
+                    query += " OR ";
+            }
+            uri += encodeUrl(query);
+
+            return uri;
+        }
+        public static string createQuery(string uri, UrbanPlan urbanPlan, BaseMap baseMap)
+        {
+            uri += "/query?f=json";
+
+            // add this fields: *
+            uri += "&outFields=" + encodeUrl(urbanPlan.PlanIdAttribute + "," + urbanPlan.RasterIdAttribute);
+            uri += "&where=";
+
+            string query = "";
+            for (int i = 0; i < baseMap.ResultFeatures.Count; i++)
+            {
+                query += urbanPlan.RasterIdAttribute + "=" + "'" + urbanPlan.Maps[i].Id + "'";
+                if (i < baseMap.ResultFeatures.Count - 1)
                     query += " OR ";
             }
             uri += encodeUrl(query);

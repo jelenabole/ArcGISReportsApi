@@ -122,7 +122,15 @@ namespace PGZ.UI.PrintService.Mappers
                         Title = baseMapResult.Title,
                         RestUrl = baseMapResult.RestUrl,
                         BaseMapTitle = baseMapResult.BaseMapTitle,
-                        ResultFeatures = new List<BaseMap.ResultFeature>()
+                        ResultFeatures = new List<BaseMap.ResultFeature>(),
+
+                        ServerPath = GetServerName(baseMapResult.RestUrl),
+
+                        PaperSize = new Size()
+                        {
+                            Width = (int)doc.PageWidth,
+                            Height = (int)doc.PageHeight
+                        }
                     };
 
                     if (baseMapResult.ResultFeatures != null)
