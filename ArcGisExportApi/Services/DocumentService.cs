@@ -57,7 +57,7 @@ namespace PGZ.UI.PrintService.Services
             string font = "Arial";
             int fontSize = 12;
             List<string> urbanisticPlanResultsOrder = new List<string> { "DPU", "UPU", "PPUOG",
-            "GUP", "PPPPO", "PPZ", "DPPR"};
+            "GUP", "PPPPO", "PPŽ", "DPPR"};
 
             List<string> urbanisticPlanResultsStatusOrder = new List<string> { "VAŽEĆI", "U IZRADI", "OBVEZA DONOŠENJA", "VAN SNAGE ODLUKA O IZRADI", "VAN SNAGE"};
             List<System.Drawing.Color> colorList = new List<System.Drawing.Color> { System.Drawing.Color.LightGreen, System.Drawing.Color.Yellow, System.Drawing.Color.White,

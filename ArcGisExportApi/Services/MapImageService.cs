@@ -18,60 +18,67 @@ namespace PGZ.UI.PrintService.Services
             {
                 if (urbanPlan.Maps.Count != 0 && urbanPlan.Maps != null)
                 {
-                    var queryTasks = new List<Task>
-                {
-                    AddRaster(urbanPlan, response.PolygonsExtent),
-                    AddLegends(urbanPlan),
-                    AddComponents(urbanPlan)
-
-                };
-
-                await Task.WhenAll(queryTasks);
-
-                // images of this urban plan:
-                   
-                var imageTasks = new List<Task>();
-                for (int i = 0; i < urbanPlan.Maps.Count; i++)
-                {
-                    imageTasks.Add(DownloadRaster(urbanPlan.Maps[i],
-                        response.Polygons, response.HighlightColor));
-                    imageTasks.Add(DownloadLegend(urbanPlan.Maps[i]));
-                    imageTasks.Add(DownloadComponent(urbanPlan.Maps[i]));
-                }
-
-                await Task.WhenAll(imageTasks);
-
-                //baseMaps:
-
-                if (response.BaseMaps != null && response.BaseMaps.Count != 0)
-                {
-                    foreach (BaseMap baseMap in response.BaseMaps)
+                    foreach (Map map in urbanPlan.Maps)
                     {
-                            foreach (Map map in urbanPlan.Maps)
+                        var queryTasks = new List<Task>
+                        {
+                            AddRaster(urbanPlan, response.PolygonsExtent, map),
+                            AddLegends(urbanPlan),
+                            AddComponents(urbanPlan)
+
+                        };
+
+                        await Task.WhenAll(queryTasks);
+
+                        // images of this urban plan:
+
+                        var imageTasks = new List<Task>();
+                        for (int i = 0; i < urbanPlan.Maps.Count; i++)
+                        {
+                            imageTasks.Add(DownloadRaster(urbanPlan.Maps[i],
+                                response.Polygons, response.HighlightColor));
+                            imageTasks.Add(DownloadLegend(urbanPlan.Maps[i]));
+                            imageTasks.Add(DownloadComponent(urbanPlan.Maps[i]));
+                        }
+
+                        await Task.WhenAll(imageTasks);
+
+                        //baseMaps:
+
+                        if (response.BaseMaps != null && response.BaseMaps.Count != 0)
+                        {
+                            foreach (BaseMap baseMap in response.BaseMaps)
                             {
-                                    var queryBaseMapTasks = new List<Task>
-                            {
-                                AddBasemap(baseMap, response.PolygonsExtent, urbanPlan, map)
-                            };
+                                
+                                var queryBaseMapTasks = new List<Task>
+                                {
+                                    AddBasemap(baseMap, response.PolygonsExtent, urbanPlan, map)
+                                };
 
                                 await Task.WhenAll(queryBaseMapTasks);
 
+                                var queryBaseMapImageTasks = new List<Task>();
+
+                                queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
+                                    response.Polygons, response.HighlightColor));
+
+                                await Task.WhenAll(queryBaseMapImageTasks);
+                                }
+                        }
+
+
+
+                        if (response.BaseMaps != null && response.BaseMaps.Count != 0)
+                        {
+                            var queryBaseMapImageTasks = new List<Task>();
+                            foreach (BaseMap baseMap in response.BaseMaps)
+                            {
+                                queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
+                                    response.Polygons, response.HighlightColor));
                             }
+                            await Task.WhenAll(queryBaseMapImageTasks);
+                        }
                     }
-                }
-
-
-
-                if (response.BaseMaps != null && response.BaseMaps.Count != 0)
-                {
-                    var queryBaseMapImageTasks = new List<Task>();
-                    foreach (BaseMap baseMap in response.BaseMaps)
-                    {
-                        queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
-                            response.Polygons, response.HighlightColor));
-                    }
-                    await Task.WhenAll(queryBaseMapImageTasks);
-                }
             }
         }
 
@@ -179,16 +186,11 @@ namespace PGZ.UI.PrintService.Services
 
 
 
-        async public static Task AddRaster(UrbanPlan urbanPlan, Extent polygonsExtent)
+        async public static Task AddRaster(UrbanPlan urbanPlan, Extent polygonsExtent, Map map)
         {
+
             QueryResult rasterInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.RasterRestURL);
-            if (urbanPlan.Maps != null && urbanPlan.Maps.Count != 0)
-            {
-                foreach (Map map in urbanPlan.Maps)
-                {
-                    map.FullMapExtent = ExportUtils.FindPoints(rasterInfo.GetGeometryByMapId(map.Id));
-                }
-            }
+            map.FullMapExtent = ExportUtils.FindPoints(rasterInfo.GetGeometryByMapId(map.Id));
 
             await ExportUtils.getRasterInfo(urbanPlan, polygonsExtent);
         }
@@ -225,10 +227,9 @@ namespace PGZ.UI.PrintService.Services
         async public static Task AddBasemap(BaseMap baseMap, Extent polygonsExtent, UrbanPlan urbanPlan, Map map)
         {
             QueryResult basemapInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.RasterRestURL, baseMap, map);
-
             baseMap.ResultFeatures[0].FullMapExtent = ExportUtils.FindPoints(basemapInfo.GetGeometryByMapId(map.Id));
-
             await ExportUtils.getBasemapInfo(baseMap, polygonsExtent);
         }
+        
     }
 }
