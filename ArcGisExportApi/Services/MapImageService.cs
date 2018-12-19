@@ -226,8 +226,7 @@ namespace PGZ.UI.PrintService.Services
         
         async public static Task AddBasemap(BaseMap baseMap, Extent polygonsExtent, UrbanPlan urbanPlan, Map map)
         {
-            QueryResult basemapInfo = await QueryUtils.createQueryForAll(urbanPlan, urbanPlan.RasterRestURL, baseMap, map);
-            baseMap.ResultFeatures[0].FullMapExtent = ExportUtils.FindPoints(basemapInfo.GetGeometryByMapId(map.Id));
+            baseMap.ResultFeatures[0].FullMapExtent = map.FullMapExtent;
             await ExportUtils.getBasemapInfo(baseMap, polygonsExtent);
         }
         
