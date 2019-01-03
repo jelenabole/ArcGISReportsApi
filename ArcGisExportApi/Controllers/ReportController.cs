@@ -62,16 +62,15 @@ namespace PGZ.UI.PrintService.Controllers
                 // generate key, and start file creation:
                 string key = Guid.NewGuid().ToString();
                 DocumentService.CreateCacheFile(request, _cache, key, _hostingEnvironment.ContentRootPath);
-
                 return serializeToJson(new SubmitResponse(key));
             }
         }
 
         [HttpGet]
         [Route("[controller]/ping/{key}")]
-        public string CheckStatus(string key)
+        public string CheckStatus(string key, string type)
         {
-            DocumentResponse cached = _cache.Get<DocumentResponse>(key);
+            DocumentResponse cached = _cache.Get<DocumentResponse>(key + "?type=" + "pdf");
             // no key:
             if (cached == null)
             {
@@ -80,8 +79,8 @@ namespace PGZ.UI.PrintService.Controllers
 
             if (cached.StatusCode == ResponseStatusCode.OK)
             {
-                return serializeToJson(new CheckResponse(Request.Host.ToString()
-                    + "/report/download/" + key));
+                return serializeToJson(new CheckResponse(Request.Host.ToString() + "/report/download/" + key + "?type=docx",
+                    Request.Host.ToString() + "/report/download/" + key + "?type=pdf"));
             }
             else if (cached.StatusCode == ResponseStatusCode.PENDING)
             {
@@ -96,9 +95,9 @@ namespace PGZ.UI.PrintService.Controllers
 
         [HttpGet]
         [Route("[controller]/download/{key}")]
-        public FileStreamResult Download(string key)
+        public FileStreamResult Download(string key, string type)
         {
-            DocumentResponse cached = _cache.Get<DocumentResponse>(key);
+            DocumentResponse cached = _cache.Get<DocumentResponse>(key + "?type=" + type);
             if (cached == null)
                 return null;
 

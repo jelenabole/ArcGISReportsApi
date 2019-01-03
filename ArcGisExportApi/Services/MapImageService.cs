@@ -14,72 +14,75 @@ namespace PGZ.UI.PrintService.Services
         async public static Task AddExportedData(DocX doc, DataResponse response)
         {
             // urbanistic plans:
-            foreach (UrbanPlan urbanPlan in response.UrbanPlans)
+            if(response.UrbanPlans != null && response.UrbanPlans.Count != 0)
             {
-                if (urbanPlan.Maps.Count != 0 && urbanPlan.Maps != null)
+                foreach (UrbanPlan urbanPlan in response.UrbanPlans)
                 {
-                    foreach (Map map in urbanPlan.Maps)
+                    if (urbanPlan.Maps.Count != 0 && urbanPlan.Maps != null)
                     {
-                        var queryTasks = new List<Task>
+                        foreach (Map map in urbanPlan.Maps)
                         {
-                            AddRaster(urbanPlan, response.PolygonsExtent, map),
-                            AddLegends(urbanPlan),
-                            AddComponents(urbanPlan)
-
-                        };
-
-                        await Task.WhenAll(queryTasks);
-
-                        // images of this urban plan:
-
-                        var imageTasks = new List<Task>();
-                        for (int i = 0; i < urbanPlan.Maps.Count; i++)
-                        {
-                            imageTasks.Add(DownloadRaster(urbanPlan.Maps[i],
-                                response.Polygons, response.HighlightColor));
-                            imageTasks.Add(DownloadLegend(urbanPlan.Maps[i]));
-                            imageTasks.Add(DownloadComponent(urbanPlan.Maps[i]));
-                        }
-
-                        await Task.WhenAll(imageTasks);
-
-                        //baseMaps:
-
-                        if (response.BaseMaps != null && response.BaseMaps.Count != 0)
-                        {
-                            foreach (BaseMap baseMap in response.BaseMaps)
+                            var queryTasks = new List<Task>
                             {
-                                
-                                var queryBaseMapTasks = new List<Task>
-                                {
-                                    AddBasemap(baseMap, response.PolygonsExtent, urbanPlan, map)
-                                };
+                                AddRaster(urbanPlan, response.PolygonsExtent, map),
+                                AddLegends(urbanPlan),
+                                AddComponents(urbanPlan)
 
-                                await Task.WhenAll(queryBaseMapTasks);
+                            };
 
-                                var queryBaseMapImageTasks = new List<Task>();
+                            await Task.WhenAll(queryTasks);
 
-                                queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
-                                    response.Polygons, response.HighlightColor));
+                            // images of this urban plan:
 
-                                await Task.WhenAll(queryBaseMapImageTasks);
-                                }
-                        }
-
-
-
-                        if (response.BaseMaps != null && response.BaseMaps.Count != 0)
-                        {
-                            var queryBaseMapImageTasks = new List<Task>();
-                            foreach (BaseMap baseMap in response.BaseMaps)
+                            var imageTasks = new List<Task>();
+                            for (int i = 0; i < urbanPlan.Maps.Count; i++)
                             {
-                                queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
+                                imageTasks.Add(DownloadRaster(urbanPlan.Maps[i],
                                     response.Polygons, response.HighlightColor));
+                                imageTasks.Add(DownloadLegend(urbanPlan.Maps[i]));
+                                imageTasks.Add(DownloadComponent(urbanPlan.Maps[i]));
                             }
-                            await Task.WhenAll(queryBaseMapImageTasks);
+
+                            await Task.WhenAll(imageTasks);
+
+                            //baseMaps:
+
+                            if (response.BaseMaps != null && response.BaseMaps.Count != 0)
+                            {
+                                foreach (BaseMap baseMap in response.BaseMaps)
+                                {
+
+                                    var queryBaseMapTasks = new List<Task>
+                                    {
+                                        AddBasemap(baseMap, response.PolygonsExtent, urbanPlan, map)
+                                    };
+
+                                    await Task.WhenAll(queryBaseMapTasks);
+
+                                    var queryBaseMapImageTasks = new List<Task>();
+
+                                    queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
+                                        response.Polygons, response.HighlightColor));
+
+                                    await Task.WhenAll(queryBaseMapImageTasks);
+                                }
+                            }
+
+
+
+                            if (response.BaseMaps != null && response.BaseMaps.Count != 0)
+                            {
+                                var queryBaseMapImageTasks = new List<Task>();
+                                foreach (BaseMap baseMap in response.BaseMaps)
+                                {
+                                    queryBaseMapImageTasks.Add(DownloadBasemap(baseMap,
+                                        response.Polygons, response.HighlightColor));
+                                }
+                                await Task.WhenAll(queryBaseMapImageTasks);
+                            }
                         }
                     }
-            }
+                }
         }
 
             

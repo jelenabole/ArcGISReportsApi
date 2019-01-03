@@ -29,12 +29,7 @@ namespace PGZ.UI.PrintService.Services
 
             AddInfo(doc, dataResponse);
             doc.SaveAs(ms);
-
-            // convert to other formats, if needed:
-            if (request.FileFormat == "pdf")
-            {
-                convertDocxToPdf(ms);
-            }
+            
         }
 
         private static DocX AddTemplate(string templateId, string webRootPath)
@@ -53,7 +48,7 @@ namespace PGZ.UI.PrintService.Services
             // template:
             string klasa = "klasa";
             string urBroj = "urudžbeni broj";
-            string datum = DateTime.Now.ToLongDateString();
+            string datum = DateTime.Now.ToString("dd. MMMM yyyy.", new System.Globalization.CultureInfo("hr-HR"));
             string font = "Arial";
             int fontSize = 12;
             List<string> urbanisticPlanResultsOrder = new List<string> { "DPU", "UPU", "PPUOG",
@@ -171,6 +166,8 @@ namespace PGZ.UI.PrintService.Services
 
             List<UrbanPlan> urbanPlansMaps = new List<UrbanPlan> { };
 
+            bool urbanisticMapOccurrence = false;
+
             // urbanistic plans:
             if (response.UrbanPlans != null && response.UrbanPlans.Count != 0)
             {
@@ -237,6 +234,7 @@ namespace PGZ.UI.PrintService.Services
                                         firstImageOccurrence = false;
                                     }
 
+                                    urbanisticMapOccurrence = true;
 
                                     imagesParagraph.AppendPicture(StreamService.convertToImage(document,
                                         planMap.RasterImage).CreatePicture());
@@ -272,7 +270,7 @@ namespace PGZ.UI.PrintService.Services
 
             //add basemap
             
-            if(response.BaseMaps.Count != 0 && response.BaseMaps != null)
+            if(urbanisticMapOccurrence && (response.BaseMaps.Count != 0 && response.BaseMaps != null))
             {
                 foreach(BaseMap baseMap in response.BaseMaps)
                 {
@@ -368,8 +366,10 @@ namespace PGZ.UI.PrintService.Services
                 .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
             // add cache with pending status:
-            DocumentResponse cached = new DocumentResponse();
-            _cache.Set(key, cached, policy);
+            DocumentResponse cachedDocX = new DocumentResponse();
+            DocumentResponse cachedPDF = new DocumentResponse();
+            _cache.Set(key + "?type=" + "docx", cachedDocX, policy);
+            _cache.Set(key + "?type=" + "pdf", cachedPDF, policy);
 
             // create document:
             using (MemoryStream ms = new MemoryStream())
@@ -377,14 +377,22 @@ namespace PGZ.UI.PrintService.Services
                 try
                 {
                     await createDocument(request, ms, webRootPath);
-                    cached.Document = ms.ToArray();
-                    cached.StatusCode = ResponseStatusCode.OK;
-                    cached.Format = request.FileFormat;
+                    cachedDocX.Document = ms.ToArray();
+                    cachedDocX.StatusCode = ResponseStatusCode.OK;
+                    cachedDocX.Format = "docx";
+
+                    convertDocxToPdf(ms);
+                    cachedPDF.Document = ms.ToArray();
+                    cachedPDF.StatusCode = ResponseStatusCode.OK;
+                    cachedPDF.Format = request.FileFormat;
                 }
                 catch (Exception ex)
                 {
-                    cached.StatusCode = ResponseStatusCode.ERROR;
-                    cached.ErrorDescription = ex.Message;
+                    cachedDocX.StatusCode = ResponseStatusCode.ERROR;
+                    cachedDocX.ErrorDescription = ex.Message;
+
+                    cachedPDF.StatusCode = ResponseStatusCode.ERROR;
+                    cachedPDF.ErrorDescription = ex.Message;
                 }
             }
         }

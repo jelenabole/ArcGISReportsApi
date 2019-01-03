@@ -59,7 +59,11 @@ namespace PGZ.UI.PrintService.Utilities
             {
                 string mapScale = null;
                 string boundingBox = null;
-                if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
+                if(map.MapScale == null)
+                {
+                    boundingBox = AddBoundingBox(map.FullMapExtent);
+                }
+                else if (map.MapScale.Contains("SPATIAL_CONDITION_EXTENT"))
                 {
                     boundingBox = AddBoundingBox(AddPaddingToExtent(polygonExtent));
                 }

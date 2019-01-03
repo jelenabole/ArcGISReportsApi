@@ -2,12 +2,14 @@
 {
     public sealed class CheckResponse : ResponseStatus
     {
-        public string DownloadUrl;
+        public string DownloadUrlDocX;
+        public string DownloadUrlPdf;
 
-        public CheckResponse(string downloadUrl)
+        public CheckResponse(string downloadUrlDocX, string downloadUrlPdf)
         {
             StatusCode = ResponseStatusCode.OK;
-            DownloadUrl = downloadUrl;
+            DownloadUrlDocX = downloadUrlDocX;
+            DownloadUrlPdf = downloadUrlPdf;
         }
     }
 }
